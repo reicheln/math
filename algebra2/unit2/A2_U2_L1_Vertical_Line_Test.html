@@ -1,0 +1,551 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Vertical Line Test Simulator</title>
+<style>
+  :root{
+    --bg:#f6f8fb; --panel:#ffffff; --ink:#1b2430; --muted:#5b6778; --line:#d9e0ea;
+    --blue:#2E5FA3; --blue-soft:#eaf1fb; --green:#1f8a4c; --green-soft:#eaf7ec;
+    --red:#c8372d; --red-soft:#fce8e6; --orange:#d9822b; --purple:#7a4fb3;
+    --grid:#e7ecf3; --axis:#8a96a8; --curve:#1b2430;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{background:var(--blue);color:#fff;padding:12px 20px;display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px}
+  header h1{margin:0;font-size:22px}
+  header span{opacity:.85;font-size:14px}
+  .tabs{display:flex;gap:8px;padding:12px 20px 0}
+  .tab{border:2px solid var(--blue);background:#fff;color:var(--blue);padding:8px 16px;border-radius:999px;font-weight:600;cursor:pointer;font-size:15px}
+  .tab[aria-selected="true"]{background:var(--blue);color:#fff}
+  main{display:grid;grid-template-columns:220px minmax(300px,560px) minmax(260px,1fr);gap:16px;padding:16px 20px;align-items:start}
+  @media (max-width:1000px){main{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .panel h2{margin:0 0 10px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .picker{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  @media (max-width:1000px){.picker{grid-template-columns:repeat(6,1fr)}}
+  .pick{position:relative;aspect-ratio:1;border:2px solid var(--line);background:#fff;border-radius:10px;font-size:18px;font-weight:700;cursor:pointer;color:var(--ink)}
+  .pick[aria-current="true"]{border-color:var(--blue);background:var(--blue-soft)}
+  .pick.done::after{content:"✓";position:absolute;top:1px;right:4px;font-size:12px;color:var(--green)}
+  .legend{font-size:13px;color:var(--muted);margin-top:12px}
+  .plane-wrap{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
+  svg#plane{width:100%;height:auto;display:block;touch-action:none;cursor:ew-resize;user-select:none}
+  .slider-row{display:flex;align-items:center;gap:10px;padding:8px 6px 4px}
+  .slider-row input{flex:1}
+  .slider-row output{min-width:92px;font-variant-numeric:tabular-nums;font-weight:600}
+  .status{font-size:18px;padding:12px;border-radius:10px;background:var(--blue-soft);min-height:58px}
+  .status.bad{background:var(--red-soft)} .status.good{background:var(--green-soft)}
+  .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  button.act{border:0;border-radius:10px;padding:10px 14px;font-size:16px;font-weight:600;cursor:pointer;background:var(--blue);color:#fff}
+  button.act.alt{background:#fff;color:var(--blue);border:2px solid var(--blue)}
+  button.act.fn{background:var(--green)} button.act.nf{background:var(--red)}
+  .feedback{margin-top:12px;padding:12px;border-radius:10px;font-size:16px;display:none}
+  .feedback.show{display:block}
+  .feedback.right{background:var(--green-soft);border-left:5px solid var(--green)}
+  .feedback.wrong{background:var(--red-soft);border-left:5px solid var(--red)}
+  .answer{margin-top:12px;padding:12px;border-radius:10px;background:#f7f3fc;border-left:5px solid var(--purple);display:none;font-size:17px}
+  .answer.show{display:block}
+  .answer b{display:inline-block;min-width:70px}
+  .prog{margin-top:14px;font-size:14px;color:var(--muted)}
+  .bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:6px}
+  .bar i{display:block;height:100%;background:var(--green);width:0;transition:width .3s}
+  .code{margin-top:12px;padding:12px;border-radius:10px;background:var(--green-soft);border:2px dashed var(--green);display:none}
+  .code.show{display:block}
+  .code strong{font-size:24px;letter-spacing:.08em}
+  label.name{display:block;margin-top:12px;font-size:14px;color:var(--muted)}
+  label.name input{display:block;width:100%;margin-top:4px;padding:8px;font-size:16px;border:1px solid var(--line);border-radius:8px}
+  details.teacher{margin:0 20px 24px;font-size:14px;color:var(--muted)}
+  details.teacher input{padding:6px;font-size:14px}
+  .hint{font-size:14px;color:var(--muted);margin:8px 0 0}
+  .hidden{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <h1>Vertical Line Test Simulator</h1>
+  <span>Algebra 2 · Unit 2 · Lesson 1 — Relations, Domain and Range</span>
+</header>
+
+<div class="tabs" role="tablist">
+  <button class="tab" role="tab" id="tabVLT" aria-selected="true">Vertical Line Test</button>
+  <button class="tab" role="tab" id="tabDR" aria-selected="false">Domain &amp; Range Scanner</button>
+</div>
+
+<main>
+  <section class="panel">
+    <h2>Relations</h2>
+    <div class="picker" id="picker"></div>
+    <p class="legend">✓ = you classified it correctly.</p>
+  </section>
+
+  <section class="plane-wrap">
+    <svg id="plane" viewBox="0 0 520 520" aria-label="Coordinate plane"></svg>
+    <div class="slider-row" id="sliderRow">
+      <label for="xs" id="sliderLabel">Line at</label>
+      <input type="range" id="xs" min="-6" max="6" step="0.05" value="-5.5">
+      <output id="xsOut">x = −5.50</output>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div id="vltPanel">
+      <h2 id="relTitle">Relation 1</h2>
+      <div class="status" id="status">Drag the line across the graph.</div>
+      <p class="hint" id="vltHint">Drag on the graph or use the slider. Watch how many times the line touches the relation.</p>
+      <div class="btns">
+        <button class="act alt" id="sweep">▶ Sweep</button>
+      </div>
+      <h2 style="margin-top:18px">Is this relation a function?</h2>
+      <div class="btns">
+        <button class="act fn" id="yesFn">Function</button>
+        <button class="act nf" id="noFn">Not a function</button>
+      </div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+
+    <div id="drPanel" class="hidden">
+      <h2 id="relTitle2">Relation 1</h2>
+      <p style="margin:0 0 8px">Write the domain and range on your paper first. Then scan to check.</p>
+      <div class="btns">
+        <button class="act" id="scanD">▶ Scan domain</button>
+        <button class="act" id="scanR" style="background:var(--purple)">▲ Scan range</button>
+        <button class="act alt" id="showAns">Show answer</button>
+      </div>
+      <p class="hint">Domain: sweep left to right and mark every x-value the graph uses. Range: sweep bottom to top and mark every y-value.</p>
+      <div class="answer" id="answer"></div>
+    </div>
+
+    <div class="prog">
+      <span id="progText">0 of 12 classified</span>
+      <div class="bar"><i id="progBar"></i></div>
+    </div>
+    <label class="name">Your name (for the completion code)
+      <input id="stuName" autocomplete="off" placeholder="First and last name">
+    </label>
+    <div class="code" id="code">All 12 correct. Paste this code into Classroom:<br><strong id="codeText"></strong></div>
+  </section>
+</main>
+
+<details class="teacher">
+  <summary>Teacher check</summary>
+  <p>Type a student's name exactly as they entered it to see the code they should have.</p>
+  <input id="tName" placeholder="Student name"> <strong id="tCode"></strong>
+</details>
+
+<script>
+// ---------- coordinate system ----------
+const W = 520, O = 260, S = 40, LIM = 6.5;
+const px = x => O + S * x, py = y => O - S * y;
+const NS = "http://www.w3.org/2000/svg";
+const INF = Infinity;
+const el = (tag, attrs = {}, parent) => {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+};
+const fmt = v => {
+  if (Math.abs(v) < 0.005) v = 0;
+  const s = (Math.round(v * 100) / 100).toFixed(2);
+  return s.replace("-", "−");
+};
+const neg = v => String(v).replace("-", "−");
+
+// ---------- relation builders ----------
+function seg(p1, p2, s = "closed", e = "closed") { return { pts: [p1, p2], s, e }; }
+function fn(f, x0, x1, s, e, n = 300) {
+  const pts = [];
+  for (let i = 0; i <= n; i++) { const x = x0 + (x1 - x0) * i / n; pts.push([x, f(x)]); }
+  return { pts, s, e };
+}
+function param(fx, fy, t0, t1, s, e, n = 360) {
+  const pts = [];
+  for (let i = 0; i <= n; i++) { const t = t0 + (t1 - t0) * i / n; pts.push([fx(t), fy(t)]); }
+  return { pts, s, e };
+}
+
+const R = [
+  { kind: "points", fn: true, pts: [[-4,2],[-2,-1],[0,3],[1,-3],[3,2]],
+    d: { pts: [-4,-2,0,1,3] }, r: { pts: [-3,-1,2,3] },
+    dA: "{−4, −2, 0, 1, 3}", rA: "{−3, −1, 2, 3}", dW: "discrete: list each x once", rW: "discrete: list each y once",
+    why: "Every x-value appears only once, so each input has exactly one output." },
+  { kind: "points", fn: false, pts: [[-3,1],[1,4],[1,-2],[4,0]],
+    d: { pts: [-3,1,4] }, r: { pts: [-2,0,1,4] },
+    dA: "{−3, 1, 4}", rA: "{−2, 0, 1, 4}", dW: "x = 1 is listed once, even though it is used twice", rW: "discrete",
+    why: "The input x = 1 has two outputs: (1, 4) and (1, −2)." },
+  { kind: "map", fn: true, inputs: [-2,0,3,5], outputs: [1,4], arrows: [[0,1],[1,0],[2,1],[3,0]],
+    dA: "{−2, 0, 3, 5}", rA: "{1, 4}", dW: "the inputs", rW: "the outputs",
+    why: "Each input has exactly one arrow. Two inputs can share an output (−2 and 3 both go to 4) — that is allowed." },
+  { kind: "map", fn: false, inputs: [1,2,6], outputs: [-3,0,7], arrows: [[0,0],[1,1],[1,2],[2,2]],
+    dA: "{1, 2, 6}", rA: "{−3, 0, 7}", dW: "the inputs", rW: "the outputs",
+    why: "The input 2 has two arrows: one to 0 and one to 7." },
+  { kind: "curve", fn: true, pieces: [seg([-5,-3],[4,3],"closed","open")],
+    d: { ints: [[-5,4,true,false]] }, r: { ints: [[-3,3,true,false]] },
+    dA: "[−5, 4)", rA: "[−3, 3)", dW: "−5 ≤ x < 4", rW: "−3 ≤ y < 3",
+    why: "Every vertical line touches the segment at most once." },
+  { kind: "curve", fn: true, pieces: [fn(x => (x-1)**2 - 4, 1 - Math.sqrt(10.2), 1 + Math.sqrt(10.2), "arrow", "arrow")],
+    d: { ints: [[-INF,INF]] }, r: { ints: [[-4,INF,true,false]] },
+    dA: "(−∞, ∞)", rA: "[−4, ∞)", dW: "all real numbers", rW: "y ≥ −4",
+    why: "Every vertical line touches the parabola exactly once." },
+  { kind: "curve", fn: false, pieces: [param(t => 1 + 3*Math.cos(t), t => -1 + 3*Math.sin(t), 0, 2*Math.PI, "none", "none")],
+    d: { ints: [[-2,4,true,true]] }, r: { ints: [[-4,2,true,true]] },
+    dA: "[−2, 4]", rA: "[−4, 2]", dW: "−2 ≤ x ≤ 4", rW: "−4 ≤ y ≤ 2",
+    why: "A vertical line such as x = 1 touches the circle twice: at (1, 2) and (1, −4)." },
+  { kind: "curve", fn: false, pieces: [param(t => t*t - 4, t => t, -Math.sqrt(10.2), Math.sqrt(10.2), "arrow", "arrow")],
+    d: { ints: [[-4,INF,true,false]] }, r: { ints: [[-INF,INF]] },
+    dA: "[−4, ∞)", rA: "(−∞, ∞)", dW: "x ≥ −4", rW: "all real numbers",
+    why: "A vertical line such as x = 0 touches it twice: at (0, 2) and (0, −2)." },
+  { kind: "curve", fn: true, pieces: [fn(x => Math.sqrt(x + 3) - 1, -3, 6.2, "closed", "arrow")],
+    d: { ints: [[-3,INF,true,false]] }, r: { ints: [[-1,INF,true,false]] },
+    dA: "[−3, ∞)", rA: "[−1, ∞)", dW: "x ≥ −3", rW: "y ≥ −1",
+    why: "Every vertical line touches the curve at most once." },
+  { kind: "curve", fn: false, pieces: [seg([2,-3],[2,4],"closed","closed")],
+    d: { pts: [2] }, r: { ints: [[-3,4,true,true]] },
+    dA: "{2}", rA: "[−3, 4]", dW: "x = 2 only", rW: "−3 ≤ y ≤ 4",
+    why: "The vertical line x = 2 lies on top of the whole segment: one input, infinitely many outputs." },
+  { kind: "curve", fn: true, pieces: [{ pts: [[-6.2,-1.2],[-2,3],[6.2,-5.2]], s: "arrow", e: "arrow" }],
+    d: { ints: [[-INF,INF]] }, r: { ints: [[-INF,3,false,true]] },
+    dA: "(−∞, ∞)", rA: "(−∞, 3]", dW: "all real numbers", rW: "y ≤ 3",
+    why: "Every vertical line touches the V exactly once." },
+  { kind: "curve", fn: true, pieces: [seg([-4,2],[1,2],"closed","open"), seg([1,-1],[3,-1],"closed","closed")],
+    d: { ints: [[-4,3,true,true]] }, r: { pts: [-1,2] },
+    dA: "[−4, 3]", rA: "{−1, 2}", dW: "−4 ≤ x ≤ 3", rW: "only two y-values are used",
+    why: "At x = 1 the open dot is not part of the graph, so the line touches only (1, −1)." }
+];
+
+// ---------- state ----------
+let cur = 0, mode = "vlt", c = -5.5, mapIdx = 0;
+const solved = new Array(R.length).fill(false);
+const svg = document.getElementById("plane");
+
+// ---------- drawing ----------
+function drawGrid() {
+  svg.innerHTML = "";
+  const defs = el("defs", {}, svg);
+  const mk = (id, color, big) => {
+    const m = el("marker", big ? { id, viewBox: "0 0 10 10", refX: 5, refY: 5, markerWidth: 22, markerHeight: 22, markerUnits: "userSpaceOnUse", orient: "auto-start-reverse" } : { id, viewBox: "0 0 10 10", refX: 8, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto-start-reverse" }, defs);
+    el("path", { d: "M0,0 L10,5 L0,10 z", fill: color }, m);
+  };
+  mk("arrK", "#1b2430"); mk("arrA", "#8a96a8"); mk("arrO", "#d9822b", true); mk("arrP", "#7a4fb3", true); mk("arrB", "#2E5FA3");
+  const g = el("g", {}, svg);
+  for (let i = -6; i <= 6; i++) {
+    el("line", { x1: px(i), y1: py(-LIM), x2: px(i), y2: py(LIM), stroke: "#e7ecf3", "stroke-width": 1 }, g);
+    el("line", { x1: px(-LIM), y1: py(i), x2: px(LIM), y2: py(i), stroke: "#e7ecf3", "stroke-width": 1 }, g);
+  }
+  el("line", { x1: px(-LIM), y1: O, x2: px(LIM), y2: O, stroke: "#8a96a8", "stroke-width": 1.6, "marker-end": "url(#arrA)", "marker-start": "url(#arrA)" }, g);
+  el("line", { x1: O, y1: py(-LIM), x2: O, y2: py(LIM), stroke: "#8a96a8", "stroke-width": 1.6, "marker-end": "url(#arrA)", "marker-start": "url(#arrA)" }, g);
+  for (let i = -6; i <= 6; i += 2) {
+    if (!i) continue;
+    el("text", { x: px(i), y: O + 16, "text-anchor": "middle", "font-size": 12, fill: "#5b6778" }, g).textContent = neg(i);
+    el("text", { x: O - 8, y: py(i) + 4, "text-anchor": "end", "font-size": 12, fill: "#5b6778" }, g).textContent = neg(i);
+  }
+  el("text", { x: px(6.3), y: O - 8, "font-size": 14, "font-style": "italic", fill: "#5b6778" }, g).textContent = "x";
+  el("text", { x: O + 8, y: py(6.3), "font-size": 14, "font-style": "italic", fill: "#5b6778" }, g).textContent = "y";
+}
+
+function dot(x, y, closed, color = "#1b2430", r = 6, parent = svg) {
+  return el("circle", { cx: px(x), cy: py(y), r, fill: closed ? color : "#fff", stroke: color, "stroke-width": 2.5 }, parent);
+}
+
+function drawRelation(rel) {
+  if (rel.kind === "points") {
+    rel.pts.forEach(p => dot(p[0], p[1], true, "#1b2430", 6));
+  } else if (rel.kind === "curve") {
+    rel.pieces.forEach(pc => {
+      const d = pc.pts.map((p, i) => (i ? "L" : "M") + px(p[0]).toFixed(2) + "," + py(p[1]).toFixed(2)).join(" ");
+      const attrs = { d, fill: "none", stroke: "#1b2430", "stroke-width": 3, "stroke-linejoin": "round" };
+      if (pc.s === "arrow") attrs["marker-start"] = "url(#arrK)";
+      if (pc.e === "arrow") attrs["marker-end"] = "url(#arrK)";
+      el("path", attrs, svg);
+      const a = pc.pts[0], b = pc.pts[pc.pts.length - 1];
+      if (pc.s === "closed" || pc.s === "open") dot(a[0], a[1], pc.s === "closed");
+      if (pc.e === "closed" || pc.e === "open") dot(b[0], b[1], pc.e === "closed");
+    });
+  }
+}
+
+// mapping layout
+function mapLayout(rel) {
+  const inY = rel.inputs.map((_, i, a) => 260 + (i - (a.length - 1) / 2) * 70);
+  const outY = rel.outputs.map((_, i, a) => 260 + (i - (a.length - 1) / 2) * 70);
+  return { inX: 150, outX: 370, inY, outY };
+}
+function drawMap(rel, hiIdx, shade) {
+  svg.innerHTML = "";
+  const defs = el("defs", {}, svg);
+  [["mK","#1b2430"],["mR","#c8372d"],["mG","#1f8a4c"]].forEach(([id,col]) => {
+    const m = el("marker", { id, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 7, markerHeight: 7, orient: "auto" }, defs);
+    el("path", { d: "M0,0 L10,5 L0,10 z", fill: col }, m);
+  });
+  const L = mapLayout(rel);
+  const hIn = Math.max(rel.inputs.length, rel.outputs.length) * 70 + 50;
+  el("text", { x: L.inX, y: 260 - hIn / 2 - 14, "text-anchor": "middle", "font-size": 18, "font-weight": 700, fill: "#5b6778" }, svg).textContent = "Input (x)";
+  el("text", { x: L.outX, y: 260 - hIn / 2 - 14, "text-anchor": "middle", "font-size": 18, "font-weight": 700, fill: "#5b6778" }, svg).textContent = "Output (y)";
+  el("ellipse", { cx: L.inX, cy: 260, rx: 62, ry: hIn / 2, fill: shade === "d" ? "#fbe9d6" : "#fff", stroke: shade === "d" ? "#d9822b" : "#8a96a8", "stroke-width": shade === "d" ? 4 : 2 }, svg);
+  el("ellipse", { cx: L.outX, cy: 260, rx: 62, ry: hIn / 2, fill: shade === "r" ? "#efe6f8" : "#fff", stroke: shade === "r" ? "#7a4fb3" : "#8a96a8", "stroke-width": shade === "r" ? 4 : 2 }, svg);
+  const cnt = rel.arrows.filter(a => a[0] === hiIdx).length;
+  rel.arrows.forEach(([i, o]) => {
+    const hi = hiIdx === i;
+    const col = hi ? (cnt > 1 ? "#c8372d" : "#1f8a4c") : "#1b2430";
+    el("line", { x1: L.inX + 26, y1: L.inY[i], x2: L.outX - 28, y2: L.outY[o], stroke: col, "stroke-width": hi ? 4 : 2, opacity: hiIdx == null || hi ? 1 : 0.35, "marker-end": `url(#${hi ? (cnt > 1 ? "mR" : "mG") : "mK"})` }, svg);
+  });
+  rel.inputs.forEach((v, i) => {
+    if (hiIdx === i) el("circle", { cx: L.inX, cy: L.inY[i], r: 22, fill: cnt > 1 ? "#fce8e6" : "#eaf7ec", stroke: cnt > 1 ? "#c8372d" : "#1f8a4c", "stroke-width": 3 }, svg);
+    el("text", { x: L.inX, y: L.inY[i] + 7, "text-anchor": "middle", "font-size": 22, "font-weight": 700, fill: "#1b2430" }, svg).textContent = neg(v);
+  });
+  rel.outputs.forEach((v, i) => {
+    el("text", { x: L.outX, y: L.outY[i] + 7, "text-anchor": "middle", "font-size": 22, "font-weight": 700, fill: "#1b2430" }, svg).textContent = neg(v);
+  });
+}
+
+// ---------- vertical line test ----------
+function hitsAt(rel, cx) {
+  if (rel.kind === "points") {
+    const hs = rel.pts.filter(p => Math.abs(p[0] - cx) < 0.1).map(p => ({ x: p[0], y: p[1] }));
+    return { hits: hs, vertical: false };
+  }
+  let hs = [], vertical = false;
+  rel.pieces.forEach(pc => {
+    const P = pc.pts, n = P.length;
+    for (let i = 0; i < n - 1; i++) {
+      const [x1, y1] = P[i], [x2, y2] = P[i + 1];
+      if (Math.abs(x2 - x1) < 1e-9) { if (Math.abs(x1 - cx) < 0.08) vertical = { x: x1, y1: Math.min(y1, y2), y2: Math.max(y1, y2) }; continue; }
+      if ((x1 - cx) * (x2 - cx) <= 0) {
+        const t = (cx - x1) / (x2 - x1);
+        hs.push({ x: cx, y: y1 + t * (y2 - y1), pc });
+      }
+    }
+    // exclude open endpoints
+    const a = P[0], b = P[n - 1];
+    hs = hs.filter(h => !(h.pc === pc && ((pc.s === "open" && Math.abs(h.x - a[0]) < 0.03 && Math.abs(h.y - a[1]) < 0.05) || (pc.e === "open" && Math.abs(h.x - b[0]) < 0.03 && Math.abs(h.y - b[1]) < 0.05))));
+  });
+  const uniq = [];
+  hs.sort((p, q) => p.y - q.y).forEach(h => { if (!uniq.length || Math.abs(uniq[uniq.length - 1].y - h.y) > 0.08) uniq.push(h); });
+  return { hits: uniq, vertical };
+}
+
+function renderVLT() {
+  const rel = R[cur];
+  const st = document.getElementById("status");
+  if (rel.kind === "map") {
+    drawMap(rel, mapIdx, null);
+    const cnt = rel.arrows.filter(a => a[0] === mapIdx).length;
+    const outs = rel.arrows.filter(a => a[0] === mapIdx).map(a => neg(rel.outputs[a[1]]));
+    document.getElementById("xsOut").textContent = "input " + neg(rel.inputs[mapIdx]);
+    st.className = "status " + (cnt > 1 ? "bad" : "good");
+    st.innerHTML = cnt > 1
+      ? `Input <b>${neg(rel.inputs[mapIdx])}</b> has <b>${cnt} arrows</b> → outputs ${outs.join(" and ")}.`
+      : `Input <b>${neg(rel.inputs[mapIdx])}</b> has <b>1 arrow</b> → output ${outs[0]}.`;
+    return;
+  }
+  drawGrid();
+  drawRelation(rel);
+  const { hits, vertical } = hitsAt(rel, c);
+  const bad = vertical || hits.length > 1;
+  const col = bad ? "#c8372d" : "#1f8a4c";
+  el("line", { x1: px(c), y1: py(LIM), x2: px(c), y2: py(-LIM), stroke: col, "stroke-width": 4, opacity: 0.85 }, svg);
+  el("rect", { x: px(c) - 14, y: 0, width: 28, height: W, fill: "transparent" }, svg);
+  if (vertical) {
+    el("line", { x1: px(vertical.x), y1: py(vertical.y1), x2: px(vertical.x), y2: py(vertical.y2), stroke: "#c8372d", "stroke-width": 9, opacity: 0.55 }, svg);
+  }
+  hits.forEach(h => el("circle", { cx: px(h.x), cy: py(h.y), r: 9, fill: col, stroke: "#fff", "stroke-width": 2.5 }, svg));
+  document.getElementById("xsOut").textContent = "x = " + fmt(c);
+  if (vertical) {
+    st.className = "status bad";
+    st.innerHTML = `At x = ${fmt(c)} the line lies on top of the graph — <b>infinitely many</b> outputs.`;
+  } else if (hits.length === 0) {
+    st.className = "status";
+    st.innerHTML = `At x = ${fmt(c)} the line touches the relation <b>0 times</b>. This x is not in the domain.`;
+  } else if (hits.length === 1) {
+    st.className = "status good";
+    st.innerHTML = `At x = ${fmt(c)} the line touches the relation <b>1 time</b> → one output, y = ${fmt(hits[0].y)}.`;
+  } else {
+    st.className = "status bad";
+    st.innerHTML = `At x = ${fmt(c)} the line touches the relation <b>${hits.length} times</b> → outputs ${hits.map(h => fmt(h.y)).join(" and ")}.`;
+  }
+}
+
+// ---------- domain & range scanner ----------
+let scanTimer = null;
+function clipInt([a, b, ac, bc]) {
+  return { a: Math.max(a, -6.3), b: Math.min(b, 6.3), ac, bc, la: a === -INF, rb: b === INF };
+}
+function drawShade(spec, axis, upto) {
+  // axis: "x" or "y"; upto: sweep position
+  const col = axis === "x" ? "#d9822b" : "#7a4fb3";
+  const mk = axis === "x" ? "arrO" : "arrP";
+  const P = (t) => axis === "x" ? [px(t), O] : [O, py(t)];
+  if (spec.pts) {
+    spec.pts.filter(v => v <= upto + 1e-9).forEach(v => {
+      const [X, Y] = P(v);
+      el("circle", { cx: X, cy: Y, r: 8, fill: col, stroke: "#fff", "stroke-width": 2 }, svg);
+    });
+    return;
+  }
+  spec.ints.forEach(iv => {
+    const k = clipInt(iv);
+    if (upto < k.a) return;
+    const end = Math.min(upto, k.b);
+    const [X1, Y1] = P(k.a), [X2, Y2] = P(end);
+    const attrs = { x1: X1, y1: Y1, x2: X2, y2: Y2, stroke: col, "stroke-width": 9, "stroke-linecap": "butt", opacity: 0.8 };
+    if (k.la) attrs["marker-start"] = `url(#${mk})`;
+    if (k.rb && upto >= k.b) attrs["marker-end"] = `url(#${mk})`;
+    el("line", attrs, svg);
+    if (!k.la) { const [x, y] = P(k.a); el("circle", { cx: x, cy: y, r: 7, fill: k.ac ? col : "#fff", stroke: col, "stroke-width": 3 }, svg); }
+    if (!k.rb && upto >= k.b) { const [x, y] = P(k.b); el("circle", { cx: x, cy: y, r: 7, fill: k.bc ? col : "#fff", stroke: col, "stroke-width": 3 }, svg); }
+  });
+}
+let drState = { d: null, r: null };
+function renderDR() {
+  const rel = R[cur];
+  if (rel.kind === "map") {
+    drawMap(rel, null, drState.r !== null ? "r" : drState.d !== null ? "d" : null);
+    return;
+  }
+  drawGrid();
+  drawRelation(rel);
+  if (drState.d !== null) {
+    drawShade(rel.d, "x", drState.d);
+    if (drState.d < 6.5) el("line", { x1: px(drState.d), y1: py(LIM), x2: px(drState.d), y2: py(-LIM), stroke: "#d9822b", "stroke-width": 3 }, svg);
+  }
+  if (drState.r !== null) {
+    drawShade(rel.r, "y", drState.r);
+    if (drState.r < 6.5) el("line", { x1: px(-LIM), y1: py(drState.r), x2: px(LIM), y2: py(drState.r), stroke: "#7a4fb3", "stroke-width": 3 }, svg);
+  }
+}
+function scan(which) {
+  clearInterval(scanTimer);
+  const rel = R[cur];
+  if (rel.kind === "map") { drState = { d: which === "d" ? 1 : null, r: which === "r" ? 1 : null }; renderDR(); return; }
+  drState[which] = -6.5;
+  scanTimer = setInterval(() => {
+    drState[which] += 0.1;
+    if (drState[which] >= 6.6) { drState[which] = 6.6; clearInterval(scanTimer); }
+    renderDR();
+  }, 18);
+}
+
+// ---------- UI wiring ----------
+const picker = document.getElementById("picker");
+R.forEach((_, i) => {
+  const b = document.createElement("button");
+  b.className = "pick"; b.textContent = i + 1; b.setAttribute("aria-label", "Relation " + (i + 1));
+  b.onclick = () => select(i);
+  picker.appendChild(b);
+});
+const xs = document.getElementById("xs");
+function select(i) {
+  cur = i; clearInterval(scanTimer); drState = { d: null, r: null };
+  [...picker.children].forEach((b, k) => b.setAttribute("aria-current", k === i ? "true" : "false"));
+  document.getElementById("relTitle").textContent = "Relation " + (i + 1);
+  document.getElementById("relTitle2").textContent = "Relation " + (i + 1);
+  document.getElementById("feedback").className = "feedback";
+  document.getElementById("answer").className = "answer";
+  const rel = R[i];
+  if (rel.kind === "map") {
+    xs.min = 0; xs.max = rel.inputs.length - 1; xs.step = 1; mapIdx = 0; xs.value = 0;
+    document.getElementById("sliderLabel").textContent = "Check";
+    document.getElementById("vltHint").textContent = "Mapping diagram: move the slider to check each input. Count its arrows.";
+  } else {
+    xs.min = -6; xs.max = 6; xs.step = 0.05; c = -5.5; xs.value = c;
+    document.getElementById("sliderLabel").textContent = "Line at";
+    document.getElementById("vltHint").textContent = "Drag on the graph or use the slider. Watch how many times the line touches the relation.";
+  }
+  document.getElementById("sliderRow").classList.toggle("hidden", mode === "dr");
+  render();
+}
+function render() { mode === "vlt" ? renderVLT() : renderDR(); }
+xs.addEventListener("input", () => {
+  if (R[cur].kind === "map") mapIdx = +xs.value; else c = +xs.value;
+  render();
+});
+// drag on plane
+let dragging = false;
+function fromEvent(e) {
+  const rect = svg.getBoundingClientRect();
+  const X = (e.clientX - rect.left) / rect.width * W;
+  return Math.max(-6, Math.min(6, Math.round(((X - O) / S) * 20) / 20));
+}
+svg.addEventListener("pointerdown", e => { if (mode !== "vlt" || R[cur].kind === "map") return; dragging = true; svg.setPointerCapture(e.pointerId); c = fromEvent(e); xs.value = c; render(); });
+svg.addEventListener("pointermove", e => { if (!dragging) return; c = fromEvent(e); xs.value = c; render(); });
+svg.addEventListener("pointerup", () => dragging = false);
+
+document.getElementById("sweep").onclick = () => {
+  clearInterval(scanTimer);
+  const rel = R[cur];
+  if (rel.kind === "map") {
+    mapIdx = 0; xs.value = 0; render();
+    scanTimer = setInterval(() => { if (mapIdx >= rel.inputs.length - 1) { clearInterval(scanTimer); return; } mapIdx++; xs.value = mapIdx; render(); }, 1100);
+    return;
+  }
+  c = -6; render();
+  scanTimer = setInterval(() => { c = Math.round((c + 0.05) * 100) / 100; xs.value = c; render(); if (c >= 6) clearInterval(scanTimer); }, 30);
+};
+
+function answer(isFn) {
+  const rel = R[cur], fb = document.getElementById("feedback");
+  const right = isFn === rel.fn;
+  if (right) { solved[cur] = true; picker.children[cur].classList.add("done"); }
+  fb.className = "feedback show " + (right ? "right" : "wrong");
+  fb.innerHTML = right
+    ? `<b>Correct — ${rel.fn ? "function" : "not a function"}.</b> ${rel.why}`
+    : `<b>Not yet.</b> Sweep the line again and look for any x-value with more than one output.`;
+  updateProgress();
+}
+document.getElementById("yesFn").onclick = () => answer(true);
+document.getElementById("noFn").onclick = () => answer(false);
+
+document.getElementById("scanD").onclick = () => scan("d");
+document.getElementById("scanR").onclick = () => scan("r");
+document.getElementById("showAns").onclick = () => {
+  const rel = R[cur], a = document.getElementById("answer");
+  a.className = "answer show";
+  a.innerHTML = `<div><b>Domain:</b> ${rel.dA} <span style="color:#5b6778">— ${rel.dW}</span></div><div><b>Range:</b> ${rel.rA} <span style="color:#5b6778">— ${rel.rW}</span></div>`;
+};
+
+function setMode(m) {
+  mode = m; clearInterval(scanTimer); drState = { d: null, r: null };
+  document.getElementById("tabVLT").setAttribute("aria-selected", m === "vlt");
+  document.getElementById("tabDR").setAttribute("aria-selected", m === "dr");
+  document.getElementById("vltPanel").classList.toggle("hidden", m !== "vlt");
+  document.getElementById("drPanel").classList.toggle("hidden", m !== "dr");
+  document.getElementById("sliderRow").classList.toggle("hidden", m === "dr");
+  svg.style.cursor = m === "vlt" ? "ew-resize" : "default";
+  document.getElementById("answer").className = "answer";
+  render();
+}
+document.getElementById("tabVLT").onclick = () => setMode("vlt");
+document.getElementById("tabDR").onclick = () => setMode("dr");
+
+// completion code
+function codeFor(name) {
+  const s = name.trim().toLowerCase().replace(/\s+/g, " ") + "|a2u2l1-vlt";
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+  const A = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let out = "";
+  for (let i = 0; i < 5; i++) { out += A[h % 32]; h = Math.floor(h / 32) ^ (i * 2654435761 >>> 0); h >>>= 0; }
+  return "L1-" + out;
+}
+function updateProgress() {
+  const n = solved.filter(Boolean).length;
+  document.getElementById("progText").textContent = `${n} of ${R.length} classified`;
+  document.getElementById("progBar").style.width = (100 * n / R.length) + "%";
+  const name = document.getElementById("stuName").value.trim();
+  const box = document.getElementById("code");
+  if (n === R.length && name) { box.className = "code show"; document.getElementById("codeText").textContent = codeFor(name); }
+  else if (n === R.length) { box.className = "code show"; box.innerHTML = "All 12 correct. Type your name above to get your code."; }
+}
+document.getElementById("stuName").addEventListener("input", () => {
+  const box = document.getElementById("code");
+  if (solved.every(Boolean)) { box.innerHTML = 'All 12 correct. Paste this code into Classroom:<br><strong id="codeText"></strong>'; updateProgress(); }
+});
+document.getElementById("tName").addEventListener("input", e => {
+  document.getElementById("tCode").textContent = e.target.value.trim() ? codeFor(e.target.value) : "";
+});
+
+select(0);
+</script>
+</body>
+</html>

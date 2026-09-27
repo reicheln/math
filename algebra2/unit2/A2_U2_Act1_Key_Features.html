@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Algebra 2 U2 Activity 1</title>
+<style>
+  :root{
+    --bg:#f6f8fb; --panel:#fff; --ink:#1b2430; --muted:#5b6778; --line:#d9e0ea;
+    --blue:#2E5FA3; --blue-soft:#eaf1fb; --tan:#fff6e5; --green:#1f8a4c; --green-soft:#eaf7ec;
+    --purple:#7a4fb3; --purple-soft:#f4e5f7; --gray-soft:#f2f2f2; --red:#c8372d; --orange:#d9822b;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{background:var(--blue);color:#fff;padding:18px 20px}
+  header .kicker{font-size:14px;opacity:.85;letter-spacing:.03em}
+  header h1{margin:4px 0 6px;font-size:28px;line-height:1.2}
+  header .target{font-size:15px;opacity:.95;max-width:900px}
+  nav{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);display:flex;gap:4px;overflow-x:auto;padding:8px 12px}
+  nav a{flex:none;color:var(--blue);text-decoration:none;font-weight:600;font-size:15px;padding:6px 12px;border-radius:999px}
+  nav a:hover{background:var(--blue-soft)}
+  .wrap{max-width:1040px;margin:0 auto;padding:16px}
+  section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin:16px 0;scroll-margin-top:56px}
+  h2{margin:0 0 12px;color:var(--blue);font-size:24px}
+  h3{margin:20px 0 8px;font-size:19px}
+  .box{border-radius:12px;padding:14px 16px;margin:12px 0}
+  .box.blue{background:var(--blue-soft)} .box.tan{background:var(--tan)} .box.green{background:var(--green-soft)}
+  .box.purple{background:var(--purple-soft)} .box.gray{background:var(--gray-soft)}
+  .routine{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+  .routine div{background:var(--blue-soft);border-radius:10px;padding:10px 12px;font-size:15px}
+  .routine b{display:block;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .btn{display:inline-block;background:var(--blue);color:#fff;text-decoration:none;font-weight:700;padding:10px 16px;border-radius:10px;margin:6px 8px 6px 0}
+  .btn.alt{background:#fff;color:var(--blue);border:2px solid var(--blue)}
+  .vocab{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}
+  .vocab div{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .vocab dt{font-weight:700;color:var(--blue)}
+  .vocab dd{margin:2px 0 0}
+  .vocab .formal{font-size:14px;color:var(--muted);margin-top:4px}
+  .four{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;align-items:start}
+  .card{border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+  .card h4{margin:0 0 6px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  table.t{border-collapse:collapse;margin:6px auto}
+  table.t td,table.t th{border:1px solid #9aa6b8;padding:6px 14px;text-align:center;font-size:17px}
+  table.t th{background:var(--blue-soft)}
+  .card table.t td,.card table.t th{padding:6px 9px}
+  table.it{border-collapse:collapse;width:100%;margin:8px 0}
+  table.it th,table.it td{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:middle}
+  table.it th{font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+  .mono{font-family:ui-monospace,Consolas,monospace;font-size:18px}
+  .probs{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+  .prob{border:1px solid var(--line);border-radius:12px;padding:14px;position:relative}
+  .prob .num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:var(--blue);color:#fff;font-weight:700;margin-right:8px}
+  .prob .tier{float:right;margin:0 0 6px 8px;font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px}
+  .tier.ry{background:#fde7c8;color:#8a4b00} .tier.g{background:var(--green-soft);color:var(--green)}
+  details.ans{margin-top:10px}
+  details.ans summary{cursor:pointer;color:var(--blue);font-weight:600}
+  details.ans div{background:var(--green-soft);border-radius:8px;padding:8px 10px;margin-top:6px}
+  .graph{display:block;width:100%;max-width:300px;margin:8px auto 0}
+  .graph.big{max-width:340px}
+  .tiers{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 12px}
+  .tiers span{padding:6px 12px;border-radius:99px;font-weight:600;font-size:15px}
+  .ex{border-left:5px solid var(--blue);padding:4px 0 4px 14px;margin:14px 0}
+  .ex-grid{display:grid;grid-template-columns:minmax(220px,300px) 1fr;gap:16px;align-items:center}
+  @media (max-width:700px){.ex-grid{grid-template-columns:1fr}}
+  ol.steps{margin:6px 0;padding-left:22px}
+  .keyrow{display:flex;flex-wrap:wrap;gap:14px;margin:8px 0}
+  .keyrow div{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+  footer{color:var(--muted);font-size:13px;text-align:center;padding:10px 0 30px}
+
+  .two{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;align-items:start}
+  .callout{border-left:5px solid var(--orange);background:#fff8ef;border-radius:8px;padding:10px 14px;margin:10px 0}
+  .big{font-size:22px}
+  .center{text-align:center}
+  .muted{color:var(--muted)}
+  .tool{display:flex;gap:14px;align-items:center;flex-wrap:wrap;border:2px dashed var(--blue);border-radius:12px;padding:12px 16px;margin:12px 0;background:#fff}
+  .tool b{font-size:18px}
+</style>
+</head>
+<body>
+<header>
+  <div class="kicker">ALGEBRA 2 · UNIT 2 FUNCTIONS · ACTIVITY 1 · THURSDAY, OCTOBER 1</div>
+  <h1>Key Features — Graphing Stories</h1>
+  <div class="target"><b>D93 outcomes:</b> Students will model relationships between two quantities and interpret key features (F.IF.B.4). Students will represent functions in different ways (equation, table, or graph) (F.IF.C.9).</div>
+</header>
+<nav><a href="#today">Today</a><a href="#activity">Activity</a><a href="#vocab">Vocabulary</a><a href="#notes">Notes</a><a href="#practice">Practice</a><a href="#application">Application</a><a href="#extension">Extension</a><a href="#exit">Exit Ticket</a><a href="index.html">Unit home</a></nav>
+<div class="wrap">
+<section id="today"><h2>Today</h2><div class="routine"><div><b>0–10 min</b>Warm-up: DeltaMath — evaluate f(x) from an equation and a graph</div><div><b>10–30 min</b>Activity: Graphing Stories in Desmos</div><div><b>30–40 min</b>Mini-notes: reading key features</div><div><b>40–50 min</b>Practice: your group's problems</div><div><b>50–60 min</b>Exit ticket on Snorkl</div></div></section><section id="activity"><h2>Activity — Graphing Stories</h2><h3>Sketch the story (pairs, 20 min)</h3><div class="box tan"><p style='margin-top:0'>Your teacher runs the Desmos activity <b>Graphing Stories</b>. Each screen plays a short video. You sketch <b>height vs. time</b> for what you see.</p><ol class="steps"><li>Go to <b>student.amplify.com</b> and type the class code on the TVs. One Chromebook per pair.</li><li>Watch the video once all the way through. Do not draw yet.</li><li>Talk first: When does the height go up? Go down? Stay the same?</li><li>Sketch the graph. Time goes across (x). Height goes up (y).</li><li>Compare with the class overlay. Fix one thing on your sketch.</li></ol><a class="btn alt" href="https://classroom.amplify.com/collection/6105603352410d11397561a6" target="_blank" rel="noopener">Graphing Stories (teacher link)</a></div><h3>Debrief</h3><div class="box blue"><ol class="steps"><li>Which parts of the graph are <b>increasing</b>? <b>Decreasing</b>? <b>Constant</b>? What was happening in the video then?</li><li>Where is the highest point? What does it mean in the video?</li><li>When is the height 0? What is happening at that moment?</li><li>Which quantity is the <b>independent variable</b>? Which is the <b>dependent variable</b>? How do you know?</li></ol></div></section><section id="vocab"><h2>Vocabulary</h2><dl class="vocab"><div><dt>independent variable</dt><dd>The input quantity. It changes on its own or you choose it — often time. It goes on the x-axis.</dd></div><div><dt>dependent variable</dt><dd>The output quantity. Its value depends on the input. It goes on the y-axis.</dd></div><div><dt>increasing</dt><dd>Reading left to right, the graph goes up. The output gets bigger.</dd></div><div><dt>decreasing</dt><dd>Reading left to right, the graph goes down. The output gets smaller.</dd></div><div><dt>constant</dt><dd>The graph is flat. The output stays the same.</dd></div><div><dt>zero (x-intercept)</dt><dd>An input that makes the output 0. The graph touches or crosses the x-axis there.</dd><div class="formal">Formal: x = a is a zero of f if f(a) = 0.</div></div><div><dt>y-intercept</dt><dd>Where the graph crosses the y-axis. It is the output when the input is 0.</dd><div class="formal">Formal: The point (0, f(0)).</div></div><div><dt>relative maximum</dt><dd>A peak: an output higher than every point near it on both sides.</dd><div class="formal">Formal: f(c) is a relative maximum if f(c) ≥ f(x) for all x near c.</div></div><div><dt>relative minimum</dt><dd>A valley: an output lower than every point near it on both sides.</dd><div class="formal">Formal: f(c) is a relative minimum if f(c) ≤ f(x) for all x near c.</div></div><div><dt>interval of increase</dt><dd>The x-values where the graph is increasing. Write it with parentheses: (−2, 1).</dd></div><div><dt>interval of decrease</dt><dd>The x-values where the graph is decreasing. Write it with parentheses: (1, 4).</dd></div><div><dt>domain</dt><dd>All the inputs (x-values) the function uses.</dd></div><div><dt>range</dt><dd>All the outputs (y-values) the function gives.</dd></div></dl></section><section id="notes"><h2>Notes — Reading Key Features</h2><h3>1 · Read every feature from one graph</h3><div class='two'><div><svg class="graph big" data-g='{&quot;pieces&quot;: [{&quot;poly&quot;: [[-6, -4], [-4, -2]], &quot;c&quot;: &quot;#1f8a4c&quot;, &quot;s&quot;: &quot;closed&quot;}, {&quot;poly&quot;: [[-4, -2], [-2, -2]], &quot;c&quot;: &quot;#8a96a8&quot;}, {&quot;poly&quot;: [[-2, -2], [1, 4]], &quot;c&quot;: &quot;#1f8a4c&quot;}, {&quot;poly&quot;: [[1, 4], [4, -2]], &quot;c&quot;: &quot;#c8372d&quot;}, {&quot;poly&quot;: [[4, -2], [6, 2]], &quot;c&quot;: &quot;#1f8a4c&quot;, &quot;e&quot;: &quot;closed&quot;}], &quot;points&quot;: [{&quot;p&quot;: [-1, 0], &quot;c&quot;: &quot;#d9822b&quot;}, {&quot;p&quot;: [3, 0], &quot;c&quot;: &quot;#d9822b&quot;}, {&quot;p&quot;: [5, 0], &quot;c&quot;: &quot;#d9822b&quot;}, {&quot;p&quot;: [0, 2], &quot;c&quot;: &quot;#7a4fb3&quot;}, {&quot;p&quot;: [1, 4], &quot;c&quot;: &quot;#2E5FA3&quot;}, {&quot;p&quot;: [4, -2], &quot;c&quot;: &quot;#2E5FA3&quot;}], &quot;labels&quot;: [{&quot;x&quot;: 1.3, &quot;y&quot;: 4.7, &quot;t&quot;: &quot;rel. max (1, 4)&quot;, &quot;c&quot;: &quot;#2E5FA3&quot;, &quot;size&quot;: 11, &quot;italic&quot;: false}, {&quot;x&quot;: 4, &quot;y&quot;: -3.1, &quot;t&quot;: &quot;rel. min (4, -2)&quot;, &quot;c&quot;: &quot;#2E5FA3&quot;, &quot;size&quot;: 11, &quot;italic&quot;: false, &quot;anchor&quot;: &quot;middle&quot;}, {&quot;x&quot;: -0.3, &quot;y&quot;: 2.5, &quot;t&quot;: &quot;(0, 2)&quot;, &quot;c&quot;: &quot;#7a4fb3&quot;, &quot;size&quot;: 11, &quot;italic&quot;: false, &quot;anchor&quot;: &quot;end&quot;}, {&quot;x&quot;: -5.8, &quot;y&quot;: 5.3, &quot;t&quot;: &quot;f&quot;, &quot;c&quot;: &quot;#1b2430&quot;}]}'></svg></div><div><table class="it"><tr><th>Feature</th><th><span style='text-transform:none'>On the graph of f</span></th></tr><tr><td><span style='color:#1f8a4c;font-weight:700'>Increasing</span></td><td>(−6, −4), (−2, 1), (4, 6)</td></tr><tr><td><span style='color:#c8372d;font-weight:700'>Decreasing</span></td><td>(1, 4)</td></tr><tr><td><span style='color:#8a96a8;font-weight:700'>Constant</span></td><td>(−4, −2)</td></tr><tr><td><span style='color:#d9822b;font-weight:700'>Zeros</span></td><td>x = −1, x = 3, x = 5</td></tr><tr><td><span style='color:#7a4fb3;font-weight:700'>y-intercept</span></td><td>(0, 2)</td></tr><tr><td><span style='color:#2E5FA3;font-weight:700'>Relative maximum</span></td><td>4, at x = 1</td></tr><tr><td><span style='color:#2E5FA3;font-weight:700'>Relative minimum</span></td><td>−2, at x = 4</td></tr><tr><td><b>Domain · Range</b></td><td>[−6, 6] · [−4, 4]</td></tr></table></div></div><div class='callout'><b>Intervals use x-values only.</b> Read left to right and write where the piece starts and stops on the x-axis. Use parentheses for increasing, decreasing and constant: the turning points themselves are not inside. Domain and range keep brackets [ ] when the endpoint dots are closed.</div><div class='callout'><b>Endpoints are not relative maximums or minimums.</b> A relative maximum needs lower points on <b>both</b> sides. The endpoint (−6, −4) is the lowest point, but it is not a relative minimum.</div><h3>2 · Features tell a story</h3><div class="ex"><b>Drone flight</b><div class="ex-grid"><svg class="graph" data-g='{&quot;lim&quot;: 10, &quot;step&quot;: 2, &quot;pieces&quot;: [{&quot;poly&quot;: [[0, 0], [2, 4]], &quot;c&quot;: &quot;#1f8a4c&quot;, &quot;s&quot;: &quot;closed&quot;}, {&quot;poly&quot;: [[2, 4], [4, 4]], &quot;c&quot;: &quot;#8a96a8&quot;}, {&quot;poly&quot;: [[4, 4], [6, 8]], &quot;c&quot;: &quot;#1f8a4c&quot;}, {&quot;poly&quot;: [[6, 8], [10, 0]], &quot;c&quot;: &quot;#c8372d&quot;, &quot;e&quot;: &quot;closed&quot;}], &quot;points&quot;: [{&quot;p&quot;: [6, 8], &quot;c&quot;: &quot;#2E5FA3&quot;}], &quot;labels&quot;: [{&quot;x&quot;: 10.3, &quot;y&quot;: -1.9, &quot;t&quot;: &quot;t (s)&quot;, &quot;anchor&quot;: &quot;end&quot;, &quot;size&quot;: 12, &quot;italic&quot;: false}, {&quot;x&quot;: 0.4, &quot;y&quot;: 9.8, &quot;t&quot;: &quot;h (m)&quot;, &quot;size&quot;: 12, &quot;italic&quot;: false}, {&quot;x&quot;: 6.4, &quot;y&quot;: 8.4, &quot;t&quot;: &quot;(6, 8)&quot;, &quot;c&quot;: &quot;#2E5FA3&quot;, &quot;size&quot;: 11, &quot;italic&quot;: false}]}'></svg><div>A drone takes off. Its height h (meters) depends on the time t (seconds).<br><b>Independent variable:</b> time t · <b>Dependent variable:</b> height h<br><b>Increasing (0, 2) and (4, 6):</b> the drone is climbing.<br><b>Constant (2, 4):</b> it hovers at 4 m.<br><b>Relative maximum 8 at t = 6:</b> its highest point is 8 m, 6 s after takeoff.<br><b>Decreasing (6, 10):</b> it is coming down.<br><b>Zeros t = 0 and t = 10:</b> it is on the ground at takeoff and lands at 10 s.<br><b>y-intercept (0, 0):</b> it starts at 0 m.<br><b>Domain</b> [0, 10] seconds · <b>Range</b> [0, 8] meters</div></div></div></section><section id="practice"><h2>Practice</h2><div class="tiers"><span class="tier ry">Red &amp; Yellow: 1–6</span><span class="tier g">Green: 1–10, then Extension</span></div><div class="probs"><div class="prob"><span class="tier ry">R · Y · G</span><span class="num">1</span>Use the graph of g. Name every zero and the y-intercept.<svg class="graph" data-g='{&quot;pieces&quot;: [{&quot;poly&quot;: [[-5, -2], [-2, 4], [2, -4], [5, 2]], &quot;s&quot;: &quot;closed&quot;, &quot;e&quot;: &quot;closed&quot;}], &quot;labels&quot;: [{&quot;x&quot;: -4.6, &quot;y&quot;: 5, &quot;t&quot;: &quot;g&quot;}]}'></svg><details class="ans"><summary>Check answer</summary><div>Zeros: <b>x = −4, x = 0, x = 4</b> · y-intercept: <b>(0, 0)</b></div></details></div><div class="prob"><span class="tier ry">R · Y · G</span><span class="num">2</span>Use the graph of g from #1. Name the interval of increase, the interval of decrease, the relative maximum and the relative minimum.<details class="ans"><summary>Check answer</summary><div>Increasing: <b>(−5, −2) and (2, 5)</b> · Decreasing: <b>(−2, 2)</b><br>Relative maximum: <b>4 at x = −2</b> · Relative minimum: <b>−4 at x = 2</b></div></details></div><div class="prob"><span class="tier ry">R · Y · G</span><span class="num">3</span>Use the graph of p. Name the domain, range, zeros and y-intercept.<svg class="graph" data-g='{&quot;pieces&quot;: [{&quot;fn&quot;: &quot;4-(x-1)**2&quot;, &quot;x0&quot;: -2, &quot;x1&quot;: 4, &quot;s&quot;: &quot;closed&quot;, &quot;e&quot;: &quot;closed&quot;}], &quot;labels&quot;: [{&quot;x&quot;: 2.4, &quot;y&quot;: 4.4, &quot;t&quot;: &quot;p&quot;}]}'></svg><details class="ans"><summary>Check answer</summary><div>Domain <b>[−2, 4]</b> · Range <b>[−5, 4]</b><br>Zeros: <b>x = −1, x = 3</b> · y-intercept: <b>(0, 3)</b></div></details></div><div class="prob"><span class="tier ry">R · Y · G</span><span class="num">4</span>Use the graph of p from #3. Where is p increasing? Decreasing? Name the relative maximum.<details class="ans"><summary>Check answer</summary><div>Increasing: <b>(−2, 1)</b> · Decreasing: <b>(1, 4)</b> · Relative maximum: <b>4 at x = 1</b></div></details></div><div class="prob"><span class="tier ry">R · Y · G</span><span class="num">5</span>A tank's water w (gallons) depends on the time t (minutes).<svg class="graph" data-g='{&quot;lim&quot;: 10, &quot;step&quot;: 2, &quot;pieces&quot;: [{&quot;poly&quot;: [[0, 2], [3, 8], [5, 8], [9, 0]], &quot;s&quot;: &quot;closed&quot;, &quot;e&quot;: &quot;closed&quot;}], &quot;labels&quot;: [{&quot;x&quot;: 10.3, &quot;y&quot;: -1.9, &quot;t&quot;: &quot;t (min)&quot;, &quot;anchor&quot;: &quot;end&quot;, &quot;size&quot;: 12, &quot;italic&quot;: false}, {&quot;x&quot;: 0.4, &quot;y&quot;: 9.8, &quot;t&quot;: &quot;w (gal)&quot;, &quot;size&quot;: 12, &quot;italic&quot;: false}]}'></svg>What does the y-intercept mean? When is the water constant, and what does it mean? What does the zero mean?<details class="ans"><summary>Check answer</summary><div>y-intercept <b>(0, 2)</b>: the tank starts with 2 gallons.<br>Constant on <b>(3, 5)</b>: the water stays at 8 gallons for 2 minutes.<br>Zero <b>t = 9</b>: the tank is empty after 9 minutes.</div></details></div><div class="prob"><span class="tier ry">R · Y · G</span><span class="num">6</span>The temperature T (°F) in Idaho Falls t hours after midnight.<svg class="graph" data-g='{&quot;lim&quot;: 10, &quot;step&quot;: 2, &quot;pieces&quot;: [{&quot;poly&quot;: [[0, 4], [4, -4], [10, 8]], &quot;s&quot;: &quot;closed&quot;, &quot;e&quot;: &quot;closed&quot;}], &quot;labels&quot;: [{&quot;x&quot;: 10.3, &quot;y&quot;: -1.9, &quot;t&quot;: &quot;t (h)&quot;, &quot;anchor&quot;: &quot;end&quot;, &quot;size&quot;: 12, &quot;italic&quot;: false}, {&quot;x&quot;: 0.4, &quot;y&quot;: 9.8, &quot;t&quot;: &quot;T (\u00b0F)&quot;, &quot;size&quot;: 12, &quot;italic&quot;: false}]}'></svg>Name the zeros and the relative minimum. What does each mean?<details class="ans"><summary>Check answer</summary><div>Zeros <b>t = 2 and t = 6</b>: it is 0 °F at 2 a.m. and again at 6 a.m.<br>Relative minimum <b>−4 at t = 4</b>: the coldest it gets is −4 °F, at 4 a.m.</div></details></div><div class="prob"><span class="tier g">Green</span><span class="num">7</span>Use the graph of k. Name every relative maximum and relative minimum. Which output is the greatest value in the range?<svg class="graph" data-g='{&quot;pieces&quot;: [{&quot;poly&quot;: [[-6, -2], [-4, 3], [-2, -1], [1, 5], [4, 1], [6, 4]], &quot;s&quot;: &quot;closed&quot;, &quot;e&quot;: &quot;closed&quot;}], &quot;labels&quot;: [{&quot;x&quot;: -5.8, &quot;y&quot;: 5.3, &quot;t&quot;: &quot;k&quot;}]}'></svg><details class="ans"><summary>Check answer</summary><div>Relative maximums: <b>3 at x = −4</b> and <b>5 at x = 1</b><br>Relative minimums: <b>−1 at x = −2</b> and <b>1 at x = 4</b><br>Range <b>[−2, 5]</b>, so the greatest value is <b>5</b>.</div></details></div><div class="prob"><span class="tier g">Green</span><span class="num">8</span>Let f(x) = (x − 1)² − 9 with domain [−3, 5]. Make a table for x = −3, −1, 1, 3, 5 and sketch it. Name the zeros, y-intercept, relative minimum and range.<details class="ans"><summary>Check answer</summary><div><table class="it"><tr><th>x</th><th><span style='text-transform:none'>f(x)</span></th></tr><tr><td>−3</td><td>7</td></tr><tr><td>−1</td><td>−5</td></tr><tr><td>1</td><td>−9</td></tr><tr><td>3</td><td>−5</td></tr><tr><td>5</td><td>7</td></tr></table>Zeros: <b>x = −2, x = 4</b> · y-intercept: <b>(0, −8)</b><br>Relative minimum: <b>−9 at x = 1</b> · Range <b>[−9, 7]</b></div></details></div><div class="prob"><span class="tier g">Green</span><span class="num">9</span>A hiker's distance d (miles) from the trailhead after t hours.<svg class="graph" data-g='{&quot;lim&quot;: 8, &quot;pieces&quot;: [{&quot;poly&quot;: [[0, 0], [3, 6], [4, 6], [7, 0]], &quot;s&quot;: &quot;closed&quot;, &quot;e&quot;: &quot;closed&quot;}], &quot;labels&quot;: [{&quot;x&quot;: 8.3, &quot;y&quot;: -1.5, &quot;t&quot;: &quot;t (h)&quot;, &quot;anchor&quot;: &quot;end&quot;, &quot;size&quot;: 12, &quot;italic&quot;: false}, {&quot;x&quot;: 0.3, &quot;y&quot;: 7.9, &quot;t&quot;: &quot;d (mi)&quot;, &quot;size&quot;: 12, &quot;italic&quot;: false}]}'></svg>Name the independent and dependent variables. When is the hiker stopped? What do the zeros mean?<details class="ans"><summary>Check answer</summary><div>Independent: <b>time t</b> · Dependent: <b>distance d</b><br>Stopped (constant) on <b>(3, 4)</b>, 6 miles out.<br>Zeros <b>t = 0 and t = 7</b>: the hiker is at the trailhead at the start and back at 7 hours.</div></details></div><div class="prob"><span class="tier g">Green</span><span class="num">10</span>Compare p (graph in #3) with q (table below). Which function has the greater relative maximum? By how much?<table class="it"><tr><th>x</th><th><span style='text-transform:none'>q(x)</span></th></tr><tr><td>−4</td><td>2</td></tr><tr><td>−3</td><td>5</td></tr><tr><td>−2</td><td>6</td></tr><tr><td>−1</td><td>5</td></tr><tr><td>0</td><td>2</td></tr></table><details class="ans"><summary>Check answer</summary><div>p: relative maximum 4. q: relative maximum <b>6 at x = −2</b>.<br><b>q is greater by 2.</b></div></details></div></div></section><section id="application"><h2>Application</h2><div class="probs"><div class="prob"><span class="num">A1</span>Maya walks 4 blocks to the bus stop in 4 minutes. She waits 3 minutes. The bus carries her 12 more blocks in 3 minutes. Sketch her distance from home vs. time. Name the independent and dependent variables, the intervals where the graph is increasing and constant, the domain and the range.<details class="ans"><summary>Check answer</summary><div>Points (0, 0), (4, 4), (7, 4), (10, 16).<br>Independent: time (min) · Dependent: distance (blocks)<br>Increasing: <b>(0, 4) and (7, 10)</b> · Constant: <b>(4, 7)</b><br>Domain <b>[0, 10]</b> minutes · Range <b>[0, 16]</b> blocks</div></details></div><div class="prob"><span class="num">A2</span>A diver's height above the water is h(t) = −5t² + 10t + 15 meters for 0 ≤ t ≤ 3 seconds. Make a table for t = 0, 1, 2, 3. Find the y-intercept, the relative maximum and the zero. Say what each means.<details class="ans"><summary>Check answer</summary><div><table class="t"><tr><th>t</th><td>0</td><td>1</td><td>2</td><td>3</td></tr><tr><th>h(t)</th><td>15</td><td>20</td><td>15</td><td>0</td></tr></table>y-intercept <b>(0, 15)</b>: the diving platform is 15 m high.<br>Relative maximum <b>20 at t = 1</b>: the diver is highest, 20 m, after 1 s.<br>Zero <b>t = 3</b>: the diver reaches the water at 3 s.</div></details></div></div></section><section id="extension"><h2>Extension — Green</h2><div class="probs"><div class="prob"><span class="num">E1</span>Sketch a function with all of these features: domain [−4, 4], range [−3, 5], zeros at x = −2 and x = 3, a relative maximum of 5 at x = 1, decreasing on (−4, −3) and (1, 4), increasing on (−3, 1).<details class="ans"><summary>Check answer</summary><div>Many graphs work. One example connects (−4, −1), (−3, −3), (−2, 0), (1, 5), (3, 0), (4, −3).<svg class="graph" data-g='{&quot;pieces&quot;: [{&quot;poly&quot;: [[-4, -1], [-3, -3], [-2, 0], [1, 5], [3, 0], [4, -3]], &quot;s&quot;: &quot;closed&quot;, &quot;e&quot;: &quot;closed&quot;, &quot;c&quot;: &quot;#2E5FA3&quot;}]}'></svg></div></details></div><div class="prob"><span class="num">E2</span>Explain why a function can have several relative maximums but only one greatest value in its range. Use the graph of k in #7.<details class="ans"><summary>Check answer</summary><div>A relative maximum only has to be higher than the points <b>near</b> it. k has peaks 3 (at x = −4) and 5 (at x = 1). Both are relative maximums, but only 5 is the greatest output of the whole function.</div></details></div><div class="prob"><span class="num">E3</span>Can a function have two zeros? Can it have two y-intercepts? Explain.<details class="ans"><summary>Check answer</summary><div><b>Two zeros: yes</b> — g in #1 has three. <b>Two y-intercepts: no</b> — both would be on the line x = 0, so the input 0 would have two outputs. That fails the vertical line test.</div></details></div></div></section><section id="exit"><h2>Exit Ticket</h2><div class="box purple"><p style='margin:0'>Open <b>Snorkl</b> from Classroom: <b>U2 Activity 1 Exit Ticket</b>. Talk and draw. Name the intervals of increase and decrease, the relative maximum and the zero — and say what each one means for the ball.</p></div></section>
+<footer>Algebra 2 · Unit 2 Functions · Activity 1 · Mr. Reichelt, Room 213</footer>
+</div>
+<script>const NS = "http://www.w3.org/2000/svg";
+const el = (tag, a = {}, p) => { const n = document.createElementNS(NS, tag); for (const k in a) n.setAttribute(k, a[k]); if (p) p.appendChild(n); return n; };
+const neg = v => String(v).replace(/-/g, "−");
+let uid = 0;
+
+// spec: {lim:6, points:[[x,y] | {p:[x,y], c:"#hex", open:true, label:"A"}], pieces:[{seg|poly|fn+x0+x1|circle, s, e, c, dash, w}], labels:[{x,y,t,c,size}], vlines:[{x,c,dash}], hlines:[{y,c,dash}]}
+function graph(svg, spec) {
+  const lim = spec.lim || 6, W = 300, O = 150, S = 132 / lim, L = lim + 0.5;
+  const step = spec.step || (lim > 8 ? 4 : 2);
+  const px = x => O + S * x, py = y => O - S * y;
+  svg.setAttribute("viewBox", `0 0 ${W} ${W}`);
+  const id = "a" + (uid++);
+  const defs = el("defs", {}, svg);
+  const markers = {};
+  const marker = col => {
+    if (markers[col]) return markers[col];
+    const mid = id + "m" + Object.keys(markers).length;
+    const m = el("marker", { id: mid, viewBox: "0 0 10 10", refX: 8, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto-start-reverse" }, defs);
+    el("path", { d: "M0,0 L10,5 L0,10 z", fill: col }, m);
+    return (markers[col] = mid);
+  };
+  const ax = marker("#8a96a8");
+  for (let i = -lim; i <= lim; i++) {
+    el("line", { x1: px(i), y1: py(-L), x2: px(i), y2: py(L), stroke: "#e7ecf3" }, svg);
+    el("line", { x1: px(-L), y1: py(i), x2: px(L), y2: py(i), stroke: "#e7ecf3" }, svg);
+  }
+  el("line", { x1: px(-L), y1: O, x2: px(L), y2: O, stroke: "#8a96a8", "stroke-width": 1.4, "marker-start": `url(#${ax})`, "marker-end": `url(#${ax})` }, svg);
+  el("line", { x1: O, y1: py(-L), x2: O, y2: py(L), stroke: "#8a96a8", "stroke-width": 1.4, "marker-start": `url(#${ax})`, "marker-end": `url(#${ax})` }, svg);
+  for (let i = -lim; i <= lim; i += step) {
+    if (!i) continue;
+    el("text", { x: px(i), y: O + 13, "text-anchor": "middle", "font-size": 10, fill: "#5b6778" }, svg).textContent = neg(i);
+    el("text", { x: O - 5, y: py(i) + 3.5, "text-anchor": "end", "font-size": 10, fill: "#5b6778" }, svg).textContent = neg(i);
+  }
+  (spec.vlines || []).forEach(v => el("line", { x1: px(v.x), y1: py(-L), x2: px(v.x), y2: py(L), stroke: v.c || "#d9822b", "stroke-width": 2, "stroke-dasharray": v.dash === false ? "" : "5 4" }, svg));
+  (spec.hlines || []).forEach(v => el("line", { x1: px(-L), y1: py(v.y), x2: px(L), y2: py(v.y), stroke: v.c || "#d9822b", "stroke-width": 2, "stroke-dasharray": v.dash === false ? "" : "5 4" }, svg));
+  const dot = (x, y, closed, col = "#1b2430") => el("circle", { cx: px(x), cy: py(y), r: 4.5, fill: closed ? col : "#fff", stroke: col, "stroke-width": 2 }, svg);
+  (spec.pieces || []).forEach(pc => {
+    const col = pc.c || "#1b2430";
+    let pts = [];
+    if (pc.seg) pts = pc.seg;
+    else if (pc.poly) pts = pc.poly;
+    else if (pc.fn) { const f = new Function("x", "return " + pc.fn); const n = pc.n || 240; for (let i = 0; i <= n; i++) { const x = pc.x0 + (pc.x1 - pc.x0) * i / n; pts.push([x, f(x)]); } }
+    else if (pc.circle) { const [h, k, r] = pc.circle; for (let i = 0; i <= 240; i++) { const t = 2 * Math.PI * i / 240; pts.push([h + r * Math.cos(t), k + r * Math.sin(t)]); } }
+    const a = { d: pts.map((p, i) => (i ? "L" : "M") + px(p[0]).toFixed(1) + "," + py(p[1]).toFixed(1)).join(" "), fill: "none", stroke: col, "stroke-width": pc.w || 2.6, "stroke-linejoin": "round" };
+    if (pc.dash) a["stroke-dasharray"] = "6 5";
+    if (pc.s === "arrow") a["marker-start"] = `url(#${marker(col)})`;
+    if (pc.e === "arrow") a["marker-end"] = `url(#${marker(col)})`;
+    el("path", a, svg);
+    const A = pts[0], B = pts[pts.length - 1];
+    if (pc.s === "closed" || pc.s === "open") dot(A[0], A[1], pc.s === "closed", col);
+    if (pc.e === "closed" || pc.e === "open") dot(B[0], B[1], pc.e === "closed", col);
+  });
+  (spec.points || []).forEach(p => {
+    if (Array.isArray(p)) dot(p[0], p[1], true);
+    else {
+      dot(p.p[0], p.p[1], !p.open, p.c || "#1b2430");
+      if (p.label) el("text", { x: px(p.p[0]) + 7, y: py(p.p[1]) - 7, "font-size": 12, "font-weight": 700, fill: p.c || "#1b2430" }, svg).textContent = p.label;
+    }
+  });
+  (spec.labels || []).forEach(l => {
+    const t = el("text", { x: px(l.x), y: py(l.y), "font-size": l.size || 13, "font-weight": 700, "font-style": l.italic === false ? "normal" : "italic", fill: l.c || "#1b2430", "text-anchor": l.anchor || "start", "paint-order": "stroke", stroke: "#fff", "stroke-width": 3 }, svg);
+    t.textContent = neg(l.t);
+  });
+}
+
+function mapping(svg, m) {
+  const n = Math.max(m.inputs.length, m.outputs.length), H = n * 44 + 70, W = 300;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const id = "m" + (uid++);
+  const mk = el("marker", { id, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto" }, el("defs", {}, svg));
+  el("path", { d: "M0,0 L10,5 L0,10 z", fill: "#1b2430" }, mk);
+  const cy = H / 2 + 10, inX = 80, outX = 220;
+  const ys = arr => arr.map((_, i) => cy + (i - (arr.length - 1) / 2) * 44);
+  const iy = ys(m.inputs), oy = ys(m.outputs);
+  el("text", { x: inX, y: 18, "text-anchor": "middle", "font-size": 14, "font-weight": 700, fill: "#5b6778" }, svg).textContent = m.inLabel || "x";
+  el("text", { x: outX, y: 18, "text-anchor": "middle", "font-size": 14, "font-weight": 700, fill: "#5b6778" }, svg).textContent = m.outLabel || "y";
+  el("ellipse", { cx: inX, cy, rx: 38, ry: n * 22 + 12, fill: "#fff", stroke: "#8a96a8", "stroke-width": 1.6 }, svg);
+  el("ellipse", { cx: outX, cy, rx: 38, ry: n * 22 + 12, fill: "#fff", stroke: "#8a96a8", "stroke-width": 1.6 }, svg);
+  m.arrows.forEach(([i, o]) => el("line", { x1: inX + 18, y1: iy[i], x2: outX - 20, y2: oy[o], stroke: "#1b2430", "stroke-width": 1.8, "marker-end": `url(#${id})` }, svg));
+  m.inputs.forEach((v, i) => el("text", { x: inX, y: iy[i] + 6, "text-anchor": "middle", "font-size": 17, "font-weight": 700 }, svg).textContent = neg(v));
+  m.outputs.forEach((v, i) => el("text", { x: outX, y: oy[i] + 6, "text-anchor": "middle", "font-size": 17, "font-weight": 700 }, svg).textContent = neg(v));
+}
+
+document.querySelectorAll("svg[data-g]").forEach(s => graph(s, JSON.parse(s.dataset.g)));
+document.querySelectorAll("svg[data-map]").forEach(s => mapping(s, JSON.parse(s.dataset.map)));
+</script>
+</body>
+</html>

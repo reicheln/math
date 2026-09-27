@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Composition from Graphs</title>
+<style>
+  :root{
+    --bg:#f6f8fb; --panel:#ffffff; --ink:#1b2430; --muted:#5b6778; --line:#d9e0ea;
+    --blue:#2E5FA3; --blue-soft:#eaf1fb; --green:#1f8a4c; --green-soft:#eaf7ec;
+    --red:#c8372d; --red-soft:#fce8e6; --orange:#d9822b; --purple:#7a4fb3;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{background:var(--blue);color:#fff;padding:12px 20px;display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px}
+  header h1{margin:0;font-size:22px}
+  header span{opacity:.85;font-size:14px}
+  .tabs{display:flex;gap:8px;padding:12px 20px 0}
+  .tab{border:2px solid var(--blue);background:#fff;color:var(--blue);padding:8px 16px;border-radius:999px;font-weight:600;cursor:pointer;font-size:15px}
+  .tab[aria-selected="true"]{background:var(--blue);color:#fff}
+  main{display:grid;grid-template-columns:200px minmax(420px,1fr) 340px;gap:16px;padding:16px 20px;align-items:start}
+  @media (max-width:1000px){main{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .panel h2{margin:0 0 10px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .picker{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  @media (max-width:1000px){.picker{grid-template-columns:repeat(8,1fr)}}
+  .pick{position:relative;aspect-ratio:1;border:2px solid var(--line);background:#fff;border-radius:10px;font-size:18px;font-weight:700;cursor:pointer;color:var(--ink);padding:0}
+  .pick[aria-current="true"]{border-color:var(--blue);background:var(--blue-soft)}
+  .pick.done::after{content:"✓";position:absolute;top:1px;right:4px;font-size:12px;color:var(--green)}
+  .legend{font-size:13px;color:var(--muted);margin-top:12px}
+  .plane-wrap{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
+  svg#plane{width:100%;height:auto;display:block;touch-action:manipulation;user-select:none}
+  .xrow{display:flex;align-items:center;gap:10px;padding:8px 6px 4px;flex-wrap:wrap}
+  .xrow input[type=range]{flex:1;min-width:140px}
+  .xrow output{min-width:70px;font-variant-numeric:tabular-nums;font-weight:700;font-size:20px}
+  .sq{border:2px solid var(--blue);background:#fff;color:var(--blue);border-radius:10px;width:40px;height:40px;font-size:22px;font-weight:700;cursor:pointer}
+  .readout{font-family:ui-monospace,Consolas,monospace;font-size:22px;font-weight:700;padding:12px;border-radius:10px;background:var(--blue-soft);text-align:center;min-height:62px;word-break:break-word}
+  .readout .q{color:var(--muted)}
+  .readout.bad{background:var(--red-soft)} .readout.good{background:var(--green-soft)}
+  ol.path{margin:12px 0 0;padding-left:24px;font-size:16px}
+  ol.path li{padding:3px 6px;border-radius:6px;color:var(--muted)}
+  ol.path li.done{color:var(--ink)}
+  ol.path li.now{background:#fff3e3;color:var(--ink);font-weight:600}
+  .status{font-size:17px;padding:10px 12px;border-radius:10px;margin-top:12px;display:none}
+  .status.show{display:block}
+  .status.bad{background:var(--red-soft);border-left:5px solid var(--red)}
+  .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  button.act{border:0;border-radius:10px;padding:10px 14px;font-size:16px;font-weight:600;cursor:pointer;background:var(--blue);color:#fff}
+  button.act.alt{background:#fff;color:var(--blue);border:2px solid var(--blue)}
+  button.act.warn{background:var(--red)}
+  button.act:disabled{opacity:.4;cursor:default}
+  .qtext{font-size:26px;font-weight:700;margin:4px 0 10px;font-family:ui-monospace,Consolas,monospace}
+  .ansrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .ansrow input{width:110px;font-size:22px;padding:8px;border:2px solid var(--line);border-radius:8px;text-align:center}
+  .feedback{margin-top:12px;padding:12px;border-radius:10px;font-size:16px;display:none}
+  .feedback.show{display:block}
+  .feedback.right{background:var(--green-soft);border-left:5px solid var(--green)}
+  .feedback.wrong{background:var(--red-soft);border-left:5px solid var(--red)}
+  .prog{margin-top:14px;font-size:14px;color:var(--muted)}
+  .bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:6px}
+  .bar i{display:block;height:100%;background:var(--green);width:0;transition:width .3s}
+  .code{margin-top:12px;padding:12px;border-radius:10px;background:var(--green-soft);border:2px dashed var(--green);display:none}
+  .code.show{display:block}
+  .code strong{font-size:24px;letter-spacing:.08em}
+  label.name{display:block;margin-top:12px;font-size:14px;color:var(--muted)}
+  label.name input{display:block;width:100%;margin-top:4px;padding:8px;font-size:16px;border:1px solid var(--line);border-radius:8px}
+  details.teacher{margin:0 20px 24px;font-size:14px;color:var(--muted)}
+  details.teacher input{padding:6px;font-size:14px}
+  .hint{font-size:14px;color:var(--muted);margin:8px 0 0}
+  .hidden{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <h1>Composition from Graphs</h1>
+  <span>Algebra 2 · Unit 2 · Lesson 5 — Composition from Graphs and Tables</span>
+</header>
+
+<div class="tabs" role="tablist">
+  <button class="tab" role="tab" id="tabEx" aria-selected="true">Explore</button>
+  <button class="tab" role="tab" id="tabPr" aria-selected="false">Practice</button>
+</div>
+
+<main>
+  <section class="panel">
+    <div id="exLeft">
+      <h2>Graph pairs</h2>
+      <div class="picker" id="pairPicker"></div>
+      <p class="legend">Each pair shows f and g. The inner function is on the left.</p>
+    </div>
+    <div id="prLeft" class="hidden">
+      <h2>Questions</h2>
+      <div class="picker" id="qPicker"></div>
+      <p class="legend">✓ = answered correctly.</p>
+    </div>
+  </section>
+
+  <section class="plane-wrap">
+    <svg id="plane" aria-label="Two coordinate planes: inner function and outer function"></svg>
+    <div class="xrow" id="xrow">
+      <label for="xs">Start at</label>
+      <button class="sq" id="xMinus" aria-label="Smaller x">−</button>
+      <input type="range" id="xs" min="-5" max="5" step="1" value="1">
+      <button class="sq" id="xPlus" aria-label="Larger x">+</button>
+      <output id="xsOut">x = 1</output>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div id="prTop" class="hidden">
+      <h2 id="qTitle">Question 1 of 8</h2>
+      <div class="qtext" id="qText"></div>
+      <div class="ansrow">
+        <input id="ans" inputmode="text" autocomplete="off" aria-label="Your answer" placeholder="?">
+        <button class="act" id="check">Check</button>
+      </div>
+      <div class="btns">
+        <button class="act warn" id="notDom">Not in the domain</button>
+        <button class="act alt" id="showMe">Show me</button>
+      </div>
+      <div class="feedback" id="feedback"></div>
+    </div>
+    <div id="exTop">
+      <h2>Inside first</h2>
+    </div>
+    <div class="readout" id="readout"></div>
+    <div class="status bad" id="status"></div>
+    <div class="btns" id="exBtns">
+      <button class="act" id="step">Step ▶</button>
+      <button class="act alt" id="play">▶▶ Play</button>
+      <button class="act alt" id="reset">Reset</button>
+      <button class="act alt" id="swap">⇄ Swap</button>
+    </div>
+    <ol class="path" id="path"></ol>
+    <div id="prBottom" class="hidden">
+      <div class="prog">
+        <span id="progText">0 of 8 correct</span>
+        <div class="bar"><i id="progBar"></i></div>
+      </div>
+      <label class="name">Your name (for the completion code)
+        <input id="stuName" autocomplete="off" placeholder="First and last name">
+      </label>
+      <div class="code" id="code"></div>
+    </div>
+  </section>
+</main>
+
+<details class="teacher">
+  <summary>Teacher check</summary>
+  <p>Type a student's name exactly as they entered it to see the code they should have.</p>
+  <input id="tName" placeholder="Student name"> <strong id="tCode"></strong>
+</details>
+
+<script>
+// Data generated by verify/L5_verify.py (every value checked with exact fractions).
+const D = {"pairs":[{"f":[[-5,-3],[1,3],[6,-2]],"g":[[-4,4],[-1,-2],[3,2],[5,2]],"gf":{"-5":[-3,2],"-4":[-2,0],"-3":[-1,-2],"-2":[0,-1],"-1":[1,0],"0":[2,1],"1":[3,2],"2":[2,1],"3":[1,0],"4":[0,-1],"5":[-1,-2],"6":[-2,0]},"fg":{"-4":[4,0],"-3":[2,2],"-2":[0,2],"-1":[-2,0],"0":[-1,1],"1":[0,2],"2":[1,3],"3":[2,2],"4":[2,2],"5":[2,2]}},{"f":[[-6,5],[-3,2],[0,2],[3,-4]],"g":[[-3,-3],[0,3],[3,0],[5,0]],"gf":{"-6":[5,0],"-5":[4,0],"-4":[3,0],"-3":[2,1],"-2":[2,1],"-1":[2,1],"0":[2,1],"1":[0,3],"2":[-2,-1],"3":[-4,null]},"fg":{"-3":[-3,2],"-2":[-1,2],"-1":[1,0],"0":[3,-4],"1":[2,-2],"2":[1,0],"3":[0,2],"4":[0,2],"5":[0,2]}},{"f":[[-4,0],[-2,4],[2,0],[5,3]],"g":[[-5,-1],[0,4],[4,0]],"gf":{"-4":[0,4],"-3":[2,2],"-2":[4,0],"-1":[3,1],"0":[2,2],"1":[1,3],"2":[0,4],"3":[1,3],"4":[2,2],"5":[3,1]},"fg":{"-5":[-1,3],"-4":[0,2],"-3":[1,1],"-2":[2,0],"-1":[3,1],"0":[4,2],"1":[3,1],"2":[2,0],"3":[1,1],"4":[0,2]}},{"f":[[-5,1],[-1,-3],[3,1],[5,5]],"g":[[-6,-2],[-2,2],[2,2],[6,-2]],"gf":{"-5":[1,2],"-4":[0,2],"-3":[-1,2],"-2":[-2,2],"-1":[-3,1],"0":[-2,2],"1":[-1,2],"2":[0,2],"3":[1,2],"4":[3,1],"5":[5,-1]},"fg":{"-6":[-2,-2],"-5":[-1,-3],"-4":[0,-2],"-3":[1,-1],"-2":[2,0],"-1":[2,0],"0":[2,0],"1":[2,0],"2":[2,0],"3":[1,-1],"4":[0,-2],"5":[-1,-3],"6":[-2,-2]}},{"f":[[-2,-5],[0,1],[4,5]],"g":[[-4,2],[0,-2],[3,1],[6,-2]],"gf":{"-2":[-5,null],"-1":[-2,0],"0":[1,-1],"1":[2,0],"2":[3,1],"3":[4,0],"4":[5,-1]},"fg":{"-4":[2,3],"-3":[1,2],"-2":[0,1],"-1":[-1,-2],"0":[-2,-5],"1":[-1,-2],"2":[0,1],"3":[1,2],"4":[0,1],"5":[-1,-2],"6":[-2,-5]}},{"f":[[-6,-1],[-3,2],[1,-2],[4,1]],"g":[[-2,-4],[2,4],[5,1]],"gf":{"-6":[-1,-2],"-5":[0,0],"-4":[1,2],"-3":[2,4],"-2":[1,2],"-1":[0,0],"0":[-1,-2],"1":[-2,-4],"2":[-1,-2],"3":[0,0],"4":[1,2]},"fg":{"-2":[-4,1],"-1":[-2,1],"0":[0,-1],"1":[2,-1],"2":[4,1],"3":[3,0],"4":[2,-1],"5":[1,-2]}}],"practice":[{"pair":0,"outer":"g","inner":"f","x":1,"mid":3,"ans":2},{"pair":0,"outer":"f","inner":"g","x":-2,"mid":0,"ans":2},{"pair":1,"outer":"f","inner":"f","x":0,"mid":2,"ans":-2},{"pair":1,"outer":"g","inner":"f","x":3,"mid":-4,"ans":null},{"pair":2,"outer":"g","inner":"f","x":-2,"mid":4,"ans":0},{"pair":3,"outer":"f","inner":"g","x":4,"mid":0,"ans":-2},{"pair":4,"outer":"g","inner":"f","x":2,"mid":3,"ans":1},{"pair":5,"outer":"g","inner":"g","x":4,"mid":2,"ans":4}]};
+
+// ---------- coordinate system (two planes in one SVG) ----------
+const NS = "http://www.w3.org/2000/svg";
+const PW = 520, TH = 44, S = 38, LIM = 6.5, GAP = 40;
+const el = (tag, attrs = {}, parent) => {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+};
+const neg = v => String(v).replace(/-/g, "−");
+const COL = { f: "#2E5FA3", g: "#7a4fb3" };
+const ORANGE = "#d9822b", GREEN = "#1f8a4c", RED = "#c8372d";
+
+let layout = "h";
+function origin(k) { // k = 0 inner (left/top), 1 outer (right/bottom)
+  const ox = layout === "h" ? k * (PW + GAP) : 0;
+  const oy = layout === "h" ? 0 : k * (PW + TH + GAP);
+  return { X: ox + PW / 2, Y: oy + TH + PW / 2, ox, oy };
+}
+const PX = (k, x) => origin(k).X + S * x;
+const PY = (k, y) => origin(k).Y - S * y;
+
+// ---------- state ----------
+let mode = "ex", pair = 0, swap = false, x = 1, step = 0, anim = null, timers = [], qi = 0;
+const solved = new Array(D.practice.length).fill(false);
+const svg = document.getElementById("plane");
+
+function job() {
+  if (mode === "pr") {
+    const q = D.practice[qi];
+    return { pair: q.pair, inner: q.inner, outer: q.outer, x: q.x, u: q.mid, v: q.ans };
+  }
+  const inner = swap ? "g" : "f", outer = swap ? "f" : "g";
+  const r = D.pairs[pair][swap ? "fg" : "gf"][String(x)];
+  return { pair, inner, outer, x, u: r[0], v: r[1] };
+}
+function dom(p, name) { const pts = D.pairs[p][name]; return [pts[0][0], pts[pts.length - 1][0]]; }
+
+// ---------- drawing ----------
+function drawPlane(k, name, p, role) {
+  const { X, Y, ox, oy } = origin(k);
+  const g = el("g", {}, svg);
+  el("rect", { x: ox, y: oy, width: PW, height: PW + TH, fill: "#fff" }, g);
+  const t = el("text", { x: ox + PW / 2, y: oy + 30, "text-anchor": "middle", "font-size": 24, "font-weight": 700, fill: COL[name] }, g);
+  t.textContent = (role === "inner" ? "Inner function: " : "Outer function: ") + name;
+  for (let i = -6; i <= 6; i++) {
+    el("line", { x1: PX(k, i), y1: PY(k, -LIM), x2: PX(k, i), y2: PY(k, LIM), stroke: "#e7ecf3", "stroke-width": 1 }, g);
+    el("line", { x1: PX(k, -LIM), y1: PY(k, i), x2: PX(k, LIM), y2: PY(k, i), stroke: "#e7ecf3", "stroke-width": 1 }, g);
+  }
+  el("line", { x1: PX(k, -LIM), y1: Y, x2: PX(k, LIM), y2: Y, stroke: "#8a96a8", "stroke-width": 1.6, "marker-end": "url(#arrA)", "marker-start": "url(#arrA)" }, g);
+  el("line", { x1: X, y1: PY(k, -LIM), x2: X, y2: PY(k, LIM), stroke: "#8a96a8", "stroke-width": 1.6, "marker-end": "url(#arrA)", "marker-start": "url(#arrA)" }, g);
+  for (let i = -6; i <= 6; i++) {
+    if (!i) continue;
+    el("text", { x: PX(k, i), y: Y + 18, "text-anchor": "middle", "font-size": 14, fill: "#5b6778" }, g).textContent = neg(i);
+    el("text", { x: X - 7, y: PY(k, i) + 5, "text-anchor": "end", "font-size": 14, fill: "#5b6778" }, g).textContent = neg(i);
+  }
+  el("text", { x: PX(k, 6.35), y: Y - 8, "font-size": 16, "font-style": "italic", fill: "#5b6778" }, g).textContent = "x";
+  el("text", { x: X + 8, y: PY(k, 6.3), "font-size": 16, "font-style": "italic", fill: "#5b6778" }, g).textContent = "y";
+  const pts = D.pairs[p][name];
+  el("path", { d: pts.map((q, i) => (i ? "L" : "M") + PX(k, q[0]) + "," + PY(k, q[1])).join(" "), fill: "none", stroke: COL[name], "stroke-width": 4, "stroke-linejoin": "round" }, g);
+  [pts[0], pts[pts.length - 1]].forEach(q => el("circle", { cx: PX(k, q[0]), cy: PY(k, q[1]), r: 6, fill: COL[name] }, g));
+  // name label near the highest vertex
+  const top = pts.reduce((a, b) => (b[1] > a[1] ? b : a));
+  const lab = el("text", { x: PX(k, top[0]) + 8, y: PY(k, top[1]) - 10, "font-size": 24, "font-weight": 700, "font-style": "italic", fill: COL[name], "paint-order": "stroke", stroke: "#fff", "stroke-width": 4 }, g);
+  lab.textContent = name;
+}
+function dash(x1, y1, x2, y2, col) {
+  el("line", { x1, y1, x2, y2, stroke: col, "stroke-width": 4, "stroke-dasharray": "9 7", "stroke-linecap": "round" }, svg);
+}
+function pill(cx, cy, val, col) {
+  const s = neg(val), w = 22 + 13 * s.length;
+  el("rect", { x: cx - w / 2, y: cy - 18, width: w, height: 36, rx: 18, fill: col, stroke: "#fff", "stroke-width": 3 }, svg);
+  el("text", { x: cx, y: cy + 8, "text-anchor": "middle", "font-size": 24, "font-weight": 800, fill: "#fff" }, svg).textContent = s;
+}
+function bigLabel(x, y, txt, col, anchor = "start") {
+  el("text", { x, y, "text-anchor": anchor, "font-size": 26, "font-weight": 800, fill: col, "paint-order": "stroke", stroke: "#fff", "stroke-width": 6 }, svg).textContent = neg(txt);
+}
+function flyPoint(t, J) {
+  const below = !(step >= 4 && J.v !== null && J.v < 0);
+  const A = [origin(0).X, PY(0, J.u)], B = [PX(1, J.u), origin(1).Y + (below ? 34 : -34)];
+  const C = layout === "h" ? [(A[0] + B[0]) / 2, Math.min(A[1], B[1]) - 170] : [Math.max(A[0], B[0]) + 150, (A[1] + B[1]) / 2];
+  const q = (a, b, c) => (1 - t) * (1 - t) * a + 2 * (1 - t) * t * b + t * t * c;
+  return { A, B, C, P: [q(A[0], C[0], B[0]), q(A[1], C[1], B[1])] };
+}
+
+function draw() {
+  const wrapW = svg.parentElement.clientWidth || 800;
+  layout = wrapW < 640 ? "v" : "h";
+  const VW = layout === "h" ? 2 * PW + GAP : PW, VH = layout === "h" ? PW + TH : 2 * (PW + TH) + GAP;
+  svg.setAttribute("viewBox", `0 0 ${VW} ${VH}`);
+  svg.innerHTML = "";
+  const defs = el("defs", {}, svg);
+  const mk = (id, color, sz) => { const m = el("marker", { id, viewBox: "0 0 10 10", refX: 8, refY: 5, markerWidth: sz, markerHeight: sz, orient: "auto-start-reverse" }, defs); el("path", { d: "M0,0 L10,5 L0,10 z", fill: color }, m); };
+  mk("arrA", "#8a96a8", 7); mk("arrO", ORANGE, 4);
+  const J = job();
+  drawPlane(0, J.inner, J.pair, "inner");
+  drawPlane(1, J.outer, J.pair, "outer");
+  const iX = origin(0).X, iY = origin(0).Y, oX = origin(1).X, oY = origin(1).Y;
+  // start marker
+  el("circle", { cx: PX(0, J.x), cy: iY, r: 9, fill: "#fff", stroke: ORANGE, "stroke-width": 4 }, svg);
+  if (step === 0) bigLabel(PX(0, J.x), iY + 44, "x = " + J.x, ORANGE, "middle");
+  if (step >= 1) {
+    dash(PX(0, J.x), iY, PX(0, J.x), PY(0, J.u), ORANGE);
+    el("circle", { cx: PX(0, J.x), cy: PY(0, J.u), r: 9, fill: ORANGE, stroke: "#fff", "stroke-width": 2.5 }, svg);
+  }
+  if (step >= 2) {
+    dash(PX(0, J.x), PY(0, J.u), iX, PY(0, J.u), ORANGE);
+    bigLabel(J.x >= 0 ? PX(0, J.x) + 14 : PX(0, J.x) - 14, PY(0, J.u) + (J.u >= 0 ? -16 : 34), `${J.inner}(${J.x}) = ${J.u}`, ORANGE, J.x >= 0 ? "start" : "end");
+    if (step === 2) pill(iX, PY(0, J.u), J.u, ORANGE);
+  }
+  if (step >= 3) {
+    const t = anim !== null ? anim : 1;
+    const F = flyPoint(t, J);
+    // trail
+    const n = 30, tr = [];
+    for (let i = 0; i <= n; i++) { const P = flyPoint(t * i / n, J).P; tr.push(P); }
+    el("path", { d: tr.map((p, i) => (i ? "L" : "M") + p[0].toFixed(1) + "," + p[1].toFixed(1)).join(" "), fill: "none", stroke: ORANGE, "stroke-width": 3, "stroke-dasharray": "4 6", opacity: .8, "marker-end": t === 1 ? "url(#arrO)" : "" }, svg);
+    if (t === 1) {
+      const [a, b] = dom(J.pair, J.outer), inDom = J.v !== null;
+      el("line", { x1: PX(1, a), y1: oY, x2: PX(1, b), y2: oY, stroke: inDom ? GREEN : RED, "stroke-width": 10, opacity: .28, "stroke-linecap": "round" }, svg);
+      el("circle", { cx: PX(1, J.u), cy: oY, r: 9, fill: inDom ? GREEN : "#fff", stroke: inDom ? "#fff" : RED, "stroke-width": 3 }, svg);
+      if (!inDom) {
+        const cx = PX(1, J.u), cy = oY;
+        el("path", { d: `M${cx - 14},${cy - 14} L${cx + 14},${cy + 14} M${cx - 14},${cy + 14} L${cx + 14},${cy - 14}`, stroke: RED, "stroke-width": 5 }, svg);
+        const msg = neg(`${J.u} is not in the domain of ${J.outer}`), ly = PY(1, 5.4);
+        el("rect", { x: oX - 14 * msg.length / 2 - 12, y: ly - 26, width: 14 * msg.length + 24, height: 40, rx: 10, fill: "#fce8e6", stroke: RED, "stroke-width": 2 }, svg);
+        el("text", { x: oX, y: ly + 2, "text-anchor": "middle", "font-size": 24, "font-weight": 800, fill: RED }, svg).textContent = msg;
+      }
+    }
+    pill(F.P[0], F.P[1], J.u, t === 1 && J.v !== null ? GREEN : ORANGE);
+  }
+  if (step >= 4 && J.v !== null) {
+    dash(PX(1, J.u), oY, PX(1, J.u), PY(1, J.v), GREEN);
+    el("circle", { cx: PX(1, J.u), cy: PY(1, J.v), r: 9, fill: GREEN, stroke: "#fff", "stroke-width": 2.5 }, svg);
+  }
+  if (step >= 5 && J.v !== null) {
+    dash(PX(1, J.u), PY(1, J.v), oX, PY(1, J.v), GREEN);
+    pill(oX, PY(1, J.v), J.v, GREEN);
+    bigLabel(J.u >= 0 ? PX(1, J.u) + 14 : PX(1, J.u) - 14, PY(1, J.v) + (J.v >= 0 ? -16 : 34), `${J.outer}(${J.u}) = ${J.v}`, GREEN, J.u >= 0 ? "start" : "end");
+  }
+  renderText(J);
+}
+
+function renderText(J) {
+  const ro = document.getElementById("readout"), st = document.getElementById("status");
+  const head = `${J.outer}(${J.inner}(${J.x}))`;
+  const undef = J.v === null && step >= 3 && anim === null;
+  if (step < 2) ro.innerHTML = `${neg(head)} = <span class="q">?</span>`;
+  else if (undef) ro.innerHTML = neg(`${head} = ${J.outer}(${J.u})`) + " → undefined";
+  else if (step < 5) ro.innerHTML = neg(`${head} = ${J.outer}(${J.u})`) + ` = <span class="q">?</span>`;
+  else ro.innerHTML = neg(`${head} = ${J.outer}(${J.u}) = ${J.v}`);
+  ro.className = "readout" + (step >= 3 && J.v === null && anim === null ? " bad" : step >= 5 ? " good" : "");
+  if (step >= 3 && J.v === null && anim === null) {
+    const [a, b] = dom(J.pair, J.outer);
+    st.className = "status bad show";
+    st.innerHTML = `<b>Not in the domain.</b> ${J.outer} only takes inputs from ${neg(a)} to ${neg(b)}. ${neg(J.u)} is outside, so ${neg(head)} is undefined.`;
+  } else st.className = "status bad";
+  const items = [
+    `Start at x = ${J.x}. Go to the graph of ${J.inner}.`,
+    `Read the output: ${J.inner}(${J.x}) = ${step >= 2 ? J.u : "?"}.`,
+    `The output of ${J.inner} becomes the input of ${J.outer}.`,
+    `Go from x = ${step >= 3 ? J.u : "?"} to the graph of ${J.outer}.`,
+    `Read the output: ${J.outer}(${step >= 3 ? J.u : "?"}) = ${step >= 5 && J.v !== null ? J.v : "?"}.`,
+  ];
+  if (undef) { items.splice(3, 2, `Stop. ${J.u} is not in the domain of ${J.outer}, so ${head} is undefined.`); }
+  document.getElementById("path").innerHTML = items.map((s, i) => `<li class="${undef && i === 3 ? "now" : i < step ? "done" : i === step ? "now" : ""}">${neg(s)}</li>`).join("");
+  const blocked = step >= 5 || (step >= 3 && J.v === null) || anim !== null;
+  document.getElementById("step").disabled = blocked;
+  document.getElementById("play").disabled = anim !== null;
+}
+
+// ---------- stepping and animation ----------
+function stopAll() { timers.forEach(clearTimeout); timers = []; if (anim !== null) { cancelAnimationFrame(rafId); anim = null; } }
+let rafId = 0;
+function fly(done) {
+  const t0 = performance.now(), dur = 1100;
+  anim = 0;
+  const tick = now => {
+    anim = Math.min(1, (now - t0) / dur);
+    const e = anim < .5 ? 2 * anim * anim : 1 - Math.pow(-2 * anim + 2, 2) / 2;
+    const keep = anim; anim = e; draw(); anim = keep;
+    if (keep < 1) rafId = requestAnimationFrame(tick);
+    else { anim = null; draw(); if (done) done(); }
+  };
+  rafId = requestAnimationFrame(tick);
+}
+function doStep(done) {
+  const J = job();
+  if (step >= 5 || (step >= 3 && J.v === null) || anim !== null) return;
+  step++;
+  if (step === 3) fly(done); else { draw(); if (done) done(); }
+}
+function play() {
+  stopAll(); step = 0; draw();
+  const next = () => {
+    const J = job();
+    if (step >= 5 || (step >= 3 && J.v === null)) return;
+    timers.push(setTimeout(() => doStep(next), 750));
+  };
+  next();
+}
+function resetSteps() { stopAll(); step = 0; draw(); }
+
+// ---------- UI ----------
+const pairPicker = document.getElementById("pairPicker"), qPicker = document.getElementById("qPicker");
+D.pairs.forEach((_, i) => {
+  const b = document.createElement("button");
+  b.className = "pick"; b.textContent = i + 1; b.setAttribute("aria-label", "Graph pair " + (i + 1));
+  b.onclick = () => selectPair(i); pairPicker.appendChild(b);
+});
+D.practice.forEach((_, i) => {
+  const b = document.createElement("button");
+  b.className = "pick"; b.textContent = i + 1; b.setAttribute("aria-label", "Question " + (i + 1));
+  b.onclick = () => selectQ(i); qPicker.appendChild(b);
+});
+const xs = document.getElementById("xs");
+function setX(v) {
+  const [a, b] = dom(pair, swap ? "g" : "f");
+  x = Math.max(a, Math.min(b, v)); xs.value = x;
+  document.getElementById("xsOut").textContent = "x = " + neg(x);
+  resetSteps();
+}
+function selectPair(i) {
+  pair = i;
+  [...pairPicker.children].forEach((b, k) => b.setAttribute("aria-current", k === i ? "true" : "false"));
+  syncSlider(); setX(x);
+}
+function syncSlider() { const [a, b] = dom(pair, swap ? "g" : "f"); xs.min = a; xs.max = b; }
+xs.addEventListener("input", () => setX(+xs.value));
+document.getElementById("xMinus").onclick = () => setX(x - 1);
+document.getElementById("xPlus").onclick = () => setX(x + 1);
+document.getElementById("step").onclick = () => { stopAll(); doStep(); };
+document.getElementById("play").onclick = play;
+document.getElementById("reset").onclick = resetSteps;
+document.getElementById("swap").onclick = () => { swap = !swap; syncSlider(); setX(x); };
+// tap the inner plane to choose x
+svg.addEventListener("pointerdown", e => {
+  if (mode !== "ex") return;
+  const pt = svg.createSVGPoint(); pt.x = e.clientX; pt.y = e.clientY;
+  const m = svg.getScreenCTM(); if (!m) return;
+  const p = pt.matrixTransform(m.inverse());
+  const o = origin(0);
+  if (p.x < o.ox || p.x > o.ox + PW || p.y < o.oy || p.y > o.oy + PW + TH) return;
+  setX(Math.round((p.x - o.X) / S));
+});
+
+// practice
+function selectQ(i) {
+  qi = i; stopAll(); step = 0;
+  [...qPicker.children].forEach((b, k) => b.setAttribute("aria-current", k === i ? "true" : "false"));
+  const q = D.practice[i];
+  document.getElementById("qTitle").textContent = `Question ${i + 1} of ${D.practice.length}`;
+  document.getElementById("qText").textContent = neg(`Find ${q.outer}(${q.inner}(${q.x}))`);
+  document.getElementById("ans").value = "";
+  document.getElementById("feedback").className = "feedback";
+  draw();
+}
+function grade(given) {
+  const q = D.practice[qi], fb = document.getElementById("feedback");
+  const right = given === q.ans;
+  if (right) { solved[qi] = true; qPicker.children[qi].classList.add("done"); }
+  fb.className = "feedback show " + (right ? "right" : "wrong");
+  const why = q.ans === null
+    ? `${q.inner}(${q.x}) = ${q.mid}, and ${q.mid} is not in the domain of ${q.outer}. Undefined.`
+    : `${q.inner}(${q.x}) = ${q.mid}, then ${q.outer}(${q.mid}) = ${q.ans}.`;
+  if (right) fb.innerHTML = `<b>Correct.</b> ${neg(why)}`;
+  else if (given !== null && given === q.mid) fb.innerHTML = `<b>Not yet.</b> That is ${neg(q.inner + "(" + q.x + ")")} — the inner output. Now use it as the input of ${q.outer}.`;
+  else fb.innerHTML = `<b>Not yet.</b> Inside first: find ${neg(q.inner + "(" + q.x + ")")} on the left graph. Press <b>Show me</b> to watch.`;
+  updateProgress();
+}
+document.getElementById("check").onclick = () => {
+  const raw = document.getElementById("ans").value.trim().replace(/[−–]/g, "-");
+  if (!/^-?\d+$/.test(raw)) { const fb = document.getElementById("feedback"); fb.className = "feedback show wrong"; fb.innerHTML = "Type a whole number, like 3 or −2. If there is no answer, press <b>Not in the domain</b>."; return; }
+  grade(parseInt(raw, 10));
+};
+document.getElementById("ans").addEventListener("keydown", e => { if (e.key === "Enter") document.getElementById("check").click(); });
+document.getElementById("notDom").onclick = () => grade(null);
+document.getElementById("showMe").onclick = play;
+
+function codeFor(name) {
+  const s = name.trim().toLowerCase().replace(/\s+/g, " ") + "|a2u2-compgraph";
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+  const A = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let out = "";
+  for (let i = 0; i < 5; i++) { out += A[h % 32]; h = Math.floor(h / 32) ^ (i * 2654435761 >>> 0); h >>>= 0; }
+  return "L5-" + out;
+}
+function updateProgress() {
+  const n = solved.filter(Boolean).length, N = solved.length;
+  document.getElementById("progText").textContent = `${n} of ${N} correct`;
+  document.getElementById("progBar").style.width = (100 * n / N) + "%";
+  const name = document.getElementById("stuName").value.trim(), box = document.getElementById("code");
+  if (n === N && name) { box.className = "code show"; box.innerHTML = `All ${N} correct. Paste this code into Classroom:<br><strong id="codeText">${codeFor(name)}</strong>`; }
+  else if (n === N) { box.className = "code show"; box.innerHTML = `All ${N} correct. Type your name above to get your code.`; }
+  else box.className = "code";
+}
+document.getElementById("stuName").addEventListener("input", updateProgress);
+document.getElementById("tName").addEventListener("input", e => {
+  document.getElementById("tCode").textContent = e.target.value.trim() ? codeFor(e.target.value) : "";
+});
+
+function setMode(m) {
+  mode = m; stopAll(); step = 0;
+  document.getElementById("tabEx").setAttribute("aria-selected", m === "ex");
+  document.getElementById("tabPr").setAttribute("aria-selected", m === "pr");
+  ["exLeft", "exTop", "xrow", "swap", "reset", "step"].forEach(id => document.getElementById(id).classList.toggle("hidden", m !== "ex"));
+  ["prLeft", "prTop", "prBottom"].forEach(id => document.getElementById(id).classList.toggle("hidden", m !== "pr"));
+  document.getElementById("play").classList.toggle("hidden", m !== "ex");
+  if (m === "pr") selectQ(qi); else draw();
+}
+document.getElementById("tabEx").onclick = () => setMode("ex");
+document.getElementById("tabPr").onclick = () => setMode("pr");
+let rz; window.addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(draw, 80); });
+
+selectPair(0);
+</script>
+</body>
+</html>

@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Algebra 2 U2 Lesson 2</title>
+<style>
+  :root{
+    --bg:#f6f8fb; --panel:#fff; --ink:#1b2430; --muted:#5b6778; --line:#d9e0ea;
+    --blue:#2E5FA3; --blue-soft:#eaf1fb; --tan:#fff6e5; --green:#1f8a4c; --green-soft:#eaf7ec;
+    --purple:#7a4fb3; --purple-soft:#f4e5f7; --gray-soft:#f2f2f2; --red:#c8372d; --orange:#d9822b;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{background:var(--blue);color:#fff;padding:18px 20px}
+  header .kicker{font-size:14px;opacity:.85;letter-spacing:.03em}
+  header h1{margin:4px 0 6px;font-size:28px;line-height:1.2}
+  header .target{font-size:15px;opacity:.95;max-width:900px}
+  nav{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);display:flex;gap:4px;overflow-x:auto;padding:8px 12px}
+  nav a{flex:none;color:var(--blue);text-decoration:none;font-weight:600;font-size:15px;padding:6px 12px;border-radius:999px}
+  nav a:hover{background:var(--blue-soft)}
+  .wrap{max-width:1040px;margin:0 auto;padding:16px}
+  section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin:16px 0;scroll-margin-top:56px}
+  h2{margin:0 0 12px;color:var(--blue);font-size:24px}
+  h3{margin:20px 0 8px;font-size:19px}
+  .box{border-radius:12px;padding:14px 16px;margin:12px 0}
+  .box.blue{background:var(--blue-soft)} .box.tan{background:var(--tan)} .box.green{background:var(--green-soft)}
+  .box.purple{background:var(--purple-soft)} .box.gray{background:var(--gray-soft)}
+  .routine{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+  .routine div{background:var(--blue-soft);border-radius:10px;padding:10px 12px;font-size:15px}
+  .routine b{display:block;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .btn{display:inline-block;background:var(--blue);color:#fff;text-decoration:none;font-weight:700;padding:10px 16px;border-radius:10px;margin:6px 8px 6px 0}
+  .btn.alt{background:#fff;color:var(--blue);border:2px solid var(--blue)}
+  .vocab{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}
+  .vocab div{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .vocab dt{font-weight:700;color:var(--blue)}
+  .vocab dd{margin:2px 0 0}
+  .vocab .formal{font-size:14px;color:var(--muted);margin-top:4px}
+  .four{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;align-items:start}
+  .card{border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+  .card h4{margin:0 0 6px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  table.t{border-collapse:collapse;margin:6px auto}
+  table.t td,table.t th{border:1px solid #9aa6b8;padding:6px 14px;text-align:center;font-size:17px}
+  table.t th{background:var(--blue-soft)}
+  .card table.t td,.card table.t th{padding:6px 9px}
+  table.it{border-collapse:collapse;width:100%;margin:8px 0}
+  table.it th,table.it td{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:middle}
+  table.it th{font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+  .mono{font-family:ui-monospace,Consolas,monospace;font-size:18px}
+  .probs{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+  .prob{border:1px solid var(--line);border-radius:12px;padding:14px;position:relative}
+  .prob .num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:var(--blue);color:#fff;font-weight:700;margin-right:8px}
+  .prob .tier{float:right;margin:0 0 6px 8px;font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px}
+  .tier.ry{background:#fde7c8;color:#8a4b00} .tier.g{background:var(--green-soft);color:var(--green)}
+  details.ans{margin-top:10px}
+  details.ans summary{cursor:pointer;color:var(--blue);font-weight:600}
+  details.ans div{background:var(--green-soft);border-radius:8px;padding:8px 10px;margin-top:6px}
+  .graph{display:block;width:100%;max-width:300px;margin:8px auto 0}
+  .graph.big{max-width:340px}
+  .tiers{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 12px}
+  .tiers span{padding:6px 12px;border-radius:99px;font-weight:600;font-size:15px}
+  .ex{border-left:5px solid var(--blue);padding:4px 0 4px 14px;margin:14px 0}
+  .ex-grid{display:grid;grid-template-columns:minmax(220px,300px) 1fr;gap:16px;align-items:center}
+  @media (max-width:700px){.ex-grid{grid-template-columns:1fr}}
+  ol.steps{margin:6px 0;padding-left:22px}
+  .keyrow{display:flex;flex-wrap:wrap;gap:14px;margin:8px 0}
+  .keyrow div{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+  footer{color:var(--muted);font-size:13px;text-align:center;padding:10px 0 30px}
+
+  .two{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;align-items:start}
+  .callout{border-left:5px solid var(--orange);background:#fff8ef;border-radius:8px;padding:10px 14px;margin:10px 0}
+  .big{font-size:22px}
+  .center{text-align:center}
+  .muted{color:var(--muted)}
+  .tool{display:flex;gap:14px;align-items:center;flex-wrap:wrap;border:2px dashed var(--blue);border-radius:12px;padding:12px 16px;margin:12px 0;background:#fff}
+  .tool b{font-size:18px}
+</style>
+</head>
+<body>
+<header>
+  <div class="kicker">ALGEBRA 2 · UNIT 2 FUNCTIONS · LESSON 2 · WEDNESDAY, SEPTEMBER 30</div>
+  <h1>Function Notation</h1>
+  <div class="target"><b>D93 outcomes:</b> Students will evaluate a function given an x-value (F.IF.A.2). Students will use function notation and state the domain and range of a given function (F.IF.A.1). Students will write functions and graph them to determine the relationship between the variables (A.CED.A.2).</div>
+</header>
+<nav><a href="#today">Today</a><a href="#discovery">Discovery</a><a href="#vocab">Vocabulary</a><a href="#notes">Notes</a><a href="#practice">Practice</a><a href="#application">Application</a><a href="#extension">Extension</a><a href="#exit">Exit Ticket</a><a href="index.html">Unit home</a></nav>
+<div class="wrap">
+<section id="today"><h2>Today</h2><div class="routine"><div><b>0–10 min</b>Warm-up: DeltaMath — domain and range from a graph</div><div><b>10–20 min</b>Discovery: draw a function from clues</div><div><b>20–35 min</b>Notes and examples</div><div><b>35–50 min</b>Practice: your group's problems</div><div><b>50–60 min</b>Exit ticket on DeltaMath</div></div></section><section id="discovery"><h2>Discovery</h2><h3>Draw a function that fits the clues (pairs, 10 min)</h3><div class="box tan"><p style='margin-top:0'>Each clue below is written in <b>function notation</b>. Read <span class='mono'>f(0) = 2</span> as "when the input is 0, the output is 2."</p><p class='big center mono'>f(0) = 2 &nbsp;·&nbsp; f(−3) = 0 &nbsp;·&nbsp; f(3) = 0 &nbsp;·&nbsp; f(5) = −2</p><ol class="steps"><li>On scratch paper, turn each clue into an ordered pair (x, y) and plot it.</li><li>Connect the points into <b>any</b> function you like. It must pass the vertical line test.</li><li>Compare with your partner. Are your graphs the same? Do they both fit every clue?</li><li>Using your graph, estimate f(1). Does your partner get the same value? Why or why not?</li></ol></div><details class='ans'><summary>One graph that fits (after you compare)</summary><div>Here is one graph that fits all four clues. Yours can look different and still be right — four clues pin down four points, not the whole function. On this graph f(1) is about 1.3.<svg class="graph" data-g='{&quot;pieces&quot;: [{&quot;poly&quot;: [[-4.5, -1.5], [-3, 0], [0, 2], [3, 0], [5, -2], [6.2, -3.2]], &quot;c&quot;: &quot;#2E5FA3&quot;, &quot;s&quot;: &quot;arrow&quot;, &quot;e&quot;: &quot;arrow&quot;}], &quot;points&quot;: [{&quot;p&quot;: [0, 2], &quot;c&quot;: &quot;#c8372d&quot;}, {&quot;p&quot;: [-3, 0], &quot;c&quot;: &quot;#c8372d&quot;}, {&quot;p&quot;: [3, 0], &quot;c&quot;: &quot;#c8372d&quot;}, {&quot;p&quot;: [5, -2], &quot;c&quot;: &quot;#c8372d&quot;}]}'></svg></div></details></section><section id="vocab"><h2>Vocabulary</h2><dl class="vocab"><div><dt>function notation</dt><dd>A way to name a function and show its input: f(x) = 2x + 7. Read f(x) as "f of x."</dd><div class="formal">Formal: f(x) denotes the output of f corresponding to the input x.</div></div><div><dt>input</dt><dd>The value you put into a function — the x-value. It comes from the domain.</dd></div><div><dt>output</dt><dd>The value the function gives back — the y-value, f(x). It is in the range.</dd></div><div><dt>evaluate</dt><dd>Replace the input with a number and simplify to find the output.</dd></div></dl></section><section id="notes"><h2>Notes</h2><h3>1 · From y = to f(x) =</h3><div class="box blue"><p class='big center mono' style='margin:4px 0'>y = 2x + 7 &nbsp;→&nbsp; f(x) = 2x + 7</p><p style='margin:6px 0 0'><b>f</b> is the name of the function, <b>x</b> is the input, and <b>f(x)</b> is the output. f(x) does <b>not</b> mean f times x. The name tells you which rule to use when there is more than one function.</p></div><h3>2 · Evaluate from an equation</h3><div class="ex"><b>Example 1</b><div style="margin-top:6px">If f(x) = 2x + 7, find f(−3).<br>Replace every x with (−3): f(−3) = 2(−3) + 7 = <b>1</b>. So the point (−3, 1) is on the graph of f.</div></div><div class="ex"><b>Example 2 — watch the square</b><div style="margin-top:6px">If h(x) = x² − 4x, find h(−2).<br>Use parentheses: h(−2) = (−2)² − 4(−2) = 4 + 8 = <b>12</b>.</div></div><div class='callout'><b>Always put the input in parentheses.</b> (−2)² = 4, but −2² = −4.</div><h3>3 · Evaluate from a table or a graph</h3><div class='two'><div><table class="t"><tr><th>x</th><td>−2</td><td>0</td><td>3</td><td>5</td></tr><tr><th>p(x)</th><td>7</td><td>1</td><td>10</td><td>−4</td></tr></table><p>p(3) = <b>10</b>: find 3 in the input row, read the output.</p></div><div><svg class="graph" data-g='{&quot;pieces&quot;: [{&quot;poly&quot;: [[-5, -3], [-2, 3], [1, 0], [4, 3]], &quot;s&quot;: &quot;closed&quot;, &quot;e&quot;: &quot;closed&quot;}], &quot;labels&quot;: [{&quot;x&quot;: 4.3, &quot;y&quot;: 3.6, &quot;t&quot;: &quot;k&quot;, &quot;c&quot;: &quot;#2E5FA3&quot;}]}'></svg><p>k(−2) = <b>3</b>: go to x = −2, move up to the graph, read the y-value.</p></div></div><h3>4 · Solve f(x) = a number</h3><p>Now the <b>output</b> is given and you find the <b>input</b>.</p><div class="ex"><b>Example 3 — equation</b><div style="margin-top:6px">If f(x) = 4x − 5, find x when f(x) = 23.<br>4x − 5 = 23 → 4x = 28 → <b>x = 7</b>.</div></div><div class="ex"><b>Example 4 — graph</b><div style="margin-top:6px">Using the graph of k above, find x when k(x) = 3.<br>Draw the horizontal line y = 3. It meets the graph at <b>x = −2 and x = 4</b>. A function can reach the same output more than once.</div></div><h3>5 · Function notation in context</h3><div class="ex"><b>Example 5</b><div style="margin-top:6px">A gym charges a $45 sign-up fee plus $30 per month. The total paid after t months is m(t) = 45 + 30t.<br>m(6) = 45 + 30(6) = 225. <b>Meaning:</b> after 6 months, the total paid is $225.<br>m(t) = 405 → 30t = 360 → t = 12. <b>Meaning:</b> the total reaches $405 after 12 months.</div></div></section><section id="practice"><h2>Practice</h2><p style='margin-top:0'>Use <span class='mono'>f(x) = 3x − 4</span>, <span class='mono'>g(x) = x² − 2x + 5</span> and <span class='mono'>h(x) = −2x² + x</span>.</p><div class="tiers"><span class="tier ry">Red &amp; Yellow: 1–6</span><span class="tier g">Green: 1–10, then Extension</span></div><div class="probs"><div class="prob"><span class="tier ry">R · Y · G</span><span class="num">1</span>Find f(5).<details class="ans"><summary>Check answer</summary><div>f(5) = 3(5) − 4 = <b>11</b></div></details></div><div class="prob"><span class="tier ry">R · Y · G</span><span class="num">2</span>Find f(−2).<details class="ans"><summary>Check answer</summary><div>f(−2) = 3(−2) − 4 = <b>−10</b></div></details></div><div class="prob"><span class="tier ry">R · Y · G</span><span class="num">3</span>Find g(−1).<details class="ans"><summary>Check answer</summary><div>g(−1) = (−1)² − 2(−1) + 5 = 1 + 2 + 5 = <b>8</b></div></details></div><div class="prob"><span class="tier ry">R · Y · G</span><span class="num">4</span>Find h(−2).<details class="ans"><summary>Check answer</summary><div>h(−2) = −2(−2)² + (−2) = −8 − 2 = <b>−10</b></div></details></div><div class="prob"><span class="tier ry">R · Y · G</span><span class="num">5</span>Use the graph of k. Find k(1), k(0), and every x where k(x) = 3.<svg class="graph" data-g='{&quot;pieces&quot;: [{&quot;poly&quot;: [[-5, -3], [-2, 3], [1, 0], [4, 3]], &quot;s&quot;: &quot;closed&quot;, &quot;e&quot;: &quot;closed&quot;}], &quot;labels&quot;: [{&quot;x&quot;: 4.3, &quot;y&quot;: 3.6, &quot;t&quot;: &quot;k&quot;, &quot;c&quot;: &quot;#2E5FA3&quot;}]}'></svg><details class="ans"><summary>Check answer</summary><div>k(1) = <b>0</b> · k(0) = <b>1</b> · k(x) = 3 when <b>x = −2 and x = 4</b></div></details></div><div class="prob"><span class="tier ry">R · Y · G</span><span class="num">6</span>Use the table. Find p(0), and find x when p(x) = 7.<table class="t"><tr><th>x</th><td>−2</td><td>0</td><td>3</td><td>5</td></tr><tr><th>p(x)</th><td>7</td><td>1</td><td>10</td><td>−4</td></tr></table><details class="ans"><summary>Check answer</summary><div>p(0) = <b>1</b> · p(x) = 7 when <b>x = −2</b></div></details></div><div class="prob"><span class="tier g">Green</span><span class="num">7</span>Find x when f(x) = 17.<details class="ans"><summary>Check answer</summary><div>3x − 4 = 17 → 3x = 21 → <b>x = 7</b></div></details></div><div class="prob"><span class="tier g">Green</span><span class="num">8</span>Find f(1) − f(−3).<details class="ans"><summary>Check answer</summary><div>f(1) = −1, f(−3) = −13, so −1 − (−13) = <b>12</b></div></details></div><div class="prob"><span class="tier g">Green</span><span class="num">9</span>Find every x where g(x) = 20.<details class="ans"><summary>Check answer</summary><div>x² − 2x + 5 = 20 → x² − 2x − 15 = 0 → (x − 5)(x + 3) = 0 → <b>x = 5 or x = −3</b></div></details></div><div class="prob"><span class="tier g">Green</span><span class="num">10</span>Find f(a + 2). Simplify.<details class="ans"><summary>Check answer</summary><div>3(a + 2) − 4 = <b>3a + 2</b></div></details></div></div></section><section id="application"><h2>Application</h2><p style='margin-top:0'>Define the variables, write or use the function, solve, then interpret the answer in a sentence.</p><div class="probs"><div class="prob"><span class="num">A1</span>A streaming service charges $12 to join plus $9 per month. Write a function c(m) for the total cost after m months. Find c(8) and explain what it means. When does the total reach $129?<details class="ans"><summary>Check answer</summary><div>c(m) = 12 + 9m<br>c(8) = 84: after 8 months the total paid is $84.<br>12 + 9m = 129 → m = 13: the total reaches $129 after 13 months.</div></details></div><div class="prob"><span class="num">A2</span>Two friends are saving money. After w weeks, Ava has A(w) = 40w + 120 dollars and Ben has B(w) = 25w + 300 dollars. Solve A(w) = B(w) and explain what the answer means.<details class="ans"><summary>Check answer</summary><div>40w + 120 = 25w + 300 → 15w = 180 → w = 12.<br>After 12 weeks they have the same amount: A(12) = B(12) = $600.</div></details></div><div class="prob"><span class="num">A3</span>For the streaming service in A1, what is a reasonable domain for c(m)? Is c(m) discrete or continuous?<details class="ans"><summary>Check answer</summary><div>m = 0, 1, 2, 3, … (whole numbers of months). Discrete — you pay by the whole month.</div></details></div></div></section><section id="extension"><h2>Extension — Green</h2><div class="probs"><div class="prob"><span class="num">E1</span>f(x) = 2x + b and f(3) = 11. Find b.<details class="ans"><summary>Check answer</summary><div>2(3) + b = 11 → <b>b = 5</b></div></details></div><div class="prob"><span class="num">E2</span>Let g(x) = x². Is g(a + b) always equal to g(a) + g(b)? Test a = 1, b = 2.<details class="ans"><summary>Check answer</summary><div>g(3) = 9 but g(1) + g(2) = 1 + 4 = 5. <b>No.</b> (a + b)² = a² + 2ab + b².</div></details></div><div class="prob"><span class="num">E3</span>Write a linear function f with f(0) = 4 and f(2) = 10.<details class="ans"><summary>Check answer</summary><div>Slope = (10 − 4)/(2 − 0) = 3, so <b>f(x) = 3x + 4</b>.</div></details></div></div></section><section id="exit"><h2>Exit Ticket</h2><div class="box purple"><p style='margin:0'>Open the DeltaMath assignment <b>U2 L2 Exit Ticket</b> from Classroom. Three problems — no notes.</p></div></section>
+<footer>Algebra 2 · Unit 2 Functions · Lesson 2 · Mr. Reichelt, Room 213</footer>
+</div>
+<script>const NS = "http://www.w3.org/2000/svg";
+const el = (tag, a = {}, p) => { const n = document.createElementNS(NS, tag); for (const k in a) n.setAttribute(k, a[k]); if (p) p.appendChild(n); return n; };
+const neg = v => String(v).replace(/-/g, "−");
+let uid = 0;
+
+// spec: {lim:6, points:[[x,y] | {p:[x,y], c:"#hex", open:true, label:"A"}], pieces:[{seg|poly|fn+x0+x1|circle, s, e, c, dash, w}], labels:[{x,y,t,c,size}], vlines:[{x,c,dash}], hlines:[{y,c,dash}]}
+function graph(svg, spec) {
+  const lim = spec.lim || 6, W = 300, O = 150, S = 132 / lim, L = lim + 0.5;
+  const step = spec.step || (lim > 8 ? 4 : 2);
+  const px = x => O + S * x, py = y => O - S * y;
+  svg.setAttribute("viewBox", `0 0 ${W} ${W}`);
+  const id = "a" + (uid++);
+  const defs = el("defs", {}, svg);
+  const markers = {};
+  const marker = col => {
+    if (markers[col]) return markers[col];
+    const mid = id + "m" + Object.keys(markers).length;
+    const m = el("marker", { id: mid, viewBox: "0 0 10 10", refX: 8, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto-start-reverse" }, defs);
+    el("path", { d: "M0,0 L10,5 L0,10 z", fill: col }, m);
+    return (markers[col] = mid);
+  };
+  const ax = marker("#8a96a8");
+  for (let i = -lim; i <= lim; i++) {
+    el("line", { x1: px(i), y1: py(-L), x2: px(i), y2: py(L), stroke: "#e7ecf3" }, svg);
+    el("line", { x1: px(-L), y1: py(i), x2: px(L), y2: py(i), stroke: "#e7ecf3" }, svg);
+  }
+  el("line", { x1: px(-L), y1: O, x2: px(L), y2: O, stroke: "#8a96a8", "stroke-width": 1.4, "marker-start": `url(#${ax})`, "marker-end": `url(#${ax})` }, svg);
+  el("line", { x1: O, y1: py(-L), x2: O, y2: py(L), stroke: "#8a96a8", "stroke-width": 1.4, "marker-start": `url(#${ax})`, "marker-end": `url(#${ax})` }, svg);
+  for (let i = -lim; i <= lim; i += step) {
+    if (!i) continue;
+    el("text", { x: px(i), y: O + 13, "text-anchor": "middle", "font-size": 10, fill: "#5b6778" }, svg).textContent = neg(i);
+    el("text", { x: O - 5, y: py(i) + 3.5, "text-anchor": "end", "font-size": 10, fill: "#5b6778" }, svg).textContent = neg(i);
+  }
+  (spec.vlines || []).forEach(v => el("line", { x1: px(v.x), y1: py(-L), x2: px(v.x), y2: py(L), stroke: v.c || "#d9822b", "stroke-width": 2, "stroke-dasharray": v.dash === false ? "" : "5 4" }, svg));
+  (spec.hlines || []).forEach(v => el("line", { x1: px(-L), y1: py(v.y), x2: px(L), y2: py(v.y), stroke: v.c || "#d9822b", "stroke-width": 2, "stroke-dasharray": v.dash === false ? "" : "5 4" }, svg));
+  const dot = (x, y, closed, col = "#1b2430") => el("circle", { cx: px(x), cy: py(y), r: 4.5, fill: closed ? col : "#fff", stroke: col, "stroke-width": 2 }, svg);
+  (spec.pieces || []).forEach(pc => {
+    const col = pc.c || "#1b2430";
+    let pts = [];
+    if (pc.seg) pts = pc.seg;
+    else if (pc.poly) pts = pc.poly;
+    else if (pc.fn) { const f = new Function("x", "return " + pc.fn); const n = pc.n || 240; for (let i = 0; i <= n; i++) { const x = pc.x0 + (pc.x1 - pc.x0) * i / n; pts.push([x, f(x)]); } }
+    else if (pc.circle) { const [h, k, r] = pc.circle; for (let i = 0; i <= 240; i++) { const t = 2 * Math.PI * i / 240; pts.push([h + r * Math.cos(t), k + r * Math.sin(t)]); } }
+    const a = { d: pts.map((p, i) => (i ? "L" : "M") + px(p[0]).toFixed(1) + "," + py(p[1]).toFixed(1)).join(" "), fill: "none", stroke: col, "stroke-width": pc.w || 2.6, "stroke-linejoin": "round" };
+    if (pc.dash) a["stroke-dasharray"] = "6 5";
+    if (pc.s === "arrow") a["marker-start"] = `url(#${marker(col)})`;
+    if (pc.e === "arrow") a["marker-end"] = `url(#${marker(col)})`;
+    el("path", a, svg);
+    const A = pts[0], B = pts[pts.length - 1];
+    if (pc.s === "closed" || pc.s === "open") dot(A[0], A[1], pc.s === "closed", col);
+    if (pc.e === "closed" || pc.e === "open") dot(B[0], B[1], pc.e === "closed", col);
+  });
+  (spec.points || []).forEach(p => {
+    if (Array.isArray(p)) dot(p[0], p[1], true);
+    else {
+      dot(p.p[0], p.p[1], !p.open, p.c || "#1b2430");
+      if (p.label) el("text", { x: px(p.p[0]) + 7, y: py(p.p[1]) - 7, "font-size": 12, "font-weight": 700, fill: p.c || "#1b2430" }, svg).textContent = p.label;
+    }
+  });
+  (spec.labels || []).forEach(l => {
+    const t = el("text", { x: px(l.x), y: py(l.y), "font-size": l.size || 13, "font-weight": 700, "font-style": l.italic === false ? "normal" : "italic", fill: l.c || "#1b2430", "text-anchor": l.anchor || "start", "paint-order": "stroke", stroke: "#fff", "stroke-width": 3 }, svg);
+    t.textContent = neg(l.t);
+  });
+}
+
+function mapping(svg, m) {
+  const n = Math.max(m.inputs.length, m.outputs.length), H = n * 44 + 70, W = 300;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const id = "m" + (uid++);
+  const mk = el("marker", { id, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto" }, el("defs", {}, svg));
+  el("path", { d: "M0,0 L10,5 L0,10 z", fill: "#1b2430" }, mk);
+  const cy = H / 2 + 10, inX = 80, outX = 220;
+  const ys = arr => arr.map((_, i) => cy + (i - (arr.length - 1) / 2) * 44);
+  const iy = ys(m.inputs), oy = ys(m.outputs);
+  el("text", { x: inX, y: 18, "text-anchor": "middle", "font-size": 14, "font-weight": 700, fill: "#5b6778" }, svg).textContent = m.inLabel || "x";
+  el("text", { x: outX, y: 18, "text-anchor": "middle", "font-size": 14, "font-weight": 700, fill: "#5b6778" }, svg).textContent = m.outLabel || "y";
+  el("ellipse", { cx: inX, cy, rx: 38, ry: n * 22 + 12, fill: "#fff", stroke: "#8a96a8", "stroke-width": 1.6 }, svg);
+  el("ellipse", { cx: outX, cy, rx: 38, ry: n * 22 + 12, fill: "#fff", stroke: "#8a96a8", "stroke-width": 1.6 }, svg);
+  m.arrows.forEach(([i, o]) => el("line", { x1: inX + 18, y1: iy[i], x2: outX - 20, y2: oy[o], stroke: "#1b2430", "stroke-width": 1.8, "marker-end": `url(#${id})` }, svg));
+  m.inputs.forEach((v, i) => el("text", { x: inX, y: iy[i] + 6, "text-anchor": "middle", "font-size": 17, "font-weight": 700 }, svg).textContent = neg(v));
+  m.outputs.forEach((v, i) => el("text", { x: outX, y: oy[i] + 6, "text-anchor": "middle", "font-size": 17, "font-weight": 700 }, svg).textContent = neg(v));
+}
+
+document.querySelectorAll("svg[data-g]").forEach(s => graph(s, JSON.parse(s.dataset.g)));
+document.querySelectorAll("svg[data-map]").forEach(s => mapping(s, JSON.parse(s.dataset.map)));
+</script>
+</body>
+</html>

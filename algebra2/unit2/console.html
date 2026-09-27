@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit 2 Class Console</title>
+<style>:root{--paper:#f4f6f9;--panel:#fff;--ink:#15222d;--muted:#5e6f7e;--line:#dde5ed;--accent:#2e5fa3;--warn:#b5651d;--ok:#1f7a4d;--red:#c2451f}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#0f1821;--panel:#17232e;--ink:#e7eef4;--muted:#9bb0c0;--line:#26343f;--accent:#7fb0e8;--warn:#e0a35c;--ok:#5cc48a;--red:#ff7a52}}
+:root[data-theme="dark"]{--paper:#0f1821;--panel:#17232e;--ink:#e7eef4;--muted:#9bb0c0;--line:#26343f;--accent:#7fb0e8;--warn:#e0a35c;--ok:#5cc48a;--red:#ff7a52}
+*{box-sizing:border-box}html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:17px;line-height:1.55}
+header{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:12px 18px;background:#2e5fa3;color:#fff}
+header h1{font-size:1.2rem;margin:0 12px 0 0}
+select,button{font:inherit;font-size:1rem;padding:7px 12px;border-radius:9px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+header button{background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.4)}
+main{max-width:1300px;margin:0 auto;padding:18px}
+.daytitle{font-size:calc(1.9rem*var(--z));font-weight:800;margin:0 0 4px}
+.daydate{color:var(--muted);font-size:calc(1.05rem*var(--z))}
+.blocks{display:flex;gap:10px;margin:16px 0;flex-wrap:wrap}
+.blk{flex:1;min-width:150px;background:var(--panel);border:2px solid var(--line);border-radius:12px;padding:10px 14px;cursor:pointer}
+.blk b{display:block;font-size:calc(1rem*var(--z))}
+.blk span{color:var(--muted);font-size:calc(.9rem*var(--z))}
+.blk.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 10%,var(--panel))}
+.blk.done{opacity:.55}
+.now{display:grid;grid-template-columns:1fr auto;gap:20px;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px 26px;align-items:center}
+@media (max-width:800px){.now{grid-template-columns:1fr}}
+.now h2{margin:0 0 8px;font-size:calc(2.2rem*var(--z));color:var(--accent)}
+.now p{font-size:calc(1.6rem*var(--z));margin:0 0 12px;line-height:1.35}
+.clock{font-variant-numeric:tabular-nums;font-size:calc(5rem*var(--z));font-weight:800;text-align:center;line-height:1}
+.clock.low{color:var(--red)}
+.ctl{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+.links a{display:inline-block;margin:6px 8px 0 0;padding:10px 16px;border-radius:10px;background:var(--accent);color:#fff;text-decoration:none;font-weight:700;font-size:calc(1.1rem*var(--z))}
+.keys{color:var(--muted);font-size:.85rem;margin-top:14px}
+</style></head><body style="--z:1">
+<header><h1>Unit 2 Class Console</h1>
+<select id="day" aria-label="Day"></select>
+<button id="prev">◀ Day</button><button id="next">Day ▶</button>
+<span style="flex:1"></span>
+<button id="zm">A−</button><button id="zp">A+</button><a href="index.html" style="color:#fff">Unit home</a></header>
+<main>
+<div class="daytitle" id="dt"></div><div class="daydate" id="dd"></div>
+<div class="blocks" id="blocks"></div>
+<div class="now"><div><h2 id="bn"></h2><p id="bt"></p><div class="links" id="bl"></div></div>
+<div><div class="clock" id="clock">0:00</div>
+<div class="ctl"><button id="go">▶ Start</button><button id="nb">Next block ▶</button><button id="rs">Reset</button></div></div></div>
+<p class="keys">Keys: Space start/pause · → next block · ← previous block · [ ] change day</p>
+</main>
+<script>
+const DAYS = [{"date": "Tue Sep 29", "id": "L1", "title": "Relations, Domain and Range", "blocks": [{"name": "Warm-up", "min": 10, "text": "DeltaMath: 2 Unit 1 spiral problems + Gimkit Unit 1 recap", "links": []}, {"name": "Lesson / activity", "min": 40, "text": "Graphing Stories pt 2 (Desmos) → Vertical Line Test Simulator → notes → practice", "links": [{"label": "Lesson page", "href": "A2_U2_L1_Lesson.html"}, {"label": "Vertical Line Test Simulator", "href": "A2_U2_L1_Vertical_Line_Test.html"}]}, {"name": "Exit ticket", "min": 10, "text": "Snorkl: U2 L1 Exit Ticket. No notes. Hand in or submit before you leave.", "links": []}, {"name": "Buffer", "min": 3, "text": "Clean up. Preview tomorrow.", "links": []}]}, {"date": "Wed Sep 30", "id": "L2", "title": "Function Notation", "blocks": [{"name": "Warm-up", "min": 10, "text": "DeltaMath: domain and range from a graph", "links": []}, {"name": "Lesson / activity", "min": 40, "text": "Draw a function from clues → notes → practice", "links": [{"label": "Lesson page", "href": "A2_U2_L2_Lesson.html"}]}, {"name": "Exit ticket", "min": 10, "text": "DeltaMath: U2 L2 Exit Ticket. No notes. Hand in or submit before you leave.", "links": []}, {"name": "Buffer", "min": 3, "text": "Clean up. Preview tomorrow.", "links": []}]}, {"date": "Thu Oct 1", "id": "Act1", "title": "Key Features — Graphing Stories", "blocks": [{"name": "Warm-up", "min": 10, "text": "DeltaMath: evaluate f(x) from an equation and a graph", "links": []}, {"name": "Lesson / activity", "min": 40, "text": "Graphing Stories pt 1 (Desmos) → key-features notes → practice", "links": [{"label": "Lesson page", "href": "A2_U2_Act1_Key_Features.html"}]}, {"name": "Exit ticket", "min": 10, "text": "Snorkl: U2 Act1 Exit Ticket. No notes. Hand in or submit before you leave.", "links": []}, {"name": "Buffer", "min": 3, "text": "Clean up. Preview tomorrow.", "links": []}]}, {"date": "Fri Oct 2", "id": "L3", "title": "Function Operations", "blocks": [{"name": "Warm-up", "min": 10, "text": "DeltaMath: key features from a graph", "links": []}, {"name": "Lesson / activity", "min": 40, "text": "Table discovery → notes → practice", "links": [{"label": "Lesson page", "href": "A2_U2_L3_Lesson.html"}]}, {"name": "Exit ticket", "min": 10, "text": "DeltaMath: U2 L3 Exit Ticket. No notes. Hand in or submit before you leave.", "links": []}, {"name": "Buffer", "min": 3, "text": "Clean up. Preview tomorrow.", "links": []}]}, {"date": "Mon Oct 5", "id": "INT", "title": "Intervention", "blocks": [{"name": "Warm-up", "min": 10, "text": "Gimkit or DeltaMath by group", "links": []}, {"name": "Groups", "min": 50, "text": "Reteach Lessons 1–3 by exit-ticket group. Red at the teacher table; Yellow on DeltaMath; Green on the stretch task.", "links": []}]}, {"date": "Tue Oct 6", "id": "Act2", "title": "Operations Relay", "blocks": [{"name": "Warm-up", "min": 10, "text": "DeltaMath (2): function operations + Gimkit Set A", "links": []}, {"name": "Lesson / activity", "min": 40, "text": "Operations Relay in pods → debrief → graph/table practice", "links": [{"label": "Lesson page", "href": "A2_U2_Act2_Operations.html"}, {"label": "Operations Relay", "href": "A2_U2_Operations_Relay.html"}]}, {"name": "Exit ticket", "min": 10, "text": "DeltaMath: U2 Act2 Exit Ticket. No notes. Hand in or submit before you leave.", "links": []}, {"name": "Buffer", "min": 3, "text": "Clean up. Preview tomorrow.", "links": []}]}, {"date": "Wed Oct 7", "id": "L4", "title": "Composition of Functions", "blocks": [{"name": "Warm-up", "min": 10, "text": "DeltaMath: function operations at a number", "links": []}, {"name": "Lesson / activity", "min": 40, "text": "Function Machine → notes → practice", "links": [{"label": "Lesson page", "href": "A2_U2_L4_Lesson.html"}, {"label": "Function Machine", "href": "A2_U2_Function_Machine.html"}]}, {"name": "Exit ticket", "min": 10, "text": "DeltaMath: U2 L4 Exit Ticket. No notes. Hand in or submit before you leave.", "links": []}, {"name": "Buffer", "min": 3, "text": "Clean up. Preview tomorrow.", "links": []}]}, {"date": "Thu Oct 8", "id": "L5", "title": "Composition from Graphs and Tables", "blocks": [{"name": "Warm-up", "min": 10, "text": "DeltaMath: composition, algebraic", "links": []}, {"name": "Lesson / activity", "min": 40, "text": "Composition from Graphs tool → notes → practice", "links": [{"label": "Lesson page", "href": "A2_U2_L5_Lesson.html"}, {"label": "Composition from Graphs", "href": "A2_U2_Composition_Graphs.html"}]}, {"name": "Exit ticket", "min": 10, "text": "Snorkl: U2 L5 Exit Ticket. No notes. Hand in or submit before you leave.", "links": []}, {"name": "Buffer", "min": 3, "text": "Clean up. Preview tomorrow.", "links": []}]}, {"date": "Fri Oct 9", "id": "L6", "title": "Absolute Value Equations", "blocks": [{"name": "Warm-up", "min": 10, "text": "DeltaMath: composition from tables and graphs", "links": []}, {"name": "Lesson / activity", "min": 40, "text": "|x| as distance → solve → check by graphing", "links": [{"label": "Lesson page", "href": "A2_U2_L6_Lesson.html"}, {"label": "Absolute Value as Distance", "href": "A2_U2_Absolute_Value_Distance.html"}]}, {"name": "Exit ticket", "min": 10, "text": "DeltaMath: U2 L6 Exit Ticket. No notes. Hand in or submit before you leave.", "links": []}, {"name": "Buffer", "min": 3, "text": "Clean up. Preview tomorrow.", "links": []}]}, {"date": "Mon Oct 12", "id": "INT", "title": "Intervention", "blocks": [{"name": "Warm-up", "min": 10, "text": "Gimkit or DeltaMath by group", "links": []}, {"name": "Groups", "min": 50, "text": "Reteach Lessons 4–6 by exit-ticket group. Red at the teacher table; Yellow on DeltaMath; Green on the stretch task.", "links": []}]}, {"date": "Tue Oct 13", "id": "L7", "title": "Parent Functions and Translations", "blocks": [{"name": "Warm-up", "min": 10, "text": "DeltaMath (2): absolute value equations + Gimkit Set B", "links": []}, {"name": "Lesson / activity", "min": 40, "text": "Parent tables → Function Transformations (Desmos) → Explorer → notes", "links": [{"label": "Lesson page", "href": "A2_U2_L7_Lesson.html"}, {"label": "Transformations Explorer", "href": "A2_U2_Transformations_Explorer.html"}]}, {"name": "Exit ticket", "min": 10, "text": "Snorkl: U2 L7 Exit Ticket. No notes. Hand in or submit before you leave.", "links": []}, {"name": "Buffer", "min": 3, "text": "Clean up. Preview tomorrow.", "links": []}]}, {"date": "Wed Oct 14", "id": "L8", "title": "Vertex Form: Stretch, Compression and Reflection", "blocks": [{"name": "Warm-up", "min": 10, "text": "DeltaMath: name the parent function and the translation", "links": []}, {"name": "Lesson / activity", "min": 40, "text": "Absolute value family in the Explorer → notes → practice", "links": [{"label": "Lesson page", "href": "A2_U2_L8_Lesson.html"}, {"label": "Transformations Explorer", "href": "A2_U2_Transformations_Explorer.html"}]}, {"name": "Exit ticket", "min": 10, "text": "DeltaMath: U2 L8 Exit Ticket. No notes. Hand in or submit before you leave.", "links": []}, {"name": "Buffer", "min": 3, "text": "Clean up. Preview tomorrow.", "links": []}]}, {"date": "Thu Oct 15", "id": "Act3", "title": "Transformations Challenge", "blocks": [{"name": "Warm-up", "min": 10, "text": "DeltaMath: describe transformations from vertex form", "links": []}, {"name": "Lesson / activity", "min": 40, "text": "What's My Transformation? + Turtle Crossing (Desmos) → Explorer mixed challenge → review", "links": [{"label": "Lesson page", "href": "A2_U2_Act3_Transformations.html"}, {"label": "Transformations Explorer", "href": "A2_U2_Transformations_Explorer.html"}]}, {"name": "Exit ticket", "min": 10, "text": "Snorkl: U2 Act3 Exit Ticket. No notes. Hand in or submit before you leave.", "links": []}, {"name": "Buffer", "min": 3, "text": "Clean up. Preview tomorrow.", "links": []}]}, {"date": "Fri Oct 16", "id": "CFA", "title": "CFA Quiz", "blocks": [{"name": "Warm-up", "min": 10, "text": "Gimkit Set C (short)", "links": []}, {"name": "CFA Quiz", "min": 50, "text": "CFA — you are writing this (on hold)", "links": []}]}, {"date": "Mon Oct 19", "id": "—", "title": "Parent-Teacher Conferences", "blocks": [{"name": "No class", "min": 0, "text": "Parent-Teacher Conferences", "links": []}]}, {"date": "Tue Oct 20", "id": "REV", "title": "Test Review", "blocks": [{"name": "Warm-up", "min": 10, "text": "Gimkit Set C", "links": []}, {"name": "Test Review", "min": 50, "text": "Review — on hold with the assessments", "links": []}]}, {"date": "Wed Oct 21", "id": "TEST", "title": "Unit 2 Test, Day 1", "blocks": [{"name": "Unit 2 Test, Day 1", "min": 50, "text": "On hold", "links": []}]}, {"date": "Thu Oct 22", "id": "TEST", "title": "Unit 2 Test, Day 2", "blocks": [{"name": "Unit 2 Test, Day 2", "min": 50, "text": "On hold", "links": []}]}];
+const MONTHS={Sep:8,Oct:9};
+let di=0, bi=0, left=0, timer=null, z=1;
+try{z=+localStorage.getItem("u2a2zoom")||1}catch(e){}
+function todayIndex(){const now=new Date();let best=0;DAYS.forEach((d,i)=>{const p=d.date.split(" ");const dt=new Date(2026,MONTHS[p[1]],+p[2]);if(dt<=now)best=i;});return best;}
+const sel=document.getElementById("day");
+DAYS.forEach((d,i)=>{const o=document.createElement("option");o.value=i;o.textContent=d.date+" — "+d.title;sel.appendChild(o);});
+function fmt(s){s=Math.max(0,Math.round(s));return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");}
+function stop(){clearInterval(timer);timer=null;document.getElementById("go").textContent="▶ Start";}
+function setBlock(i){stop();const d=DAYS[di];bi=Math.max(0,Math.min(d.blocks.length-1,i));left=d.blocks[bi].min*60;draw();}
+function setDay(i){di=(i+DAYS.length)%DAYS.length;sel.value=di;setBlock(0);}
+function draw(){
+  document.body.style.setProperty("--z",z);
+  const d=DAYS[di],b=d.blocks[bi];
+  document.getElementById("dt").textContent=d.title;
+  document.getElementById("dd").textContent=d.date+(d.id&&d.id!=="—"?" · "+d.id.replace("Act","Activity "):"");
+  const B=document.getElementById("blocks");B.innerHTML="";
+  d.blocks.forEach((x,k)=>{const e=document.createElement("div");e.className="blk"+(k===bi?" on":"")+(k<bi?" done":"");e.innerHTML="<b>"+x.name+"</b><span>"+x.min+" min</span>";e.onclick=()=>setBlock(k);B.appendChild(e);});
+  document.getElementById("bn").textContent=b.name;
+  document.getElementById("bt").textContent=b.text;
+  document.getElementById("bl").innerHTML=b.links.map(l=>'<a href="'+l.href+'" target="_blank">'+l.label+'</a>').join("");
+  const c=document.getElementById("clock");c.textContent=fmt(left);c.className="clock"+(left<=60&&b.min>0?" low":"");
+}
+function toggle(){if(timer){stop();return;}if(left<=0)return;document.getElementById("go").textContent="❚❚ Pause";
+  timer=setInterval(()=>{left--;draw();if(left<=0){stop();try{const a=new (window.AudioContext||window.webkitAudioContext)();const o=a.createOscillator();o.connect(a.destination);o.frequency.value=660;o.start();setTimeout(()=>o.stop(),400);}catch(e){}}},1000);}
+document.getElementById("go").onclick=toggle;
+document.getElementById("nb").onclick=()=>setBlock(bi+1);
+document.getElementById("rs").onclick=()=>setBlock(bi);
+document.getElementById("prev").onclick=()=>setDay(di-1);
+document.getElementById("next").onclick=()=>setDay(di+1);
+sel.onchange=()=>setDay(+sel.value);
+function zoom(dz){z=Math.max(.7,Math.min(1.8,+(z+dz).toFixed(2)));try{localStorage.setItem("u2a2zoom",z)}catch(e){}draw();}
+document.getElementById("zm").onclick=()=>zoom(-.1);document.getElementById("zp").onclick=()=>zoom(.1);
+document.addEventListener("keydown",e=>{if(e.target.tagName==="SELECT")return;
+  if(e.key===" "){e.preventDefault();toggle();} else if(e.key==="ArrowRight")setBlock(bi+1); else if(e.key==="ArrowLeft")setBlock(bi-1);
+  else if(e.key==="]")setDay(di+1); else if(e.key==="[")setDay(di-1);});
+setDay(todayIndex());
+</script></body></html>

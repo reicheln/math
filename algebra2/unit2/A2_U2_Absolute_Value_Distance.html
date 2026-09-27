@@ -1,0 +1,505 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Absolute Value as Distance</title>
+<style>
+  :root{
+    --bg:#f6f8fb; --panel:#ffffff; --ink:#1b2430; --muted:#5b6778; --line:#d9e0ea;
+    --blue:#2E5FA3; --blue-soft:#eaf1fb; --green:#1f8a4c; --green-soft:#eaf7ec;
+    --red:#c8372d; --red-soft:#fce8e6; --orange:#d9822b; --purple:#7a4fb3;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{background:var(--blue);color:#fff;padding:12px 20px;display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px}
+  header h1{margin:0;font-size:22px}
+  header span{opacity:.85;font-size:14px}
+  .tabs{display:flex;flex-wrap:wrap;gap:8px;padding:12px 20px 0}
+  .tab{border:2px solid var(--blue);background:#fff;color:var(--blue);padding:8px 16px;border-radius:999px;font-weight:600;cursor:pointer;font-size:15px}
+  .tab[aria-selected="true"]{background:var(--blue);color:#fff}
+  main{display:grid;grid-template-columns:240px minmax(300px,560px) minmax(260px,1fr);gap:16px;padding:16px 20px;align-items:start}
+  @media (max-width:1000px){main{grid-template-columns:1fr}}
+  @media (max-width:1000px){#rightStep{order:1}.plane-wrap{order:2}#rightSlide,#rightCheck{order:3}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .panel h2{margin:0 0 10px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .plane-wrap{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px}
+  svg#plane{width:100%;height:auto;display:block;touch-action:none;user-select:none}
+  .ctl{margin-bottom:14px}
+  .ctl label{display:flex;justify-content:space-between;font-weight:600;font-size:17px}
+  .ctl label output{font-variant-numeric:tabular-nums;color:var(--blue);font-size:20px}
+  .ctl input[type=range]{width:100%;margin-top:6px;height:28px}
+  .small{font-size:14px;color:var(--muted)}
+  .eq{font-size:30px;font-weight:700;text-align:center;padding:6px 0;font-variant-numeric:tabular-nums}
+  .solset{font-size:24px;text-align:center;font-weight:700;color:var(--green);padding:4px 0 10px}
+  .solset.none{color:var(--red)}
+  .status{font-size:18px;padding:12px;border-radius:10px;background:var(--blue-soft);min-height:58px}
+  .status.bad{background:var(--red-soft)} .status.good{background:var(--green-soft)}
+  .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  button.act{border:0;border-radius:10px;padding:10px 14px;font-size:16px;font-weight:600;cursor:pointer;background:var(--blue);color:#fff}
+  button.act.alt{background:#fff;color:var(--blue);border:2px solid var(--blue)}
+  button.act:disabled{opacity:.4;cursor:default}
+  .hint{font-size:14px;color:var(--muted);margin:8px 0 0}
+  .hidden{display:none!important}
+  .plist{display:flex;flex-direction:column;gap:8px}
+  .pbtn{border:2px solid var(--line);background:#fff;border-radius:10px;padding:10px;font-size:18px;font-weight:700;cursor:pointer;color:var(--ink);text-align:left}
+  .pbtn[aria-current="true"]{border-color:var(--blue);background:var(--blue-soft)}
+  .picker{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  @media (max-width:1000px){.picker{grid-template-columns:repeat(8,1fr)}}
+  .pick{position:relative;aspect-ratio:1;border:2px solid var(--line);background:#fff;border-radius:10px;font-size:18px;font-weight:700;cursor:pointer;color:var(--ink)}
+  .pick[aria-current="true"]{border-color:var(--blue);background:var(--blue-soft)}
+  .pick.done::after{content:"✓";position:absolute;top:1px;right:4px;font-size:12px;color:var(--green)}
+  .steplist{padding:6px 10px 2px}
+  .srow{display:grid;grid-template-columns:1fr;gap:2px;padding:8px 10px;border-radius:10px;margin-bottom:6px}
+  .srow .why{font-size:14px;color:var(--muted)}
+  .srow .m{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums}
+  .srow.cur{background:var(--blue-soft)}
+  .srow.cur.nosol{background:var(--red-soft)}
+  .srow.cur.fin{background:var(--green-soft)}
+  .checkq{padding:10px 12px}
+  .checkq .eq{font-size:34px}
+  .ansrow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;margin:10px 0;font-size:20px;font-weight:600}
+  .ansrow input[type=text]{width:90px;font-size:22px;padding:6px 8px;border:2px solid var(--line);border-radius:8px;text-align:center}
+  .ansrow label.ns{display:flex;align-items:center;gap:6px;font-size:18px;cursor:pointer}
+  .ansrow input[type=checkbox]{width:22px;height:22px}
+  .feedback{margin-top:12px;padding:12px;border-radius:10px;font-size:17px;display:none}
+  .feedback.show{display:block}
+  .feedback.right{background:var(--green-soft);border-left:5px solid var(--green)}
+  .feedback.wrong{background:var(--red-soft);border-left:5px solid var(--red)}
+  .prog{margin-top:14px;font-size:14px;color:var(--muted)}
+  .bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:6px}
+  .bar i{display:block;height:100%;background:var(--green);width:0;transition:width .3s}
+  .code{margin-top:12px;padding:12px;border-radius:10px;background:var(--green-soft);border:2px dashed var(--green);display:none}
+  .code.show{display:block}
+  .code strong{font-size:24px;letter-spacing:.08em}
+  label.name{display:block;margin-top:12px;font-size:14px;color:var(--muted)}
+  label.name input{display:block;width:100%;margin-top:4px;padding:8px;font-size:16px;border:1px solid var(--line);border-radius:8px}
+  details.teacher{margin:0 20px 24px;font-size:14px;color:var(--muted)}
+  details.teacher input{padding:6px;font-size:14px}
+  .defn{font-size:15px;margin:10px 0 0;padding:10px;border-radius:10px;background:#f7f3fc;border-left:5px solid var(--purple)}
+</style>
+</head>
+<body>
+<header>
+  <h1>Absolute Value as Distance</h1>
+  <span>Algebra 2 · Unit 2 · Lesson 6 — Absolute Value Equations</span>
+</header>
+
+<div class="tabs" role="tablist">
+  <button class="tab" role="tab" id="tabNL" aria-selected="true">Number line</button>
+  <button class="tab" role="tab" id="tabGR" aria-selected="false">Graph</button>
+  <button class="tab" role="tab" id="tabST" aria-selected="false">Isolate first</button>
+  <button class="tab" role="tab" id="tabCK" aria-selected="false">Check yourself</button>
+</div>
+
+<main>
+  <!-- LEFT column -->
+  <section class="panel" id="leftSlide">
+    <h2 style="text-transform:none;font-size:20px;color:var(--ink)">|x − h| = c</h2>
+    <div class="ctl">
+      <label for="hS">Center h <output id="hOut">3</output></label>
+      <input type="range" id="hS" min="-6" max="6" step="1" value="3">
+    </div>
+    <div class="ctl">
+      <label for="cS">Distance c <output id="cOut">4</output></label>
+      <input type="range" id="cS" min="-3" max="8" step="1" value="4">
+    </div>
+    <label class="small" style="display:flex;gap:8px;align-items:center;cursor:pointer"><input type="checkbox" id="halves"> Let c move in steps of 0.5</label>
+    <div class="btns"><button class="act alt" id="animate">▶ Animate</button></div>
+    <p class="hint" id="dragHint">Drag on the picture to move the center.</p>
+  </section>
+
+  <section class="panel hidden" id="leftStep">
+    <h2>Equations</h2>
+    <div class="plist" id="plist"></div>
+  </section>
+
+  <section class="panel hidden" id="leftCheck">
+    <h2>Equations</h2>
+    <div class="picker" id="picker"></div>
+    <p class="hint">✓ = solved correctly.</p>
+  </section>
+
+  <!-- CENTER column -->
+  <section class="plane-wrap">
+    <div id="stepBox" class="steplist hidden"></div>
+    <div id="checkBox" class="checkq hidden">
+      <div class="small" id="ckTitle">Equation 1 of 8</div>
+      <div class="eq" id="ckEq"></div>
+      <div class="ansrow">
+        <span>x =</span><input type="text" id="a1" inputmode="text" autocomplete="off" aria-label="First solution">
+        <span>or x =</span><input type="text" id="a2" inputmode="text" autocomplete="off" aria-label="Second solution">
+      </div>
+      <div class="ansrow">
+        <label class="ns"><input type="checkbox" id="noSol"> no solution</label>
+        <button class="act" id="ckBtn">Check</button>
+      </div>
+      <p class="hint" style="text-align:center;margin-top:0">One solution? Type it in the first box. Order does not matter.</p>
+      <div class="feedback" id="ckFb"></div>
+    </div>
+    <svg id="plane" viewBox="0 0 520 210" aria-label="Number line"></svg>
+  </section>
+
+  <!-- RIGHT column -->
+  <section class="panel" id="rightSlide">
+    <h2 id="rTitle">Number line</h2>
+    <div class="eq" id="eqOut"></div>
+    <div class="solset" id="setOut"></div>
+    <div class="status" id="status"></div>
+    <div class="defn"><b>absolute value</b> = the <b>distance</b> a number is from 0. |x − h| = c asks: which numbers are c away from h?</div>
+  </section>
+
+  <section class="panel hidden" id="rightStep">
+    <h2>Step <span id="stepNum">1</span> of <span id="stepTot">1</span></h2>
+    <div class="status" id="stepWhy"></div>
+    <div class="btns">
+      <button class="act alt" id="stBack">◀ Back</button>
+      <button class="act" id="stNext">Next step ▶</button>
+      <button class="act alt" id="stAll">Show all</button>
+    </div>
+    <p class="hint">Always isolate the absolute value first. Then ask: is the other side positive, 0, or negative?</p>
+  </section>
+
+  <section class="panel hidden" id="rightCheck">
+    <h2>Check yourself</h2>
+    <p style="margin:0">Solve on scratch paper first. Then type both solutions, or tick <b>no solution</b>.</p>
+    <div class="prog">
+      <span id="progText">0 of 8 solved</span>
+      <div class="bar"><i id="progBar"></i></div>
+    </div>
+    <label class="name">Your name (for the completion code)
+      <input id="stuName" autocomplete="off" placeholder="First and last name">
+    </label>
+    <div class="code" id="code"></div>
+  </section>
+</main>
+
+<details class="teacher">
+  <summary>Teacher check</summary>
+  <p>Type a student's name exactly as they entered it to see the code they should have.</p>
+  <input id="tName" placeholder="Student name"> <strong id="tCode"></strong>
+</details>
+
+<script>
+// ---------- helpers ----------
+const NS = "http://www.w3.org/2000/svg";
+const el = (tag, attrs = {}, parent) => {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+};
+const $ = id => document.getElementById(id);
+const num = v => { if (Math.abs(v) < 1e-9) v = 0; const r = Math.round(v * 100) / 100; return String(r).replace("-", "−"); };
+const inside = h => h === 0 ? "x" : h > 0 ? `x − ${num(h)}` : `x + ${num(-h)}`;
+const absx = h => `|${inside(h)}|`;
+const setStr = (h, c) => c < 0 ? "no solution" : c === 0 ? `{${num(h)}}` : `{${num(h - c)}, ${num(h + c)}}`;
+const svg = $("plane");
+const XMIN = -15, XMAX = 15, W = 520, S = 16, OX = 260;
+const px = x => OX + S * x;
+
+function markers(defs) {
+  const mk = (id, color, w = 7) => {
+    const m = el("marker", { id, viewBox: "0 0 10 10", refX: 8, refY: 5, markerWidth: w, markerHeight: w, orient: "auto-start-reverse" }, defs);
+    el("path", { d: "M0,0 L10,5 L0,10 z", fill: color }, m);
+  };
+  mk("arrA", "#8a96a8"); mk("arrK", "#1b2430"); mk("arrN", "#2E5FA3", 3.2); mk("arrB", "#2E5FA3"); mk("arrG", "#1f8a4c", 5); mk("arrR", "#c8372d");
+}
+
+// ---------- number line picture ----------
+// frac: 0..1 animation of the distance arrows
+function drawNL(h, c, frac = 1, opts = {}) {
+  svg.setAttribute("viewBox", "0 0 520 210");
+  svg.setAttribute("aria-label", "Number line");
+  svg.innerHTML = "";
+  markers(el("defs", {}, svg));
+  const Y = 130;
+  el("line", { x1: px(XMIN - 0.6), y1: Y, x2: px(XMAX + 0.6), y2: Y, stroke: "#8a96a8", "stroke-width": 2, "marker-start": "url(#arrA)", "marker-end": "url(#arrA)" }, svg);
+  for (let i = XMIN; i <= XMAX; i++) {
+    const big = i % 2 === 0;
+    el("line", { x1: px(i), y1: Y - (big ? 7 : 4), x2: px(i), y2: Y + (big ? 7 : 4), stroke: i === 0 ? "#1b2430" : "#8a96a8", "stroke-width": i === 0 ? 2.2 : 1.3 }, svg);
+    if (big) el("text", { x: px(i), y: Y + 24, "text-anchor": "middle", "font-size": 12, fill: i === 0 ? "#1b2430" : "#5b6778", "font-weight": i === 0 ? 700 : 400 }, svg).textContent = num(i);
+  }
+  // center
+  const cx = px(h);
+  el("line", { x1: cx, y1: Y - 58, x2: cx, y2: Y, stroke: "#d9822b", "stroke-width": 1.5, "stroke-dasharray": "4 3" }, svg);
+  el("text", { x: cx, y: Y - 62, "text-anchor": "middle", "font-size": 14, "font-weight": 700, fill: "#d9822b" }, svg).textContent = "center " + num(h);
+  if (c < 0) {
+    el("circle", { cx, cy: Y, r: 7, fill: "#d9822b", stroke: "#fff", "stroke-width": 2 }, svg);
+    const t = el("text", { x: 260, y: 30, "text-anchor": "middle", "font-size": 19, "font-weight": 700, fill: "#c8372d" }, svg);
+    t.textContent = "no solution — a distance cannot be negative";
+    el("text", { x: 260, y: 196, "text-anchor": "middle", "font-size": 14, fill: "#5b6778" }, svg).textContent = `No number is ${num(c)} away from ${num(h)}.`;
+    return;
+  }
+  if (c === 0) {
+    el("circle", { cx, cy: Y, r: 10, fill: "#1f8a4c", stroke: "#fff", "stroke-width": 2.5 }, svg);
+    el("text", { x: cx, y: Y + 50, "text-anchor": "middle", "font-size": 20, "font-weight": 700, fill: "#1f8a4c" }, svg).textContent = "x = " + num(h);
+    el("text", { x: 260, y: 30, "text-anchor": "middle", "font-size": 17, "font-weight": 700, fill: "#1f8a4c" }, svg).textContent = "distance 0: only the center itself → one solution";
+    return;
+  }
+  const len = c * frac, AY = Y - 26;
+  [-1, 1].forEach(sgn => {
+    const x2 = px(h + sgn * len);
+    if (len > 0.05) el("line", { x1: cx, y1: AY, x2, y2: AY, stroke: "#2E5FA3", "stroke-width": 4, "marker-end": "url(#arrN)" }, svg);
+    if (frac >= 1) {
+      el("text", { x: (cx + x2) / 2, y: AY - 8, "text-anchor": "middle", "font-size": 15, "font-weight": 700, fill: "#2E5FA3" }, svg).textContent = num(c);
+      el("line", { x1: x2, y1: AY, x2: x2, y2: Y, stroke: "#1f8a4c", "stroke-width": 1.5, "stroke-dasharray": "3 3" }, svg);
+      el("circle", { cx: x2, cy: Y, r: 9, fill: "#1f8a4c", stroke: "#fff", "stroke-width": 2.5 }, svg);
+      el("text", { x: Math.max(44, Math.min(476, x2)), y: Y + 50, "text-anchor": "middle", "font-size": 20, "font-weight": 700, fill: "#1f8a4c" }, svg).textContent = "x = " + num(h + sgn * c);
+    }
+  });
+  el("circle", { cx, cy: Y, r: 7, fill: "#d9822b", stroke: "#fff", "stroke-width": 2 }, svg);
+  if (frac >= 1) el("text", { x: 260, y: 30, "text-anchor": "middle", "font-size": 17, "font-weight": 700, fill: "#1f8a4c" }, svg).textContent = `two numbers are ${num(c)} away from ${num(h)}`;
+}
+
+// ---------- graph picture ----------
+const YMIN = -4, YMAX = 10, GT = 22, GH = GT + (YMAX + 0.6) * S; // GH = y of origin
+const gy = y => GH - S * y;
+function drawGR(h, c) {
+  const H = GH + (-YMIN + 0.6) * S + 26;
+  svg.setAttribute("viewBox", `0 0 520 ${H.toFixed(0)}`);
+  svg.setAttribute("aria-label", "Coordinate plane");
+  svg.innerHTML = "";
+  markers(el("defs", {}, svg));
+  const g = el("g", {}, svg);
+  for (let i = XMIN; i <= XMAX; i++) el("line", { x1: px(i), y1: gy(YMIN - 0.5), x2: px(i), y2: gy(YMAX + 0.5), stroke: "#e7ecf3" }, g);
+  for (let j = YMIN; j <= YMAX; j++) el("line", { x1: px(XMIN - 0.5), y1: gy(j), x2: px(XMAX + 0.5), y2: gy(j), stroke: "#e7ecf3" }, g);
+  el("line", { x1: px(XMIN - 0.6), y1: gy(0), x2: px(XMAX + 0.6), y2: gy(0), stroke: "#8a96a8", "stroke-width": 1.6, "marker-start": "url(#arrA)", "marker-end": "url(#arrA)" }, g);
+  el("line", { x1: px(0), y1: gy(YMIN - 0.6), x2: px(0), y2: gy(YMAX + 0.6), stroke: "#8a96a8", "stroke-width": 1.6, "marker-start": "url(#arrA)", "marker-end": "url(#arrA)" }, g);
+  for (let i = -14; i <= 14; i += 2) { if (!i) continue; el("text", { x: px(i), y: gy(0) + 15, "text-anchor": "middle", "font-size": 11, fill: "#5b6778" }, g).textContent = num(i); }
+  for (let j = -4; j <= 10; j += 2) { if (!j) continue; el("text", { x: px(0) - 6, y: gy(j) + 4, "text-anchor": "end", "font-size": 11, fill: "#5b6778" }, g).textContent = num(j); }
+  el("text", { x: px(XMAX + 0.3), y: gy(0) - 7, "font-size": 14, "font-style": "italic", fill: "#5b6778" }, g).textContent = "x";
+  el("text", { x: px(0) + 7, y: gy(YMAX + 0.3), "font-size": 14, "font-style": "italic", fill: "#5b6778" }, g).textContent = "y";
+  // V: y = |x - h| clipped to window
+  const top = YMAX + 0.3;
+  let xl = h - top, xr = h + top;
+  const yl = xl < XMIN - 0.3 ? (xl = XMIN - 0.3, Math.abs(xl - h)) : top;
+  const yr = xr > XMAX + 0.3 ? (xr = XMAX + 0.3, Math.abs(xr - h)) : top;
+  el("path", { d: `M${px(xl)},${gy(yl)} L${px(h)},${gy(0)} L${px(xr)},${gy(yr)}`, fill: "none", stroke: "#1b2430", "stroke-width": 3, "stroke-linejoin": "round", "marker-start": "url(#arrK)", "marker-end": "url(#arrK)" }, svg);
+  el("text", { x: px(h), y: gy(c >= 3.5 && c <= 6.5 ? 8.5 : 5), "text-anchor": "middle", "font-size": 15, "font-weight": 700, fill: "#1b2430", "paint-order": "stroke", stroke: "#fff", "stroke-width": 4 }, svg).textContent = "y = " + absx(h);
+  // horizontal line y = c
+  const col = c < 0 ? "#c8372d" : "#2E5FA3";
+  el("line", { x1: px(XMIN - 0.3), y1: gy(c), x2: px(XMAX + 0.3), y2: gy(c), stroke: col, "stroke-width": 3, "marker-start": `url(#${c < 0 ? "arrR" : "arrB"})`, "marker-end": `url(#${c < 0 ? "arrR" : "arrB"})` }, svg);
+  el("text", { x: px(XMAX - 0.3), y: gy(c) + (c < 0 ? 19 : -7), "text-anchor": "end", "font-size": 15, "font-weight": 700, fill: col, "paint-order": "stroke", stroke: "#fff", "stroke-width": 4 }, svg).textContent = "y = " + num(c);
+  if (c < 0) {
+    el("text", { x: 260, y: 16, "text-anchor": "middle", "font-size": 17, "font-weight": 700, fill: "#c8372d", "paint-order": "stroke", stroke: "#fff", "stroke-width": 5 }, svg).textContent = "the line never touches the V → no solution";
+    return;
+  }
+  const xs = c === 0 ? [h] : [h - c, h + c];
+  xs.forEach((X, i) => {
+    el("line", { x1: px(X), y1: gy(c), x2: px(X), y2: gy(0), stroke: "#1f8a4c", "stroke-width": 1.8, "stroke-dasharray": "4 3" }, svg);
+    el("circle", { cx: px(X), cy: gy(c), r: 8, fill: "#1f8a4c", stroke: "#fff", "stroke-width": 2.5 }, svg);
+    const one = xs.length === 1, right = i === 1;
+    el("text", { x: one ? px(X) : px(X) + (right ? 10 : -10), y: one ? gy(0) - 36 : gy(c) + 22, "text-anchor": one ? "middle" : right ? "start" : "end", "font-size": 16, "font-weight": 700, fill: "#1f8a4c", "paint-order": "stroke", stroke: "#fff", "stroke-width": 4 }, svg).textContent = `(${num(X)}, ${num(c)})`;
+  });
+}
+
+// ---------- slider views ----------
+let mode = "nl", h = 3, c = 4, animT = null;
+const hS = $("hS"), cS = $("cS");
+function readout() {
+  $("hOut").textContent = num(h); $("cOut").textContent = num(c);
+  $("eqOut").textContent = `${absx(h)} = ${num(c)}`;
+  const so = $("setOut"); so.textContent = c < 0 ? "no solution" : "Solution set: " + setStr(h, c);
+  so.className = "solset" + (c < 0 ? " none" : "");
+  const st = $("status");
+  if (c < 0) { st.className = "status bad"; st.innerHTML = `A distance cannot be negative. <b>No solution.</b>` + (mode === "gr" ? ` The line y = ${num(c)} is below the V.` : ""); }
+  else if (c === 0) { st.className = "status good"; st.innerHTML = `Only ${num(h)} is 0 away from ${num(h)}. <b>One solution.</b>` + (mode === "gr" ? " The line touches the V at one point." : ""); }
+  else { st.className = "status good"; st.innerHTML = `${num(h)} − ${num(c)} = <b>${num(h - c)}</b> and ${num(h)} + ${num(c)} = <b>${num(h + c)}</b>. <b>Two solutions.</b>` + (mode === "gr" ? " The line crosses the V at two points." : ""); }
+}
+function renderSlide(frac = 1) { readout(); if (mode === "nl") drawNL(h, c, frac); else drawGR(h, c); }
+function animate(ms) {
+  cancelAnimationFrame(animT);
+  if (mode !== "nl" || c <= 0) { renderSlide(); return; }
+  const t0 = performance.now();
+  const step = t => { const f = Math.min(1, (t - t0) / ms); drawNL(h, c, f); if (f < 1) animT = requestAnimationFrame(step); };
+  readout(); animT = requestAnimationFrame(step);
+}
+hS.addEventListener("input", () => { h = +hS.value; animate(350); });
+cS.addEventListener("input", () => { c = +cS.value; animate(350); });
+$("halves").addEventListener("change", e => { cS.step = e.target.checked ? 0.5 : 1; if (!e.target.checked) { c = Math.round(c); cS.value = c; } renderSlide(); });
+$("animate").onclick = () => animate(1200);
+let dragging = false;
+function hFromEvent(e) {
+  const r = svg.getBoundingClientRect();
+  const X = (e.clientX - r.left) / r.width * W;
+  return Math.max(-6, Math.min(6, Math.round((X - OX) / S)));
+}
+svg.addEventListener("pointerdown", e => { if (mode !== "nl" && mode !== "gr") return; dragging = true; svg.setPointerCapture(e.pointerId); h = hFromEvent(e); hS.value = h; renderSlide(); });
+svg.addEventListener("pointermove", e => { if (!dragging) return; const nh = hFromEvent(e); if (nh !== h) { h = nh; hS.value = h; renderSlide(); } });
+svg.addEventListener("pointerup", () => dragging = false);
+svg.addEventListener("pointercancel", () => dragging = false);
+
+// ---------- a|x − h| + k = d ----------
+function lhs(a, h, k) {
+  const A = a === 1 ? "" : a === -1 ? "−" : num(a);
+  const K = k === 0 ? "" : k > 0 ? ` + ${num(k)}` : ` − ${num(-k)}`;
+  return `${A}${absx(h)}${K}`;
+}
+function eqStr(q) { return `${lhs(q.a, q.h, q.k)} = ${num(q.d)}`; }
+function buildSteps(q) {
+  const { a, h, k, d } = q, S = [];
+  S.push({ m: eqStr(q), why: `Goal: <b>isolate</b> the absolute value. Get ${absx(h)} alone on one side.` });
+  if (k !== 0) S.push({ m: `${lhs(a, h, 0)} = ${num(d - k)}`, why: k > 0 ? `Subtract ${num(k)} from both sides.` : `Add ${num(-k)} to both sides.` });
+  const cv = (d - k) / a;
+  if (a !== 1) S.push({ m: `${absx(h)} = ${num(cv)}`, why: `Divide both sides by ${num(a)}. The absolute value is isolated.` });
+  if (cv < 0) {
+    S.push({ m: `${absx(h)} = ${num(cv)}  →  no solution`, why: `<b>${num(cv)} is negative.</b> A distance cannot be negative, so <b>no solution</b>. Stop here.`, cls: "nosol" });
+    S.push({ m: "no solution", why: "On the number line: no arrow can have a negative length.", cls: "nosol", pic: [h, cv] });
+    return S;
+  }
+  if (cv === 0) {
+    S.push({ m: `${inside(h)} = 0`, why: `The other side is 0. Only one number is 0 away from ${num(h)}: set the inside equal to 0.` });
+    if (h !== 0) S.push({ m: `x = ${num(h)}`, why: `Solve.` });
+    S.push({ m: `{${num(h)}}`, why: `<b>One solution.</b> Solution set {${num(h)}}.`, cls: "fin", pic: [h, 0] });
+    return S;
+  }
+  S.push({ m: `${inside(h)} = ${num(cv)}   or   ${inside(h)} = ${num(-cv)}`, why: `${num(cv)} is positive. Set the inside equal to the positive <b>and</b> the negative value.` });
+  if (h !== 0) S.push({ m: `x = ${num(h + cv)}   or   x = ${num(h - cv)}`, why: h > 0 ? `Add ${num(h)} to both sides of each equation.` : `Subtract ${num(-h)} from both sides of each equation.` });
+  S.push({ m: `{${num(h - cv)}, ${num(h + cv)}}`, why: `Write the <b>solution set</b>. Check on the number line: both are ${num(cv)} away from ${num(h)}.`, cls: "fin", pic: [h, cv] });
+  return S;
+}
+
+const PRE = [
+  { a: 3, h: 0, k: 6, d: 24 }, { a: -2, h: -3, k: 8, d: -14 }, { a: 2, h: 0, k: -3, d: 11 },
+  { a: 3, h: -1, k: -5, d: 7 }, { a: 5, h: 1, k: 9, d: 4 }, { a: -4, h: 7, k: 2, d: 2 }
+];
+let pCur = 0, pStep = 0, pSteps = [];
+const plist = $("plist");
+PRE.forEach((q, i) => {
+  const b = document.createElement("button");
+  b.className = "pbtn"; b.textContent = eqStr(q); b.onclick = () => selectPreset(i);
+  plist.appendChild(b);
+});
+function selectPreset(i) { pCur = i; pStep = 0; pSteps = buildSteps(PRE[i]); [...plist.children].forEach((b, k) => b.setAttribute("aria-current", k === i)); renderStep(); }
+function renderStep() {
+  const box = $("stepBox"); box.innerHTML = "";
+  pSteps.slice(0, pStep + 1).forEach((s, i) => {
+    const r = document.createElement("div");
+    r.className = "srow" + (i === pStep ? " cur" + (s.cls ? " " + s.cls : "") : "");
+    r.innerHTML = `<span class="m"></span>`; r.firstChild.textContent = s.m;
+    if (i < pStep) r.style.opacity = .55;
+    box.appendChild(r);
+  });
+  const s = pSteps[pStep];
+  $("stepNum").textContent = pStep + 1; $("stepTot").textContent = pSteps.length;
+  const w = $("stepWhy"); w.innerHTML = s.why; w.className = "status" + (s.cls === "nosol" ? " bad" : s.cls === "fin" ? " good" : "");
+  $("stBack").disabled = pStep === 0; $("stNext").disabled = pStep === pSteps.length - 1;
+  if (s.pic) { svg.classList.remove("hidden"); drawNL(s.pic[0], s.pic[1]); } else svg.classList.add("hidden");
+}
+$("stNext").onclick = () => { if (pStep < pSteps.length - 1) { pStep++; renderStep(); } };
+$("stBack").onclick = () => { if (pStep > 0) { pStep--; renderStep(); } };
+$("stAll").onclick = () => { pStep = pSteps.length - 1; renderStep(); };
+
+// ---------- check yourself ----------
+const CK = [
+  { a: 1, h: 2, k: 0, d: 5, ans: [-3, 7] }, { a: 1, h: -3, k: 0, d: 6, ans: [-9, 3] },
+  { a: 1, h: -1, k: 0, d: -4, ans: [] }, { a: 1, h: 6, k: 3, d: 3, ans: [6] },
+  { a: 2, h: 0, k: 1, d: 9, ans: [-4, 4] }, { a: 4, h: 3, k: -2, d: 6, ans: [1, 5] },
+  { a: -3, h: -2, k: 5, d: -7, ans: [-6, 2] }, { a: 2, h: 5, k: 8, d: 2, ans: [] }
+];
+let ckCur = 0;
+const solved = new Array(CK.length).fill(false);
+const picker = $("picker");
+CK.forEach((_, i) => {
+  const b = document.createElement("button");
+  b.className = "pick"; b.textContent = i + 1; b.setAttribute("aria-label", "Equation " + (i + 1));
+  b.onclick = () => selectCk(i); picker.appendChild(b);
+});
+function selectCk(i) {
+  ckCur = i;
+  [...picker.children].forEach((b, k) => b.setAttribute("aria-current", k === i));
+  $("ckTitle").textContent = `Equation ${i + 1} of ${CK.length}`;
+  $("ckEq").textContent = eqStr(CK[i]);
+  $("a1").value = ""; $("a2").value = ""; $("noSol").checked = false;
+  $("ckFb").className = "feedback"; svg.classList.add("hidden");
+}
+function parseNum(s) {
+  s = s.trim().replace(/[−–—]/g, "-").replace(/\s+/g, "");
+  if (!s) return null;
+  let m = s.match(/^(-?\d+(?:\.\d+)?)\/(\d+(?:\.\d+)?)$/);
+  if (m) return +m[1] / +m[2];
+  return /^-?(\d+\.?\d*|\.\d+)$/.test(s) ? +s : NaN;
+}
+$("noSol").addEventListener("change", e => { if (e.target.checked) { $("a1").value = ""; $("a2").value = ""; } });
+["a1", "a2"].forEach(id => $(id).addEventListener("input", () => { if ($(id).value.trim()) $("noSol").checked = false; }));
+function check() {
+  const q = CK[ckCur], fb = $("ckFb"), cv = (q.d - q.k) / q.a;
+  const E = q.ans, ns = $("noSol").checked;
+  const v = [parseNum($("a1").value), parseNum($("a2").value)].filter(x => x !== null);
+  let right = false, msg = "";
+  if (v.some(Number.isNaN)) { fb.className = "feedback show wrong"; fb.innerHTML = "Type numbers only, like −3 or 7."; return; }
+  if (ns) {
+    right = E.length === 0;
+    if (!right) msg = `Isolate first: ${absx(q.h)} = ${num(cv)}. ${cv === 0 ? "0 is not negative" : "That is positive"}, so there is a solution.`;
+  } else if (!v.length) { fb.className = "feedback show wrong"; fb.innerHTML = "Type your solutions, or tick <b>no solution</b>."; return; }
+  else {
+    const U = [...new Set(v.map(x => Math.round(x * 1e6) / 1e6))];
+    right = E.length > 0 && U.length === E.length && U.every(x => E.includes(x));
+    if (!right) {
+      if (E.length === 0) msg = "Isolate the absolute value first. What does it equal? Can a distance be that?";
+      else if (U.filter(x => E.includes(x)).length && E.length === 2) msg = "One of those is right. Set the inside equal to the positive <b>and</b> the negative value.";
+      else msg = "Not yet. Isolate the absolute value first, then set the inside equal to ± the other side.";
+    }
+  }
+  if (right) {
+    solved[ckCur] = true; picker.children[ckCur].classList.add("done");
+    fb.className = "feedback show right";
+    fb.innerHTML = `<b>Correct.</b> Isolated: ${absx(q.h)} = ${num(cv)}. ` + (E.length === 0 ? "A distance cannot be negative → no solution." : `Solution set ${E.length === 1 ? "{" + num(E[0]) + "}" : "{" + num(E[0]) + ", " + num(E[1]) + "}"}.`);
+    svg.classList.remove("hidden"); drawNL(q.h, cv);
+  } else { fb.className = "feedback show wrong"; fb.innerHTML = "<b>Not yet.</b> " + msg; svg.classList.add("hidden"); }
+  updateProgress();
+}
+$("ckBtn").onclick = check;
+["a1", "a2"].forEach(id => $(id).addEventListener("keydown", e => { if (e.key === "Enter") check(); }));
+
+// completion code
+function codeFor(name) {
+  const s = name.trim().toLowerCase().replace(/\s+/g, " ") + "|a2u2-absval";
+  let hh = 2166136261;
+  for (let i = 0; i < s.length; i++) { hh ^= s.charCodeAt(i); hh = Math.imul(hh, 16777619) >>> 0; }
+  const A = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let out = "";
+  for (let i = 0; i < 5; i++) { out += A[hh % 32]; hh = Math.floor(hh / 32) ^ (i * 2654435761 >>> 0); hh >>>= 0; }
+  return "L6-" + out;
+}
+function updateProgress() {
+  const n = solved.filter(Boolean).length;
+  $("progText").textContent = `${n} of ${CK.length} solved`;
+  $("progBar").style.width = (100 * n / CK.length) + "%";
+  const name = $("stuName").value.trim(), box = $("code");
+  if (n === CK.length) {
+    box.className = "code show";
+    box.innerHTML = name ? `All 8 correct. Paste this code into Classroom:<br><strong id="codeText">${codeFor(name)}</strong>` : "All 8 correct. Type your name above to get your code.";
+  }
+}
+$("stuName").addEventListener("input", updateProgress);
+$("tName").addEventListener("input", e => { $("tCode").textContent = e.target.value.trim() ? codeFor(e.target.value) : ""; });
+
+// ---------- modes ----------
+function setMode(m) {
+  mode = m; cancelAnimationFrame(animT); dragging = false;
+  const tabs = { nl: "tabNL", gr: "tabGR", st: "tabST", ck: "tabCK" };
+  for (const k in tabs) $(tabs[k]).setAttribute("aria-selected", k === m);
+  const slide = m === "nl" || m === "gr";
+  $("leftSlide").classList.toggle("hidden", !slide); $("rightSlide").classList.toggle("hidden", !slide);
+  $("leftStep").classList.toggle("hidden", m !== "st"); $("rightStep").classList.toggle("hidden", m !== "st"); $("stepBox").classList.toggle("hidden", m !== "st");
+  $("leftCheck").classList.toggle("hidden", m !== "ck"); $("rightCheck").classList.toggle("hidden", m !== "ck"); $("checkBox").classList.toggle("hidden", m !== "ck");
+  svg.style.cursor = slide ? "ew-resize" : "default";
+  if (slide) {
+    svg.classList.remove("hidden");
+    $("rTitle").textContent = m === "nl" ? "Number line" : "Graph";
+    $("animate").classList.toggle("hidden", m !== "nl");
+    $("dragHint").textContent = m === "nl" ? "Drag on the number line to move the center." : "Drag on the graph to slide the V left and right.";
+    animate(700);
+  } else if (m === "st") selectPreset(pCur);
+  else selectCk(ckCur);
+}
+$("tabNL").onclick = () => setMode("nl");
+$("tabGR").onclick = () => setMode("gr");
+$("tabST").onclick = () => setMode("st");
+$("tabCK").onclick = () => setMode("ck");
+setMode("nl");
+</script>
+</body>
+</html>

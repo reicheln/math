@@ -1,0 +1,663 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Transformations Explorer</title>
+<style>
+  :root{
+    --bg:#f6f8fb; --panel:#ffffff; --ink:#1b2430; --muted:#5b6778; --line:#d9e0ea;
+    --blue:#2E5FA3; --blue-soft:#eaf1fb; --green:#1f8a4c; --green-soft:#eaf7ec;
+    --red:#c8372d; --red-soft:#fce8e6; --orange:#d9822b; --orange-soft:#fbe9d6; --purple:#7a4fb3;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{background:var(--blue);color:#fff;padding:12px 20px;display:flex;flex-wrap:wrap;align-items:center;gap:6px 16px}
+  header h1{margin:0;font-size:22px}
+  header span{opacity:.85;font-size:14px}
+  header .tvbtn{margin-left:auto;border:2px solid #fff;background:transparent;color:#fff;border-radius:999px;padding:6px 14px;font-weight:600;font-size:14px;cursor:pointer}
+  body.tv header .tvbtn{background:#fff;color:var(--blue)}
+  .tabs{display:flex;gap:8px;padding:12px 20px 0;flex-wrap:wrap}
+  .tab{border:2px solid var(--blue);background:#fff;color:var(--blue);padding:8px 16px;border-radius:999px;font-weight:600;cursor:pointer;font-size:15px}
+  .tab[aria-selected="true"]{background:var(--blue);color:#fff}
+  main{display:grid;grid-template-columns:230px minmax(300px,min(600px,calc(100vh - 300px))) minmax(280px,1fr);gap:16px;padding:16px 20px;align-items:start}
+  @media (max-width:1000px){main{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}
+  .panel h2{margin:0 0 10px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .panel h2.sp{margin-top:18px}
+  .plane-wrap{background:#fff;border:1px solid var(--line);border-radius:12px;padding:8px;min-width:0}
+  svg#plane{width:100%;height:auto;display:block;touch-action:none;user-select:none}
+  .parents{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:2px 2px 6px}
+  .par{display:flex;align-items:baseline;justify-content:center;gap:6px;flex-wrap:wrap;border:2px solid var(--line);background:#fff;border-radius:10px;padding:4px;font:600 21px/1.2 "Cambria Math","Times New Roman",serif;cursor:pointer;color:var(--ink)}
+  .par small{font:500 12px/1.2 system-ui,sans-serif;color:var(--muted)}
+  .par[aria-pressed="true"]{border-color:var(--blue);background:var(--blue-soft)}
+  .sl{display:grid;grid-template-columns:34px 38px 1fr 38px 64px;align-items:center;gap:8px;padding:3px 4px}
+  .sl label{font:italic 700 22px "Cambria Math","Times New Roman",serif;text-align:center}
+  .sl input{width:100%;min-width:0}
+  .sl output{font-weight:700;font-size:20px;font-variant-numeric:tabular-nums;text-align:right}
+  .step{width:38px;height:38px;border-radius:10px;border:2px solid var(--blue);background:#fff;color:var(--blue);font-size:22px;font-weight:700;cursor:pointer;line-height:1;padding:0}
+  .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+  button.act{border:0;border-radius:10px;padding:10px 14px;font-size:16px;font-weight:600;cursor:pointer;background:var(--blue);color:#fff}
+  button.act.alt{background:#fff;color:var(--blue);border:2px solid var(--blue)}
+  button.act.go{background:var(--green)}
+  button.act:disabled{opacity:.5;cursor:default}
+  .col-btns{display:grid;gap:8px}
+  .col-btns button{width:100%}
+  label.chk{display:flex;align-items:center;gap:8px;font-size:16px;cursor:pointer;padding:6px 0}
+  label.chk input{width:20px;height:20px}
+  .eq{font:400 30px/1.3 "Cambria Math","Times New Roman",serif;padding:10px 12px;background:var(--blue-soft);border-radius:10px;color:#173a6a;overflow-wrap:anywhere}
+  .eq i{font-style:italic}
+  .rad{white-space:nowrap}
+  .rad .rc{border-top:2px solid currentColor;padding:0 2px 0 1px;margin-left:1px}
+  .desc{font-size:18px;margin:10px 0 0}
+  .pat{font-size:15px;color:var(--muted);margin:8px 0 0}
+  .dr{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:19px;margin-top:4px}
+  .dr b{color:var(--muted);font-weight:600;font-size:16px;align-self:center}
+  .dr span{font-family:"Cambria Math","Times New Roman",serif;font-size:21px}
+  table.tt{border-collapse:collapse;margin-top:10px;width:100%;font-size:17px;font-variant-numeric:tabular-nums}
+  table.tt th,table.tt td{border:1px solid var(--line);padding:5px 8px;text-align:center}
+  table.tt th{background:var(--blue-soft);font:italic 600 17px "Cambria Math","Times New Roman",serif}
+  table.tt td.no{color:var(--muted);font-size:13px}
+  table.tt tr.key td{background:#fff7ec;font-weight:700}
+  .fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;font-size:.8em;line-height:1.05;margin:0 1px}
+  .fr span:first-child{border-bottom:1.5px solid currentColor;padding:0 2px}
+  .words{font-size:14px;margin:0;padding-left:18px}
+  .words li{margin-bottom:6px}
+  .words b{color:var(--blue)}
+  .sets{display:grid;gap:8px}
+  .setb{border:2px solid var(--line);background:#fff;border-radius:10px;padding:8px 10px;text-align:left;font-size:15px;font-weight:600;cursor:pointer;color:var(--ink);display:flex;justify-content:space-between;gap:8px}
+  .setb[aria-current="true"]{border-color:var(--blue);background:var(--blue-soft)}
+  .setb em{font-style:normal;color:var(--muted);font-weight:500}
+  .picker{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+  @media (max-width:1000px){.picker{grid-template-columns:repeat(8,1fr)}}
+  .pick{position:relative;aspect-ratio:1;border:2px solid var(--line);background:#fff;border-radius:10px;font-size:18px;font-weight:700;cursor:pointer;color:var(--ink);padding:0}
+  .pick[aria-current="true"]{border-color:var(--blue);background:var(--blue-soft)}
+  .pick.done{border-color:var(--green)}
+  .pick.done::after{content:"✓";position:absolute;top:1px;right:4px;font-size:12px;color:var(--green)}
+  .legend{font-size:13px;color:var(--muted);margin-top:12px}
+  .status{font-size:18px;padding:12px;border-radius:10px;background:var(--blue-soft)}
+  .feedback{margin-top:12px;padding:12px;border-radius:10px;font-size:17px;display:none}
+  .feedback.show{display:block}
+  .feedback.right{background:var(--green-soft);border-left:5px solid var(--green)}
+  .feedback.wrong{background:var(--red-soft);border-left:5px solid var(--red)}
+  .reveal{margin-top:12px;display:none}
+  .reveal.show{display:block}
+  .prog{margin-top:14px;font-size:14px;color:var(--muted)}
+  .bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:6px}
+  .bar i{display:block;height:100%;background:var(--green);width:0;transition:width .3s}
+  .code{margin-top:12px;padding:12px;border-radius:10px;background:var(--green-soft);border:2px dashed var(--green);display:none}
+  .code.show{display:block}
+  .code strong{font-size:24px;letter-spacing:.08em}
+  label.name{display:block;margin-top:12px;font-size:14px;color:var(--muted)}
+  label.name input{display:block;width:100%;margin-top:4px;padding:8px;font-size:16px;border:1px solid var(--line);border-radius:8px}
+  details.teacher{margin:0 20px 24px;font-size:14px;color:var(--muted)}
+  details.teacher input,details.teacher select{padding:6px;font-size:14px}
+  .hint{font-size:14px;color:var(--muted);margin:8px 0 0}
+  .hidden{display:none!important}
+  /* TV mode: big text, no side panels, sliders move next to the graph */
+  body.tv .side-left, body.tv .tvhide, body.tv details.teacher{display:none!important}
+  body.tv main{grid-template-columns:minmax(300px,calc(100vh - 215px)) minmax(360px,1fr);max-width:none}
+  body.tv header h1{font-size:26px}
+  body.tv .eq{font-size:42px}
+  body.tv .desc{font-size:25px}
+  body.tv .dr{font-size:24px} body.tv .dr span{font-size:28px} body.tv .dr b{font-size:20px}
+  body.tv .pat{font-size:20px}
+  body.tv .status, body.tv .feedback{font-size:23px}
+  body.tv .panel h2{font-size:18px}
+  body.tv .sl{grid-template-columns:40px 50px 1fr 50px 90px}
+  body.tv .sl label{font-size:30px} body.tv .sl output{font-size:28px}
+  body.tv .step{width:50px;height:50px;font-size:28px}
+  body.tv .par{font-size:28px}
+  body.tv button.act{font-size:20px;padding:12px 18px}
+  @media (max-width:1000px){body.tv main{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<header>
+  <h1>Transformations Explorer</h1>
+  <span>Algebra 2 · Unit 2 · Lessons 7–8 — y = a·f(x − h) + k</span>
+  <button class="tvbtn" id="tvBtn" aria-pressed="false">TV mode</button>
+</header>
+
+<div class="tabs" role="tablist">
+  <button class="tab" role="tab" id="tabEx" aria-selected="true">Explore</button>
+  <button class="tab" role="tab" id="tabCh" aria-selected="false">Challenge: match the graph</button>
+</div>
+
+<main>
+  <!-- LEFT -->
+  <section class="panel side-left">
+    <div id="leftEx">
+      <h2>Tools</h2>
+      <label class="chk"><input type="checkbox" id="showTable"> Show table</label>
+      <label class="chk"><input type="checkbox" id="showParent" checked> Show parent function</label>
+      <div class="col-btns" style="margin-top:8px">
+        <button class="act" id="animBtn">▶ Animate from parent</button>
+        <button class="act alt" id="resetBtn">Reset</button>
+      </div>
+      <h2 class="sp">Words</h2>
+      <ul class="words">
+        <li><b>Translation</b>: slide the graph. Same shape. <i>h</i> slides it left or right; <i>k</i> slides it up or down.</li>
+        <li><b>Vertical stretch</b>: |<i>a</i>| &gt; 1. Pulled away from the x-axis — steeper.</li>
+        <li><b>Vertical compression</b>: 0 &lt; |<i>a</i>| &lt; 1. Squished toward the x-axis — flatter.</li>
+        <li><b>Reflection across the x-axis</b>: <i>a</i> &lt; 0. Flipped upside down.</li>
+      </ul>
+    </div>
+    <div id="leftCh" class="hidden">
+      <h2>Set</h2>
+      <div class="sets" id="sets"></div>
+      <h2 class="sp">Targets</h2>
+      <div class="picker" id="picker"></div>
+      <p class="legend">Orange dashed = target. Blue = your graph. ✓ = matched.</p>
+    </div>
+  </section>
+
+  <!-- CENTER -->
+  <section class="plane-wrap">
+    <div class="parents" id="parents" role="group" aria-label="Parent function">
+      <button class="par" data-p="abs" aria-pressed="true">|x|<small>absolute value</small></button>
+      <button class="par" data-p="quad" aria-pressed="false">x²<small>quadratic</small></button>
+      <button class="par" data-p="sqrt" aria-pressed="false">√x<small>square root</small></button>
+    </div>
+    <svg id="plane" viewBox="0 0 560 560" aria-label="Coordinate plane"></svg>
+    <div id="sliders">
+      <div class="sl"><label for="aS">a</label><button class="step" data-s="a" data-d="-1" aria-label="decrease a">−</button><input type="range" id="aS" min="0" max="9" step="1" value="7"><button class="step" data-s="a" data-d="1" aria-label="increase a">+</button><output id="aO">1</output></div>
+      <div class="sl"><label for="hS">h</label><button class="step" data-s="h" data-d="-1" aria-label="decrease h">−</button><input type="range" id="hS" min="-6" max="6" step="1" value="0"><button class="step" data-s="h" data-d="1" aria-label="increase h">+</button><output id="hO">0</output></div>
+      <div class="sl"><label for="kS">k</label><button class="step" data-s="k" data-d="-1" aria-label="decrease k">−</button><input type="range" id="kS" min="-6" max="6" step="1" value="0"><button class="step" data-s="k" data-d="1" aria-label="increase k">+</button><output id="kO">0</output></div>
+    </div>
+    <p class="hint tvhide" style="margin:4px 6px">Tip: drag the big dot on the graph to translate it.</p>
+  </section>
+
+  <!-- RIGHT -->
+  <section class="panel" id="right">
+    <div id="rightEx">
+      <h2>Equation</h2>
+      <div class="eq" id="eq"></div>
+      <p class="desc" id="desc"></p>
+      <p class="pat" id="pat"></p>
+      <h2 class="sp">Domain and range</h2>
+      <div class="dr"><b>Domain</b><span id="dom"></span><b>Range</b><span id="rng"></span></div>
+      <div id="tableBox" class="hidden tvhide">
+        <h2 class="sp">Table</h2>
+        <div id="table"></div>
+      </div>
+      <div class="btns hidden" id="tvTools">
+        <button class="act" id="animBtn2">▶ Animate from parent</button>
+        <button class="act alt" id="resetBtn2">Reset</button>
+      </div>
+    </div>
+    <div id="rightCh" class="hidden">
+      <h2 id="tgtTitle">Target 1 of 8</h2>
+      <div class="status" id="tgtStatus">Pick the parent function. Move <i>a</i>, <i>h</i>, and <i>k</i> until your blue graph sits on the orange target.</div>
+      <div class="btns">
+        <button class="act go" id="checkBtn">Check</button>
+        <button class="act alt" id="nextBtn">Next target →</button>
+      </div>
+      <div class="feedback" id="feedback"></div>
+      <div class="reveal" id="reveal">
+        <h2 class="sp">Equation of the target</h2>
+        <div class="eq" id="eqT"></div>
+        <p class="desc" id="descT"></p>
+        <div class="dr"><b>Domain</b><span id="domT"></span><b>Range</b><span id="rngT"></span></div>
+      </div>
+      <div class="tvhide">
+        <div class="prog">
+          <span id="progText">0 of 8 matched</span>
+          <div class="bar"><i id="progBar"></i></div>
+        </div>
+        <label class="name">Your name (for the completion code)
+          <input id="stuName" autocomplete="off" placeholder="First and last name">
+        </label>
+        <div class="code" id="code"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<details class="teacher">
+  <summary>Teacher check</summary>
+  <p>Type a student's name exactly as they entered it and pick the set to see the code they should have.</p>
+  <input id="tName" placeholder="Student name">
+  <select id="tSet"><option value="translations">Translations</option><option value="stretch">Stretch</option><option value="mixed">Mixed</option></select>
+  <strong id="tCode"></strong>
+</details>
+
+<script>
+// ================= exact fractions =================
+const gcd = (a, b) => { a = Math.abs(a); b = Math.abs(b); while (b) [a, b] = [b, a % b]; return a || 1; };
+const F = (p, q = 1) => { if (q < 0) { p = -p; q = -q; } const g = gcd(p, q); return [p / g, q / g]; };
+const fadd = (x, y) => F(x[0] * y[1] + y[0] * x[1], x[1] * y[1]);
+const fmul = (x, y) => F(x[0] * y[0], x[1] * y[1]);
+const fval = x => x[0] / x[1];
+const MINUS = "−";
+const neg = v => String(v).replace("-", MINUS);
+const ftxt = x => x[1] === 1 ? neg(x[0]) : neg(x[0]) + "/" + x[1];
+const fhtml = x => x[1] === 1 ? neg(x[0]) : (x[0] < 0 ? MINUS : "") + `<span class="fr"><span>${Math.abs(x[0])}</span><span>${x[1]}</span></span>`;
+const UNI = { "1/2": "½", "1/3": "⅓" };
+const magUni = x => { const m = [Math.abs(x[0]), x[1]]; return m[1] === 1 ? String(m[0]) : UNI[m[0] + "/" + m[1]]; };
+
+// ================= model =================
+const AV = [F(-3), F(-2), F(-1), F(-1, 2), F(-1, 3), F(1, 3), F(1, 2), F(1), F(2), F(3)];
+const PAR = {
+  abs:  { name: "|x|",  key: "vertex",         f: u => Math.abs(u),  pat: [[-1, 1], [1, 1]], exact: u => F(Math.abs(u)) },
+  quad: { name: "x²", key: "vertex",      f: u => u * u,        pat: [[1, 1], [2, 4]],  exact: u => F(u * u) },
+  sqrt: { name: "√x", key: "starting point", f: u => Math.sqrt(u), pat: [[1, 1], [4, 2]], exact: u => { const r = Math.round(Math.sqrt(u)); return r * r === u ? F(r) : null; } }
+};
+const aIndex = a => AV.findIndex(v => v[0] === a[0] && v[1] === a[1]);
+
+function inner(h) { return h === 0 ? "x" : h > 0 ? `x ${MINUS} ${h}` : `x + ${-h}`; }
+function eqText(p, a, h, k) {
+  const u = inner(h);
+  const core = p === "abs" ? `|${u}|` : p === "quad" ? (h === 0 ? "x²" : `(${u})²`) : (h === 0 ? "√x" : `√(${u})`);
+  const coef = (a[0] === 1 && a[1] === 1) ? "" : (a[0] === -1 && a[1] === 1) ? MINUS : (a[0] < 0 ? MINUS : "") + magUni(a);
+  const kp = k > 0 ? ` + ${k}` : k < 0 ? ` ${MINUS} ${-k}` : "";
+  return `y = ${coef}${core}${kp}`;
+}
+function eqHTML(p, a, h, k) {
+  const u = h === 0 ? "<i>x</i>" : h > 0 ? `<i>x</i> ${MINUS} ${h}` : `<i>x</i> + ${-h}`;
+  const core = p === "abs" ? `|${u}|` : p === "quad" ? (h === 0 ? "<i>x</i>²" : `(${u})²`) : `<span class="rad">√<span class="rc">${u}</span></span>`;
+  const coef = (a[0] === 1 && a[1] === 1) ? "" : (a[0] === -1 && a[1] === 1) ? MINUS : (a[0] < 0 ? MINUS : "") + magUni(a);
+  const kp = k > 0 ? ` + ${k}` : k < 0 ? ` ${MINUS} ${-k}` : "";
+  return `<i>y</i> = ${coef}${core}${kp}`;
+}
+const units = n => n === 1 ? "1 unit" : n + " units";
+function describe(p, a, h, k) {
+  const parts = [];
+  if (a[0] < 0) parts.push("reflected across the x-axis");
+  const m = Math.abs(a[0]) / a[1];
+  if (m > 1) parts.push("vertical stretch by " + magUni(a));
+  if (m < 1) parts.push("vertical compression by " + magUni(a));
+  const tr = [];
+  if (h) tr.push(units(Math.abs(h)) + (h < 0 ? " left" : " right"));
+  if (k) tr.push(units(Math.abs(k)) + (k > 0 ? " up" : " down"));
+  if (tr.length) parts.push("translated " + tr.join(" and "));
+  const kn = PAR[p].key[0].toUpperCase() + PAR[p].key.slice(1);
+  return `Parent function ${PAR[p].name}${parts.length ? ", " + parts.join(", ") : ""}. ${kn} (${neg(h)}, ${neg(k)}).`;
+}
+function domain(p, a, h, k) { return p === "sqrt" ? `[${neg(h)}, ∞)` : `(${MINUS}∞, ∞)`; }
+function range(p, a, h, k) { return a[0] > 0 ? `[${neg(k)}, ∞)` : `(${MINUS}∞, ${neg(k)}]`; }
+function keyPoint(p, a, h, k) { return [h, F(k)]; }
+function patternPoints(p, a, h, k) { return PAR[p].pat.map(([dx, m]) => [h + dx, fadd(F(k), fmul(a, F(m)))]); }
+const ptText = pt => `(${neg(pt[0])}, ${ftxt(pt[1])})`;
+function patternText(p, a) {
+  const kn = PAR[p].key;
+  const step = m => { const v = fmul(a, F(m)); return (v[0] < 0 ? "down " : "up ") + ftxt([Math.abs(v[0]), v[1]]); };
+  if (p === "abs") return `From the ${kn}: over 1 (left or right), ${step(1)}.`;
+  const [[d1, m1], [d2, m2]] = PAR[p].pat;
+  return `From the ${kn}: over ${d1}, ${step(m1)}; over ${d2}, ${step(m2)}.`;
+}
+function model(p, a, h, k) {
+  return { eq: eqText(p, a, h, k), desc: describe(p, a, h, k), dom: domain(p, a, h, k), rng: range(p, a, h, k),
+           key: ptText(keyPoint(p, a, h, k)), pts: patternPoints(p, a, h, k).map(ptText), pat: patternText(p, a) };
+}
+
+// ================= challenge data (fixed; checked by verify/Explorer_verify.py) =================
+const SETS = {
+  translations: { title: "Translations", note: "a = 1", prefix: "TR", items: [
+    ["abs", F(1), -3, 0], ["quad", F(1), 0, -4], ["sqrt", F(1), 2, 0], ["abs", F(1), 0, 3],
+    ["quad", F(1), 4, 1], ["sqrt", F(1), -5, -2], ["abs", F(1), 2, -5], ["sqrt", F(1), -1, 3]] },
+  stretch: { title: "Stretch", note: "stretch · compression · reflection", prefix: "ST", items: [
+    ["abs", F(3), 0, 0], ["quad", F(-1), 0, 0], ["sqrt", F(1, 2), 0, 0], ["abs", F(-1, 2), 1, 0],
+    ["quad", F(2), 0, -2], ["sqrt", F(-2), -1, 1], ["abs", F(1, 3), -1, -1], ["quad", F(1, 2), 1, -2]] },
+  mixed: { title: "Mixed", note: "everything", prefix: "MX", items: [
+    ["abs", F(-1), 3, 4], ["quad", F(2), -3, -5], ["sqrt", F(3), -6, -4], ["quad", F(-1, 2), 2, 5],
+    ["abs", F(3), -4, -6], ["sqrt", F(-1), 3, 6], ["quad", F(-3), -1, 5], ["abs", F(1, 2), 5, -3]] }
+};
+const SET_KEYS = ["translations", "stretch", "mixed"];
+
+// ================= coordinate system =================
+const W = 560, O = 280, S = 31, LIM = 8.6, G = 8;
+const px = x => O + S * x, py = y => O - S * y;
+const NS = "http://www.w3.org/2000/svg";
+const el = (tag, attrs = {}, parent) => {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+};
+const svg = document.getElementById("plane");
+function drawGrid() {
+  svg.innerHTML = "";
+  const defs = el("defs", {}, svg);
+  const mk = (id, color, sz) => {
+    const m = el("marker", { id, viewBox: "0 0 10 10", refX: 8, refY: 5, markerWidth: sz, markerHeight: sz, orient: "auto-start-reverse" }, defs);
+    el("path", { d: "M0,0 L10,5 L0,10 z", fill: color }, m);
+  };
+  mk("arrA", "#8a96a8", 7); mk("arrB", "#2E5FA3", 4.5); mk("arrO", "#d9822b", 4); mk("arrG", "#9aa5b5", 6);
+  const g = el("g", {}, svg);
+  for (let i = -G; i <= G; i++) {
+    el("line", { x1: px(i), y1: py(-LIM), x2: px(i), y2: py(LIM), stroke: "#e7ecf3", "stroke-width": 1 }, g);
+    el("line", { x1: px(-LIM), y1: py(i), x2: px(LIM), y2: py(i), stroke: "#e7ecf3", "stroke-width": 1 }, g);
+  }
+  el("line", { x1: px(-LIM), y1: O, x2: px(LIM), y2: O, stroke: "#8a96a8", "stroke-width": 1.6, "marker-end": "url(#arrA)", "marker-start": "url(#arrA)" }, g);
+  el("line", { x1: O, y1: py(-LIM), x2: O, y2: py(LIM), stroke: "#8a96a8", "stroke-width": 1.6, "marker-end": "url(#arrA)", "marker-start": "url(#arrA)" }, g);
+  for (let i = -G; i <= G; i += 2) {
+    if (!i) continue;
+    el("text", { x: px(i), y: O + 16, "text-anchor": "middle", "font-size": 12, fill: "#5b6778" }, g).textContent = neg(i);
+    el("text", { x: O - 8, y: py(i) + 4, "text-anchor": "end", "font-size": 12, fill: "#5b6778" }, g).textContent = neg(i);
+  }
+  el("text", { x: px(8.35), y: O - 8, "font-size": 14, "font-style": "italic", fill: "#5b6778" }, g).textContent = "x";
+  el("text", { x: O + 8, y: py(8.35), "font-size": 14, "font-style": "italic", fill: "#5b6778" }, g).textContent = "y";
+}
+// numeric curve y = a f(x - h) + k, clipped to the window; returns path points
+function curvePts(p, a, h, k) {
+  const f = PAR[p].f, am = Math.abs(a);
+  let u0, u1;
+  if (am < 1e-9) { u0 = p === "sqrt" ? 0 : -40; u1 = 40; }
+  else {
+    const B = (LIM - Math.sign(a) * k) / am;
+    if (p === "abs") { u0 = -B; u1 = B; }
+    else if (p === "quad") { u0 = -Math.sqrt(B); u1 = Math.sqrt(B); }
+    else { u0 = 0; u1 = B * B; }
+  }
+  const x0 = Math.max(h + u0, -LIM), x1 = Math.min(h + u1, LIM);
+  if (x1 <= x0) return null;
+  const xs = [];
+  if (p === "abs") { xs.push(x0); if (h > x0 && h < x1) xs.push(h); xs.push(x1); }
+  else { const n = 260; for (let i = 0; i <= n; i++) xs.push(x0 + (x1 - x0) * (p === "sqrt" ? (i / n) ** 2 : i / n)); }
+  return { pts: xs.map(x => [x, a * f(p === "sqrt" ? Math.max(x - h, 0) : x - h) + k]), startArrow: p !== "sqrt" };
+}
+function drawCurve(p, a, h, k, style) {
+  const c = curvePts(p, a, h, k);
+  if (!c) return;
+  const d = c.pts.map((q, i) => (i ? "L" : "M") + px(q[0]).toFixed(2) + "," + py(q[1]).toFixed(2)).join(" ");
+  const at = { d, fill: "none", "stroke-linejoin": "round", "stroke-linecap": "round" };
+  Object.assign(at, style.attrs);
+  if (style.arrow) { at["marker-end"] = `url(#${style.arrow})`; if (c.startArrow) at["marker-start"] = `url(#${style.arrow})`; }
+  el("path", at, svg);
+}
+function label(x, y, text, anchor, dx, dy, color, size, bold) {
+  let X = px(x) + dx, Y = py(y) + dy;
+  const wEst = text.length * size * 0.56;
+  if (anchor === "start" && X + wEst > W - 4) { anchor = "end"; X = px(x) - dx; Y += dy < 0 ? 22 : -22; }
+  if (anchor === "end" && X - wEst < 4) { anchor = "start"; X = px(x) - dx; Y += dy < 0 ? 22 : -22; }
+  if (anchor === "middle") X = Math.min(Math.max(X, 4 + wEst / 2), W - 4 - wEst / 2);
+  Y = Math.min(Math.max(Y, 16), W - 6);
+  const t = el("text", { x: X, y: Y, "text-anchor": anchor, "font-size": size, "font-weight": bold ? 700 : 600, fill: color,
+    stroke: "#fff", "stroke-width": 4, "paint-order": "stroke", "stroke-linejoin": "round" }, svg);
+  t.textContent = text;
+  return t;
+}
+const inWin = (x, y) => Math.abs(x) <= LIM && Math.abs(y) <= LIM;
+
+// ================= state =================
+let mode = "ex", parent = "abs", ai = 7, h = 0, k = 0;
+let set = "translations", tIdx = 0;
+const solved = { translations: Array(8).fill(false), stretch: Array(8).fill(false), mixed: Array(8).fill(false) };
+let anim = null;   // {a,h,k,caption} while animating
+let animTimer = null;
+const $ = id => document.getElementById(id);
+const aF = () => AV[ai];
+
+function render() {
+  drawGrid();
+  const a = aF();
+  if (mode === "ch") {
+    const [tp, ta, th, tk] = SETS[set].items[tIdx];
+    drawCurve(tp, fval(ta), th, tk, { attrs: { stroke: "#d9822b", "stroke-width": 7, "stroke-dasharray": "14 9", opacity: 0.9 }, arrow: "arrO" });
+    el("circle", { cx: px(th), cy: py(tk), r: 9, fill: "#d9822b", stroke: "#fff", "stroke-width": 2.5 }, svg);
+  } else if ($("showParent").checked) {
+    drawCurve(parent, 1, 0, 0, { attrs: { stroke: "#9aa5b5", "stroke-width": 2.5, "stroke-dasharray": "7 6" }, arrow: "arrG" });
+  }
+  if (anim) {
+    drawCurve(parent, anim.a, anim.h, anim.k, { attrs: { stroke: "#2E5FA3", "stroke-width": 4 }, arrow: "arrB" });
+    el("circle", { cx: px(anim.h), cy: py(anim.k), r: 8, fill: "#2E5FA3", stroke: "#fff", "stroke-width": 2.5 }, svg);
+    const t = el("text", { x: W / 2, y: 24, "text-anchor": "middle", "font-size": 17, "font-weight": 700, fill: "#173a6a",
+      stroke: "#fff", "stroke-width": 5, "paint-order": "stroke" }, svg);
+    t.textContent = anim.caption;
+    const bb = t.getBBox();
+    svg.insertBefore(el("rect", { x: bb.x - 8, y: bb.y - 4, width: bb.width + 16, height: bb.height + 8, rx: 8, fill: "#eaf1fb", stroke: "#2E5FA3", "stroke-width": 1.5 }), t);
+  } else {
+    const av = fval(a);
+    drawCurve(parent, av, h, k, { attrs: { stroke: "#2E5FA3", "stroke-width": 4 }, arrow: "arrB" });
+    // pattern points
+    const up = av > 0;
+    patternPoints(parent, a, h, k).forEach(([x, y], i) => {
+      const yv = fval(y);
+      if (!inWin(x, yv)) return;
+      el("circle", { cx: px(x), cy: py(yv), r: 6, fill: "#fff", stroke: "#2E5FA3", "stroke-width": 3 }, svg);
+      const left = parent === "abs" && i === 0;
+      label(x, yv, ptText([x, y]), left ? "end" : "start", left ? -10 : 10, up ? 16 : -8, "#2E5FA3", 14, false);
+    });
+    el("circle", { cx: px(h), cy: py(k), r: 9, fill: "#2E5FA3", stroke: "#fff", "stroke-width": 2.5, id: "keyDot", style: "cursor:grab" }, svg);
+    label(h, k, `(${neg(h)}, ${neg(k)})`, "middle", 0, up ? 26 : -16, "#173a6a", 16, true);
+  }
+  renderPanel();
+}
+
+function renderPanel() {
+  const a = aF();
+  $("aO").textContent = (a[0] < 0 ? MINUS : "") + magUni(a);
+  $("hO").textContent = neg(h); $("kO").textContent = neg(k);
+  $("aS").value = ai; $("hS").value = h; $("kS").value = k;
+  document.querySelectorAll(".par").forEach(b => b.setAttribute("aria-pressed", b.dataset.p === parent));
+  if (mode === "ex") {
+    const m = model(parent, a, h, k);
+    $("eq").innerHTML = eqHTML(parent, a, h, k); $("eq").dataset.text = m.eq;
+    $("desc").textContent = m.desc;
+    $("pat").textContent = m.pat;
+    $("dom").textContent = m.dom; $("rng").textContent = m.rng;
+    $("tableBox").classList.toggle("hidden", !$("showTable").checked);
+    if ($("showTable").checked) $("table").innerHTML = tableHTML(parent, a, h, k);
+  }
+}
+
+function tableHTML(p, a, h, k) {
+  const u = inner(h);
+  const head = p === "abs" ? `|${u}|` : p === "quad" ? (h === 0 ? "x²" : `(${u})²`) : (h === 0 ? "√x" : `√(${u})`);
+  const xs = p === "sqrt" ? [h - 1, h, h + 1, h + 4, h + 9] : [h - 2, h - 1, h, h + 1, h + 2];
+  let s = `<table class="tt"><tr><th>x</th><th>${head}</th><th>y</th></tr>`;
+  xs.forEach(x => {
+    const u0 = x - h;
+    if (p === "sqrt" && u0 < 0) { s += `<tr><td>${neg(x)}</td><td class="no" colspan="2">not in the domain</td></tr>`; return; }
+    const pv = PAR[p].exact(u0);
+    const y = fadd(fmul(a, pv), F(k));
+    s += `<tr class="${x === h ? "key" : ""}"><td>${neg(x)}</td><td>${fhtml(pv)}</td><td>${fhtml(y)}</td></tr>`;
+  });
+  return s + `</table><p class="hint"><i>y</i> = <i>a</i> · (middle column) + <i>k</i>. Shaded row = ${PAR[p].key}.</p>`;
+}
+
+// ================= animation: parent → reflect/stretch → translate =================
+function stopAnim() { if (animTimer) cancelAnimationFrame(animTimer); animTimer = null; anim = null; }
+function animate() {
+  stopAnim();
+  const a = fval(aF()), A = aF();
+  const s1 = [];
+  if (A[0] < 0) s1.push("reflect across the x-axis");
+  const m = Math.abs(a);
+  if (m > 1) s1.push("vertical stretch by " + magUni(A));
+  if (m < 1) s1.push("vertical compression by " + magUni(A));
+  const tr = [];
+  if (h) tr.push(units(Math.abs(h)) + (h < 0 ? " left" : " right"));
+  if (k) tr.push(units(Math.abs(k)) + (k > 0 ? " up" : " down"));
+  const stages = [{ dur: 700, f: () => ({ a: 1, h: 0, k: 0, caption: "Start: parent function " + PAR[parent].name }) }];
+  if (s1.length) stages.push({ dur: 1500, f: t => ({ a: 1 + (a - 1) * t, h: 0, k: 0, caption: "Step 1: " + s1.join(", ") }) });
+  if (tr.length) stages.push({ dur: 1500, f: t => ({ a, h: h * t, k: k * t, caption: `Step ${s1.length ? 2 : 1}: translate ` + tr.join(" and ") }) });
+  const t0 = performance.now();
+  const ease = t => t < 0.5 ? 2 * t * t : 1 - 2 * (1 - t) ** 2;
+  const tick = now => {
+    let el0 = now - t0, i = 0;
+    while (i < stages.length && el0 > stages[i].dur + 350) { el0 -= stages[i].dur + 350; i++; }
+    if (i >= stages.length) { anim = null; animTimer = null; render(); return; }
+    anim = stages[i].f(ease(Math.min(1, el0 / stages[i].dur)));
+    render();
+    animTimer = requestAnimationFrame(tick);
+  };
+  animTimer = requestAnimationFrame(tick);
+}
+
+// ================= controls =================
+function setVals(na, nh, nk) {
+  stopAnim();
+  ai = Math.max(0, Math.min(9, na)); h = Math.max(-6, Math.min(6, nh)); k = Math.max(-6, Math.min(6, nk));
+  if (mode === "ch") hideFeedback();
+  render();
+}
+$("aS").addEventListener("input", e => setVals(+e.target.value, h, k));
+$("hS").addEventListener("input", e => setVals(ai, +e.target.value, k));
+$("kS").addEventListener("input", e => setVals(ai, h, +e.target.value));
+document.querySelectorAll(".step").forEach(b => b.onclick = () => {
+  const d = +b.dataset.d;
+  if (b.dataset.s === "a") setVals(ai + d, h, k); else if (b.dataset.s === "h") setVals(ai, h + d, k); else setVals(ai, h, k + d);
+});
+document.querySelectorAll(".par").forEach(b => b.onclick = () => { stopAnim(); parent = b.dataset.p; if (mode === "ch") hideFeedback(); render(); });
+const reset = () => setVals(7, 0, 0);
+$("resetBtn").onclick = reset; $("resetBtn2").onclick = reset;
+$("animBtn").onclick = animate; $("animBtn2").onclick = animate;
+$("showTable").onchange = render; $("showParent").onchange = render;
+
+// drag the key point to translate
+let dragging = false;
+function toXY(e) {
+  const r = svg.getBoundingClientRect();
+  return [((e.clientX - r.left) / r.width * W - O) / S, (O - (e.clientY - r.top) / r.height * W) / S];
+}
+svg.addEventListener("pointerdown", e => {
+  const [x, y] = toXY(e);
+  if (Math.hypot(x - h, y - k) > 0.9) return;
+  dragging = true; svg.setPointerCapture(e.pointerId); e.preventDefault();
+});
+svg.addEventListener("pointermove", e => {
+  if (!dragging) return;
+  const [x, y] = toXY(e);
+  const nh = Math.max(-6, Math.min(6, Math.round(x))), nk = Math.max(-6, Math.min(6, Math.round(y)));
+  if (nh !== h || nk !== k) setVals(ai, nh, nk);
+});
+const endDrag = () => dragging = false;
+svg.addEventListener("pointerup", endDrag); svg.addEventListener("pointercancel", endDrag);
+
+// ================= tabs / TV =================
+function setMode(m) {
+  stopAnim(); mode = m;
+  $("tabEx").setAttribute("aria-selected", m === "ex");
+  $("tabCh").setAttribute("aria-selected", m === "ch");
+  ["leftEx", "rightEx"].forEach(id => $(id).classList.toggle("hidden", m !== "ex"));
+  ["leftCh", "rightCh"].forEach(id => $(id).classList.toggle("hidden", m !== "ch"));
+  if (m === "ch") selectTarget(tIdx); else render();
+}
+$("tabEx").onclick = () => setMode("ex");
+$("tabCh").onclick = () => setMode("ch");
+const homeOfSliders = $("sliders").parentNode, sliderNext = $("sliders").nextSibling;
+function setTV(on) {
+  document.body.classList.toggle("tv", on);
+  $("tvBtn").setAttribute("aria-pressed", on);
+  $("tvBtn").textContent = on ? "Exit TV mode" : "TV mode";
+  $("tvTools").classList.toggle("hidden", !on);
+  const right = $("right");
+  if (on) right.appendChild($("sliders")); else homeOfSliders.insertBefore($("sliders"), sliderNext);
+  render();
+}
+$("tvBtn").onclick = () => setTV(!document.body.classList.contains("tv"));
+
+// ================= challenge =================
+const setBox = $("sets"), picker = $("picker");
+SET_KEYS.forEach(key => {
+  const b = document.createElement("button");
+  b.className = "setb"; b.dataset.set = key;
+  b.onclick = () => chooseSet(key);
+  setBox.appendChild(b);
+});
+for (let i = 0; i < 8; i++) {
+  const b = document.createElement("button");
+  b.className = "pick"; b.textContent = i + 1; b.setAttribute("aria-label", "Target " + (i + 1));
+  b.onclick = () => selectTarget(i);
+  picker.appendChild(b);
+}
+function chooseSet(key) { set = key; selectTarget(solved[key].indexOf(false) === -1 ? 0 : solved[key].indexOf(false)); }
+function hideFeedback() { $("feedback").className = "feedback"; }
+function selectTarget(i) {
+  stopAnim(); tIdx = i;
+  ai = 7; h = 0; k = 0;
+  [...setBox.children].forEach(b => {
+    b.setAttribute("aria-current", b.dataset.set === set);
+    b.innerHTML = `<span>${SETS[b.dataset.set].title}<br><em>${SETS[b.dataset.set].note}</em></span><span>${solved[b.dataset.set].filter(Boolean).length}/8</span>`;
+  });
+  [...picker.children].forEach((b, j) => { b.setAttribute("aria-current", j === i); b.classList.toggle("done", solved[set][j]); });
+  $("tgtTitle").textContent = `${SETS[set].title} · Target ${i + 1} of 8`;
+  hideFeedback();
+  showReveal(solved[set][i]);
+  updateProgress();
+  render();
+}
+function showReveal(on) {
+  const [tp, ta, th, tk] = SETS[set].items[tIdx];
+  $("reveal").className = "reveal" + (on ? " show" : "");
+  if (on) {
+    const m = model(tp, ta, th, tk);
+    $("eqT").innerHTML = eqHTML(tp, ta, th, tk); $("eqT").dataset.text = m.eq; $("descT").textContent = m.desc;
+    $("domT").textContent = m.dom; $("rngT").textContent = m.rng;
+  }
+}
+function feedbackFor(tp, ta, th, tk, p, a, hh, kk) {
+  const key = PAR[tp].key, rights = [], offs = [];
+  if (p !== tp) offs.push("parent function is off — compare the shape of the target");
+  if (hh === th) rights.push("horizontal translation is right"); else offs.push(`horizontal translation is off — the ${key} should be at x = ${neg(th)}`);
+  if (kk === tk) rights.push("vertical translation is right"); else offs.push(`vertical translation is off — the ${key} should be at y = ${neg(tk)}`);
+  if ((a[0] < 0) !== (ta[0] < 0)) offs.push(`reflection is off — the target ${ta[0] < 0 ? "is" : "is not"} reflected across the x-axis`);
+  else if (ta[0] < 0) rights.push("reflection across the x-axis is right");
+  const mt = Math.abs(fval(ta)), ms = Math.abs(fval(a));
+  if (mt !== ms) {
+    const what = mt > 1 ? "vertical stretch" : mt < 1 ? "vertical compression" : "vertical stretch or compression";
+    offs.push(`${what} is off — from the ${key}, go over 1 and count how far the target goes ${ta[0] < 0 ? "down" : "up"}`);
+  } else if (mt !== 1) rights.push((mt > 1 ? "vertical stretch" : "vertical compression") + " is right");
+  const cap = s => s[0].toUpperCase() + s.slice(1);
+  return { ok: offs.length === 0, text: cap([...rights, ...offs].join("; ")) + "." };
+}
+function check() {
+  const [tp, ta, th, tk] = SETS[set].items[tIdx];
+  const r = feedbackFor(tp, ta, th, tk, parent, aF(), h, k);
+  const fb = $("feedback");
+  if (r.ok) {
+    solved[set][tIdx] = true;
+    picker.children[tIdx].classList.add("done");
+    fb.className = "feedback show right";
+    fb.innerHTML = `<b>Match!</b> Your graph sits exactly on the target.`;
+    showReveal(true);
+    [...setBox.children].forEach(b => b.lastChild.textContent = solved[b.dataset.set].filter(Boolean).length + "/8");
+  } else {
+    fb.className = "feedback show wrong";
+    fb.innerHTML = `<b>Not yet.</b> ${r.text}`;
+  }
+  updateProgress();
+  return r.ok;
+}
+$("checkBtn").onclick = check;
+$("nextBtn").onclick = () => {
+  const s = solved[set];
+  for (let d = 1; d <= 8; d++) { const j = (tIdx + d) % 8; if (!s[j]) return selectTarget(j); }
+  selectTarget((tIdx + 1) % 8);
+};
+
+// completion code (same hash as the Lesson 1 tool, own salt)
+function codeFor(name, setKey) {
+  const s = name.trim().toLowerCase().replace(/\s+/g, " ") + "|" + setKey + "|a2u2-explorer";
+  let hh = 2166136261;
+  for (let i = 0; i < s.length; i++) { hh ^= s.charCodeAt(i); hh = Math.imul(hh, 16777619) >>> 0; }
+  const A = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let out = "";
+  for (let i = 0; i < 5; i++) { out += A[hh % 32]; hh = Math.floor(hh / 32) ^ (i * 2654435761 >>> 0); hh >>>= 0; }
+  return SETS[setKey].prefix + "-" + out;
+}
+function updateProgress() {
+  const n = solved[set].filter(Boolean).length;
+  $("progText").textContent = `${SETS[set].title}: ${n} of 8 matched`;
+  $("progBar").style.width = (100 * n / 8) + "%";
+  const name = $("stuName").value.trim(), box = $("code");
+  if (n < 8) { box.className = "code"; return; }
+  box.className = "code show";
+  box.innerHTML = name
+    ? `All 8 in ${SETS[set].title} matched. Paste this code into Classroom:<br><strong id="codeText">${codeFor(name, set)}</strong>`
+    : `All 8 in ${SETS[set].title} matched. Type your name above to get your code.`;
+}
+$("stuName").addEventListener("input", updateProgress);
+const tUpd = () => { $("tCode").textContent = $("tName").value.trim() ? codeFor($("tName").value, $("tSet").value) : ""; };
+$("tName").addEventListener("input", tUpd); $("tSet").addEventListener("change", tUpd);
+
+// ================= start (query strings) =================
+const Q = new URLSearchParams(location.search);
+if (PAR[Q.get("parent")]) parent = Q.get("parent");
+if (SETS[Q.get("set")]) { set = Q.get("set"); setMode("ch"); } else setMode("ex");
+if (Q.get("tv") === "1") setTV(true);
+</script>
+</body>
+</html>

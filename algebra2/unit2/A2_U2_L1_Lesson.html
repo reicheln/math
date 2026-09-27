@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Algebra 2 U2 Lesson 1</title>
+<style>
+  :root{
+    --bg:#f6f8fb; --panel:#fff; --ink:#1b2430; --muted:#5b6778; --line:#d9e0ea;
+    --blue:#2E5FA3; --blue-soft:#eaf1fb; --tan:#fff6e5; --green:#1f8a4c; --green-soft:#eaf7ec;
+    --purple:#7a4fb3; --purple-soft:#f4e5f7; --gray-soft:#f2f2f2; --red:#c8372d; --orange:#d9822b;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{background:var(--blue);color:#fff;padding:18px 20px}
+  header .kicker{font-size:14px;opacity:.85;letter-spacing:.03em}
+  header h1{margin:4px 0 6px;font-size:28px;line-height:1.2}
+  header .target{font-size:15px;opacity:.95;max-width:900px}
+  nav{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);display:flex;gap:4px;overflow-x:auto;padding:8px 12px}
+  nav a{flex:none;color:var(--blue);text-decoration:none;font-weight:600;font-size:15px;padding:6px 12px;border-radius:999px}
+  nav a:hover{background:var(--blue-soft)}
+  .wrap{max-width:1040px;margin:0 auto;padding:16px}
+  section{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:20px;margin:16px 0;scroll-margin-top:56px}
+  h2{margin:0 0 12px;color:var(--blue);font-size:24px}
+  h3{margin:20px 0 8px;font-size:19px}
+  .box{border-radius:12px;padding:14px 16px;margin:12px 0}
+  .box.blue{background:var(--blue-soft)} .box.tan{background:var(--tan)} .box.green{background:var(--green-soft)}
+  .box.purple{background:var(--purple-soft)} .box.gray{background:var(--gray-soft)}
+  .routine{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px}
+  .routine div{background:var(--blue-soft);border-radius:10px;padding:10px 12px;font-size:15px}
+  .routine b{display:block;font-size:13px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .btn{display:inline-block;background:var(--blue);color:#fff;text-decoration:none;font-weight:700;padding:10px 16px;border-radius:10px;margin:6px 8px 6px 0}
+  .btn.alt{background:#fff;color:var(--blue);border:2px solid var(--blue)}
+  .vocab{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:10px}
+  .vocab div{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .vocab dt{font-weight:700;color:var(--blue)}
+  .vocab dd{margin:2px 0 0}
+  .vocab .formal{font-size:14px;color:var(--muted);margin-top:4px}
+  .four{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;align-items:start}
+  .card{border:1px solid var(--line);border-radius:12px;padding:10px;text-align:center}
+  .card h4{margin:0 0 6px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  table.t{border-collapse:collapse;margin:6px auto}
+  table.t td,table.t th{border:1px solid #9aa6b8;padding:6px 14px;text-align:center;font-size:17px}
+  table.t th{background:var(--blue-soft)}
+  .card table.t td,.card table.t th{padding:6px 9px}
+  table.it{border-collapse:collapse;width:100%;margin:8px 0}
+  table.it th,table.it td{border-bottom:1px solid var(--line);padding:8px;text-align:left;vertical-align:middle}
+  table.it th{font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.03em}
+  .mono{font-family:ui-monospace,Consolas,monospace;font-size:18px}
+  .probs{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px}
+  .prob{border:1px solid var(--line);border-radius:12px;padding:14px;position:relative}
+  .prob .num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:var(--blue);color:#fff;font-weight:700;margin-right:8px}
+  .prob .tier{float:right;margin:0 0 6px 8px;font-size:12px;font-weight:700;padding:2px 8px;border-radius:99px}
+  .tier.ry{background:#fde7c8;color:#8a4b00} .tier.g{background:var(--green-soft);color:var(--green)}
+  details.ans{margin-top:10px}
+  details.ans summary{cursor:pointer;color:var(--blue);font-weight:600}
+  details.ans div{background:var(--green-soft);border-radius:8px;padding:8px 10px;margin-top:6px}
+  .graph{display:block;width:100%;max-width:300px;margin:8px auto 0}
+  .graph.big{max-width:340px}
+  .tiers{display:flex;flex-wrap:wrap;gap:10px;margin:6px 0 12px}
+  .tiers span{padding:6px 12px;border-radius:99px;font-weight:600;font-size:15px}
+  .ex{border-left:5px solid var(--blue);padding:4px 0 4px 14px;margin:14px 0}
+  .ex-grid{display:grid;grid-template-columns:minmax(220px,300px) 1fr;gap:16px;align-items:center}
+  @media (max-width:700px){.ex-grid{grid-template-columns:1fr}}
+  ol.steps{margin:6px 0;padding-left:22px}
+  .keyrow{display:flex;flex-wrap:wrap;gap:14px;margin:8px 0}
+  .keyrow div{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+  footer{color:var(--muted);font-size:13px;text-align:center;padding:10px 0 30px}
+</style>
+</head>
+<body>
+<header>
+  <div class="kicker">ALGEBRA 2 · UNIT 2 FUNCTIONS · LESSON 1 · TUESDAY, SEPTEMBER 29</div>
+  <h1>Relations, Domain and Range</h1>
+  <div class="target"><b>D93 outcomes:</b> Students will use function notation and state the domain and range of a given function (F.IF.A.1). Students will represent functions in different ways (equation, table, or graph) (F.IF.C.9).</div>
+</header>
+<nav>
+  <a href="#today">Today</a><a href="#discovery">Discovery</a><a href="#vocab">Vocabulary</a><a href="#notes">Notes</a>
+  <a href="#practice">Practice</a><a href="#application">Application</a><a href="#extension">Extension</a><a href="#exit">Exit Ticket</a><a href="index.html">Unit home</a>
+</nav>
+
+<div class="wrap">
+
+<section id="today">
+  <h2>Today</h2>
+  <div class="routine">
+    <div><b>0–10 min</b>Warm-up: DeltaMath (2 problems) + Gimkit Unit 1 recap</div>
+    <div><b>10–26 min</b>Discovery: Graphing Stories + Vertical Line Test Simulator</div>
+    <div><b>26–38 min</b>Notes and examples</div>
+    <div><b>38–50 min</b>Practice: your group's problems</div>
+    <div><b>50–60 min</b>Exit ticket on Snorkl</div>
+  </div>
+</section>
+
+<section id="discovery">
+  <h2>Discovery</h2>
+  <h3>Part A · Graphing Stories (whole class, 6 min)</h3>
+  <div class="box tan">
+    <p style="margin-top:0">Watch the video on the TVs and help build the table of <b>time</b> and <b>height</b>.</p>
+    <ol class="steps">
+      <li>At one moment in time, can the person be at two different heights?</li>
+      <li>Can two different moments have the same height?</li>
+      <li>Which one of those would make the graph impossible to draw as a story?</li>
+    </ol>
+  </div>
+  <a class="btn alt" href="https://classroom.amplify.com/collection/6105603352410d11397561a6" target="_blank" rel="noopener">Graphing Stories (Desmos)</a>
+
+  <h3>Part B · Vertical Line Test Simulator (pairs, 10 min)</h3>
+  <div class="box blue">
+    <ol class="steps">
+      <li>Open the simulator. For each of the 12 relations, drag the line across and watch how many times it touches.</li>
+      <li>Decide: <b>Function</b> or <b>Not a function</b>. Get all 12 correct and paste your code into Classroom.</li>
+      <li>With your partner, finish this sentence: <i>"A relation is a function when every vertical line…"</i></li>
+      <li>Relation 3 has two inputs going to the same output. Is that allowed? Why?</li>
+    </ol>
+  </div>
+  <a class="btn" href="A2_U2_L1_Vertical_Line_Test.html" target="_blank">Open the Vertical Line Test Simulator</a>
+</section>
+
+<section id="vocab">
+  <h2>Vocabulary</h2>
+  <dl class="vocab">
+    <div><dt>relation</dt><dd>A set of ordered pairs. It can be shown as a list of ordered pairs, a table, a mapping, or a graph.</dd></div>
+    <div><dt>domain</dt><dd>The set of all x-values (inputs) of a relation.</dd></div>
+    <div><dt>range</dt><dd>The set of all y-values (outputs) of a relation.</dd></div>
+    <div><dt>function</dt><dd>A relation where each input has exactly one output.</dd>
+      <div class="formal">Formal: a function from one set (called the domain) to another set (called the range) assigns to each element of the domain exactly one element of the range.</div></div>
+    <div><dt>mapping</dt><dd>A diagram that shows each input with an arrow to its output.</dd></div>
+    <div><dt>vertical line test (pencil test)</dt><dd>If any vertical line touches a graph more than once, the graph is not a function.</dd></div>
+    <div><dt>discrete</dt><dd>A relation made of separate, distinct points.</dd></div>
+    <div><dt>continuous</dt><dd>A relation made of connected lines or curves.</dd></div>
+    <div><dt>interval notation</dt><dd>A short way to write a set of numbers using its endpoints, like [−3, 5).</dd></div>
+  </dl>
+</section>
+
+<section id="notes">
+  <h2>Notes</h2>
+
+  <h3>1 · One relation, four ways</h3>
+  <div class="four">
+    <div class="card"><h4>Ordered pairs</h4><div class="mono" style="padding:30px 0">{(−2, 1), (0, 3),<br>(1, 3), (4, −1)}</div></div>
+    <div class="card"><h4>Table</h4>
+      <table class="t"><tr><th>x</th><td>−2</td><td>0</td><td>1</td><td>4</td></tr><tr><th>y</th><td>1</td><td>3</td><td>3</td><td>−1</td></tr></table></div>
+    <div class="card"><h4>Mapping</h4><svg class="graph" data-map='{"inputs":[-2,0,1,4],"outputs":[-1,1,3],"arrows":[[0,1],[1,2],[2,2],[3,0]]}'></svg></div>
+    <div class="card"><h4>Graph</h4><svg class="graph" data-g='{"points":[[-2,1],[0,3],[1,3],[4,-1]]}'></svg></div>
+  </div>
+  <div class="box gray"><b>Domain</b> = {−2, 0, 1, 4} &nbsp;·&nbsp; <b>Range</b> = {−1, 1, 3}. List each value once. <b>Function?</b> Yes — every input has one output. The output 3 is used twice, and that is allowed.</div>
+
+  <h3>2 · Is it a function?</h3>
+  <div class="box blue">
+    <b>Each input gets exactly one output.</b> Outputs may repeat. Inputs may not.
+    <ul style="margin:6px 0 0">
+      <li><b>Ordered pairs or table:</b> look for an x-value that appears with two different y-values.</li>
+      <li><b>Mapping:</b> look for an input with two arrows.</li>
+      <li><b>Graph:</b> vertical line test. If any vertical line touches the graph more than once, it is not a function.</li>
+    </ul>
+  </div>
+
+  <h3>3 · Domain and range of continuous graphs</h3>
+  <p>For <b>domain</b>, scan your pencil from <b>left to right</b> and mark every x-value where you touch the graph. For <b>range</b>, scan from <b>bottom to top</b> and mark every y-value. Write the answer with an inequality or in interval notation.</p>
+  <div class="keyrow">
+    <div><svg width="26" height="26"><circle cx="13" cy="13" r="7" fill="#1b2430" stroke="#1b2430" stroke-width="2.5"/></svg>Closed dot: included → <b class="mono">[ ]</b></div>
+    <div><svg width="26" height="26"><circle cx="13" cy="13" r="7" fill="#fff" stroke="#1b2430" stroke-width="2.5"/></svg>Open dot: not included → <b class="mono">( )</b></div>
+    <div><svg width="34" height="26"><path d="M2,13 H26" stroke="#1b2430" stroke-width="3"/><path d="M22,6 L32,13 L22,20 z" fill="#1b2430"/></svg>Arrow: keeps going → <b class="mono">∞</b> always gets <b class="mono">( )</b></div>
+  </div>
+  <table class="it">
+    <tr><th>Inequality</th><th>Interval notation</th><th>In words</th></tr>
+    <tr><td class="mono">−3 ≤ x ≤ 5</td><td class="mono">[−3, 5]</td><td>from −3 to 5, both included</td></tr>
+    <tr><td class="mono">−3 ≤ x &lt; 5</td><td class="mono">[−3, 5)</td><td>includes −3, not 5</td></tr>
+    <tr><td class="mono">x &gt; 2</td><td class="mono">(2, ∞)</td><td>greater than 2</td></tr>
+    <tr><td class="mono">y ≤ 4</td><td class="mono">(−∞, 4]</td><td>4 or less</td></tr>
+    <tr><td>all real numbers</td><td class="mono">(−∞, ∞)</td><td>every number</td></tr>
+  </table>
+
+  <h3>4 · Examples</h3>
+  <div class="ex"><b>Example 1 — Mapping.</b>
+    <div class="ex-grid">
+      <svg class="graph" data-map='{"inputs":[-3,1,4],"outputs":[0,2,6],"arrows":[[0,1],[1,0],[1,2],[2,1]]}'></svg>
+      <div>Domain = {−3, 1, 4}<br>Range = {0, 2, 6}<br><b>Not a function:</b> the input 1 has two arrows, to 0 and to 6.</div>
+    </div>
+  </div>
+  <div class="ex"><b>Example 2 — Segment with an open endpoint.</b>
+    <div class="ex-grid">
+      <svg class="graph big" data-g='{"pieces":[{"seg":[[-3,-2],[5,2]],"s":"closed","e":"open"}]}'></svg>
+      <div>Left end (−3, −2) is closed; right end (5, 2) is open.<br>Domain: −3 ≤ x &lt; 5 → <b class="mono">[−3, 5)</b><br>Range: −2 ≤ y &lt; 2 → <b class="mono">[−2, 2)</b><br><b>Function:</b> every vertical line touches it at most once.</div>
+    </div>
+  </div>
+  <div class="ex"><b>Example 3 — Curve with arrows.</b>
+    <div class="ex-grid">
+      <svg class="graph big" data-g='{"pieces":[{"fn":"2-(x+1)**2","x0":-3.864,"x1":1.864,"s":"arrow","e":"arrow"}]}'></svg>
+      <div>The arrows keep going left and right forever, and down forever.<br>Domain: all real numbers → <b class="mono">(−∞, ∞)</b><br>Range: y ≤ 2 → <b class="mono">(−∞, 2]</b><br>The highest point is (−1, 2), so 2 is included.</div>
+    </div>
+  </div>
+</section>
+
+<section id="practice">
+  <h2>Practice</h2>
+  <p style="margin-top:0">For each relation: state the <b>domain</b> and <b>range</b>, then decide if it is a <b>function</b>. Work on paper, then check.</p>
+  <div class="tiers"><span class="tier ry">Red &amp; Yellow: 1–6</span><span class="tier g">Green: 1–10, then Extension</span></div>
+  <div class="probs">
+    <div class="prob"><span class="tier ry">R · Y · G</span><span class="num">1</span><span class="mono">{(−2, 5), (0, 1), (3, 5), (6, −4)}</span>
+      <details class="ans"><summary>Check answer</summary><div>D = {−2, 0, 3, 6} · R = {−4, 1, 5}<br><b>Function.</b> The output 5 repeats, which is allowed.</div></details></div>
+    <div class="prob"><span class="tier ry">R · Y · G</span><span class="num">2</span><span class="mono">{(4, 1), (4, −1), (9, 3), (9, −3)}</span>
+      <details class="ans"><summary>Check answer</summary><div>D = {4, 9} · R = {−3, −1, 1, 3}<br><b>Not a function.</b> The input 4 has outputs 1 and −1.</div></details></div>
+    <div class="prob"><span class="tier ry">R · Y · G</span><span class="num">3</span>
+      <table class="t"><tr><th>x</th><td>−3</td><td>−1</td><td>0</td><td>2</td></tr><tr><th>y</th><td>7</td><td>7</td><td>7</td><td>7</td></tr></table>
+      <details class="ans"><summary>Check answer</summary><div>D = {−3, −1, 0, 2} · R = {7}<br><b>Function.</b> Every input has one output; they all happen to be 7.</div></details></div>
+    <div class="prob"><span class="tier ry">R · Y · G</span><span class="num">4</span>
+      <svg class="graph" data-map='{"inputs":[5,7,10],"outputs":[2,6,8],"arrows":[[0,0],[0,2],[1,0],[2,1]]}'></svg>
+      <details class="ans"><summary>Check answer</summary><div>D = {5, 7, 10} · R = {2, 6, 8}<br><b>Not a function.</b> The input 5 has two arrows, to 2 and to 8.</div></details></div>
+    <div class="prob"><span class="tier ry">R · Y · G</span><span class="num">5</span>
+      <svg class="graph" data-g='{"pieces":[{"seg":[[-4,1],[2,-5]],"s":"closed","e":"closed"}]}'></svg>
+      <details class="ans"><summary>Check answer</summary><div>D = [−4, 2] · R = [−5, 1]<br><b>Function.</b></div></details></div>
+    <div class="prob"><span class="tier ry">R · Y · G</span><span class="num">6</span>
+      <svg class="graph" data-g='{"pieces":[{"fn":"(x-2)**2-3","x0":-1.033,"x1":5.033,"s":"arrow","e":"arrow"}]}'></svg>
+      <details class="ans"><summary>Check answer</summary><div>D = (−∞, ∞) · R = [−3, ∞)<br><b>Function.</b> The lowest point is (2, −3).</div></details></div>
+    <div class="prob"><span class="tier g">Green</span><span class="num">7</span>
+      <svg class="graph" data-g='{"pieces":[{"circle":[0,0,5]}]}'></svg>
+      <details class="ans"><summary>Check answer</summary><div>D = [−5, 5] · R = [−5, 5]<br><b>Not a function.</b> The line x = 0 touches at (0, 5) and (0, −5).</div></details></div>
+    <div class="prob"><span class="tier g">Green</span><span class="num">8</span>
+      <svg class="graph" data-g='{"pieces":[{"seg":[[-1,2],[3.2,6.2]],"s":"open","e":"arrow"}]}'></svg>
+      <details class="ans"><summary>Check answer</summary><div>D = (−1, ∞) · R = (2, ∞)<br><b>Function.</b> The open dot means −1 and 2 are not included.</div></details></div>
+    <div class="prob"><span class="tier g">Green</span><span class="num">9</span>
+      <svg class="graph" data-g='{"pieces":[{"poly":[[-3,0],[1,4],[5,0]],"s":"closed","e":"closed"}]}'></svg>
+      <details class="ans"><summary>Check answer</summary><div>D = [−3, 5] · R = [0, 4]<br><b>Function.</b></div></details></div>
+    <div class="prob"><span class="tier g">Green</span><span class="num">10</span>
+      <svg class="graph" data-g='{"pieces":[{"seg":[[-6.2,-2],[6.2,-2]],"s":"arrow","e":"arrow"}]}'></svg>
+      <details class="ans"><summary>Check answer</summary><div>D = (−∞, ∞) · R = {−2}<br><b>Function.</b> Every input has the same output, −2.</div></details></div>
+  </div>
+</section>
+
+<section id="application">
+  <h2>Application</h2>
+  <p style="margin-top:0">Define the variables, write the relation, find the domain and range, then interpret: <b>discrete or continuous?</b></p>
+  <div class="probs">
+    <div class="prob"><span class="num">A1</span>Movie tickets cost $12 each. A group can buy from 1 to 8 tickets. The cost is <span class="mono">c = 12n</span>, where <i>n</i> is the number of tickets.
+      <details class="ans"><summary>Check answer</summary><div>D = {1, 2, 3, 4, 5, 6, 7, 8}<br>R = {12, 24, 36, 48, 60, 72, 84, 96}<br><b>Discrete:</b> you cannot buy 2.5 tickets.</div></details></div>
+    <div class="prob"><span class="num">A2</span>A sprayer tank on a potato farm holds 600 gallons. It drains at 40 gallons per minute until it is empty. The water left is <span class="mono">w = 600 − 40t</span>, where <i>t</i> is minutes.
+      <details class="ans"><summary>Check answer</summary><div>The tank is empty when 600 − 40t = 0, so t = 15.<br>D = [0, 15] · R = [0, 600]<br><b>Continuous:</b> time and water change smoothly.</div></details></div>
+    <div class="prob"><span class="num">A3</span>(a) Input: a student at Hillcrest. Output: that student's birthday. Is this a function?<br>(b) Switch it. Input: a birthday. Output: a student with that birthday. Is this a function?
+      <details class="ans"><summary>Check answer</summary><div>(a) <b>Function.</b> Each student has exactly one birthday.<br>(b) <b>Not a function.</b> One birthday can belong to several students.</div></details></div>
+  </div>
+</section>
+
+<section id="extension">
+  <h2>Extension — Green</h2>
+  <div class="probs">
+    <div class="prob"><span class="num">E1</span>Is it possible to write a relation with <b>4</b> different ordered pairs, domain {1, 2, 3}, and range {5}? Explain.
+      <details class="ans"><summary>Check answer</summary><div><b>No.</b> The only possible pairs are (1, 5), (2, 5) and (3, 5) — just three.</div></details></div>
+    <div class="prob"><span class="num">E2</span>A relation's graph is a circle with center (3, −1) and radius 4. State its domain and range. Which vertical lines touch it twice?
+      <details class="ans"><summary>Check answer</summary><div>D = [−1, 7] · R = [−5, 3]<br>Every vertical line x = a with −1 &lt; a &lt; 7 touches it twice.</div></details></div>
+    <div class="prob"><span class="num">E3</span>Sketch a function with domain [−2, 4) and range {−1, 3}.
+      <details class="ans"><summary>Sample answer</summary><div>Many answers work. One: a segment at y = −1 from x = −2 (closed) to x = 1 (open), and a segment at y = 3 from x = 1 (closed) to x = 4 (open).
+        <svg class="graph" data-g='{"pieces":[{"seg":[[-2,-1],[1,-1]],"s":"closed","e":"open"},{"seg":[[1,3],[4,3]],"s":"closed","e":"open"}]}'></svg></div></details></div>
+  </div>
+</section>
+
+<section id="exit">
+  <h2>Exit Ticket</h2>
+  <div class="box purple">
+    <p style="margin:0">Open <b>Snorkl</b> with today's link from Classroom. Record your voice and draw on the graph as you explain.</p>
+    <p style="margin:8px 0 0">You will decide if a graph is a function and state its domain and range.</p>
+  </div>
+</section>
+
+<footer>Algebra 2 · Unit 2 Functions · Lesson 1 · Mr. Reichelt, Room 213</footer>
+</div>
+
+<script>
+const NS = "http://www.w3.org/2000/svg";
+const el = (tag, a = {}, p) => { const n = document.createElementNS(NS, tag); for (const k in a) n.setAttribute(k, a[k]); if (p) p.appendChild(n); return n; };
+const neg = v => String(v).replace("-", "−");
+let uid = 0;
+
+function graph(svg, spec) {
+  const W = 300, O = 150, S = 22, L = 6.5;
+  const px = x => O + S * x, py = y => O - S * y;
+  svg.setAttribute("viewBox", `0 0 ${W} ${W}`);
+  const id = "a" + (uid++);
+  const defs = el("defs", {}, svg);
+  const m = el("marker", { id, viewBox: "0 0 10 10", refX: 8, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto-start-reverse" }, defs);
+  el("path", { d: "M0,0 L10,5 L0,10 z", fill: "#1b2430" }, m);
+  const ma = el("marker", { id: id + "x", viewBox: "0 0 10 10", refX: 8, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto-start-reverse" }, defs);
+  el("path", { d: "M0,0 L10,5 L0,10 z", fill: "#8a96a8" }, ma);
+  for (let i = -6; i <= 6; i++) {
+    el("line", { x1: px(i), y1: py(-L), x2: px(i), y2: py(L), stroke: "#e7ecf3" }, svg);
+    el("line", { x1: px(-L), y1: py(i), x2: px(L), y2: py(i), stroke: "#e7ecf3" }, svg);
+  }
+  el("line", { x1: px(-L), y1: O, x2: px(L), y2: O, stroke: "#8a96a8", "stroke-width": 1.4, "marker-start": `url(#${id}x)`, "marker-end": `url(#${id}x)` }, svg);
+  el("line", { x1: O, y1: py(-L), x2: O, y2: py(L), stroke: "#8a96a8", "stroke-width": 1.4, "marker-start": `url(#${id}x)`, "marker-end": `url(#${id}x)` }, svg);
+  for (let i = -6; i <= 6; i += 2) {
+    if (!i) continue;
+    el("text", { x: px(i), y: O + 13, "text-anchor": "middle", "font-size": 10, fill: "#5b6778" }, svg).textContent = neg(i);
+    el("text", { x: O - 5, y: py(i) + 3.5, "text-anchor": "end", "font-size": 10, fill: "#5b6778" }, svg).textContent = neg(i);
+  }
+  const dot = (x, y, closed) => el("circle", { cx: px(x), cy: py(y), r: 4.5, fill: closed ? "#1b2430" : "#fff", stroke: "#1b2430", "stroke-width": 2 }, svg);
+  (spec.points || []).forEach(p => dot(p[0], p[1], true));
+  (spec.pieces || []).forEach(pc => {
+    let pts = [];
+    if (pc.seg) pts = pc.seg;
+    else if (pc.poly) pts = pc.poly;
+    else if (pc.fn) { const f = new Function("x", "return " + pc.fn); for (let i = 0; i <= 200; i++) { const x = pc.x0 + (pc.x1 - pc.x0) * i / 200; pts.push([x, f(x)]); } }
+    else if (pc.circle) { const [h, k, r] = pc.circle; for (let i = 0; i <= 240; i++) { const t = 2 * Math.PI * i / 240; pts.push([h + r * Math.cos(t), k + r * Math.sin(t)]); } }
+    const a = { d: pts.map((p, i) => (i ? "L" : "M") + px(p[0]).toFixed(1) + "," + py(p[1]).toFixed(1)).join(" "), fill: "none", stroke: "#1b2430", "stroke-width": 2.6, "stroke-linejoin": "round" };
+    if (pc.s === "arrow") a["marker-start"] = `url(#${id})`;
+    if (pc.e === "arrow") a["marker-end"] = `url(#${id})`;
+    el("path", a, svg);
+    const A = pts[0], B = pts[pts.length - 1];
+    if (pc.s === "closed" || pc.s === "open") dot(A[0], A[1], pc.s === "closed");
+    if (pc.e === "closed" || pc.e === "open") dot(B[0], B[1], pc.e === "closed");
+  });
+}
+
+function mapping(svg, m) {
+  const n = Math.max(m.inputs.length, m.outputs.length), H = n * 44 + 70, W = 300;
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const id = "m" + (uid++);
+  const mk = el("marker", { id, viewBox: "0 0 10 10", refX: 9, refY: 5, markerWidth: 6, markerHeight: 6, orient: "auto" }, el("defs", {}, svg));
+  el("path", { d: "M0,0 L10,5 L0,10 z", fill: "#1b2430" }, mk);
+  const cy = H / 2 + 10, inX = 80, outX = 220;
+  const ys = arr => arr.map((_, i) => cy + (i - (arr.length - 1) / 2) * 44);
+  const iy = ys(m.inputs), oy = ys(m.outputs);
+  el("text", { x: inX, y: 18, "text-anchor": "middle", "font-size": 14, "font-weight": 700, fill: "#5b6778" }, svg).textContent = "x";
+  el("text", { x: outX, y: 18, "text-anchor": "middle", "font-size": 14, "font-weight": 700, fill: "#5b6778" }, svg).textContent = "y";
+  el("ellipse", { cx: inX, cy, rx: 38, ry: n * 22 + 12, fill: "#fff", stroke: "#8a96a8", "stroke-width": 1.6 }, svg);
+  el("ellipse", { cx: outX, cy, rx: 38, ry: n * 22 + 12, fill: "#fff", stroke: "#8a96a8", "stroke-width": 1.6 }, svg);
+  m.arrows.forEach(([i, o]) => el("line", { x1: inX + 18, y1: iy[i], x2: outX - 20, y2: oy[o], stroke: "#1b2430", "stroke-width": 1.8, "marker-end": `url(#${id})` }, svg));
+  m.inputs.forEach((v, i) => el("text", { x: inX, y: iy[i] + 6, "text-anchor": "middle", "font-size": 17, "font-weight": 700 }, svg).textContent = neg(v));
+  m.outputs.forEach((v, i) => el("text", { x: outX, y: oy[i] + 6, "text-anchor": "middle", "font-size": 17, "font-weight": 700 }, svg).textContent = neg(v));
+}
+
+document.querySelectorAll("svg[data-g]").forEach(s => graph(s, JSON.parse(s.dataset.g)));
+document.querySelectorAll("svg[data-map]").forEach(s => mapping(s, JSON.parse(s.dataset.map)));
+</script>
+</body>
+</html>

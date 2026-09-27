@@ -1,0 +1,561 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Function Machine</title>
+<style>
+  :root{
+    --bg:#f6f8fb; --panel:#ffffff; --ink:#1b2430; --muted:#5b6778; --line:#d9e0ea;
+    --blue:#2E5FA3; --blue-soft:#eaf1fb; --green:#1f8a4c; --green-soft:#eaf7ec;
+    --red:#c8372d; --red-soft:#fce8e6; --orange:#d9822b; --orange-soft:#fff3e6; --purple:#7a4fb3; --purple-soft:#f4ecfb;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{background:var(--blue);color:#fff;padding:12px 20px;display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px}
+  header h1{margin:0;font-size:22px}
+  header span{opacity:.85;font-size:14px}
+  main{display:grid;grid-template-columns:250px minmax(420px,1fr) minmax(300px,380px);gap:16px;padding:16px 20px;align-items:start}
+  .row2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;padding:0 20px 16px;align-items:start}
+  @media (max-width:1000px){main,.row2{grid-template-columns:1fr}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px;min-width:0}
+  .panel h2{margin:0 0 10px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .preset{display:block;width:100%;text-align:left;border:2px solid var(--line);background:#fff;border-radius:10px;padding:7px 10px;margin:0 0 6px;font-size:15px;cursor:pointer;color:var(--ink);font-variant-numeric:tabular-nums}
+  .preset[aria-current="true"]{border-color:var(--blue);background:var(--blue-soft)}
+  .preset b{color:var(--blue);margin-right:6px}
+  @media (max-width:1000px){.presets{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:6px}.preset{margin:0}}
+  .custom label{display:flex;align-items:center;gap:6px;margin:6px 0;font-weight:600}
+  .custom input{flex:1;min-width:0;padding:8px;font-size:17px;border:1px solid var(--line);border-radius:8px}
+  .err{color:var(--red);font-size:14px;margin:6px 0 0;min-height:1em}
+  .hint{font-size:14px;color:var(--muted);margin:8px 0 0}
+  .machine-wrap{background:#fff;border:1px solid var(--line);border-radius:12px;padding:10px}
+  .comp{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;gap:4px 18px;margin:2px 0 6px}
+  .comp .big{font-size:34px;font-weight:800;color:var(--ink);font-variant-numeric:tabular-nums}
+  .comp .sub{font-size:17px;color:var(--muted)}
+  @media (max-width:600px){.comp .big{font-size:24px}.alg{font-size:19px}}
+  svg#mach{width:100%;height:auto;display:block;user-select:none}
+  .inputs{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px}
+  .num{min-width:52px;height:52px;border:2px solid var(--orange);background:var(--orange-soft);color:var(--ink);border-radius:26px;font-size:22px;font-weight:800;cursor:pointer;touch-action:manipulation}
+  .num:disabled,button.act:disabled{opacity:.45;cursor:default}
+  .own{display:flex;gap:8px;align-items:center;justify-content:center;margin-top:10px;flex-wrap:wrap}
+  .own input{width:90px;padding:10px;font-size:20px;border:1px solid var(--line);border-radius:8px;text-align:center}
+  .btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;justify-content:center}
+  button.act{border:0;border-radius:10px;padding:10px 14px;font-size:16px;font-weight:600;cursor:pointer;background:var(--blue);color:#fff;touch-action:manipulation}
+  button.act.alt{background:#fff;color:var(--blue);border:2px solid var(--blue)}
+  button.act.swap{background:var(--purple)}
+  label.chk{font-size:14px;color:var(--muted);display:flex;align-items:center;gap:6px}
+  .tbl{border:2px solid var(--line);border-radius:12px;padding:8px 10px;margin-bottom:12px}
+  .tbl.on{border-color:var(--blue);background:var(--blue-soft)}
+  .tbl h3{margin:0 0 6px;font-size:18px}
+  .tbl h3 small{font-weight:400;color:var(--muted);font-size:14px}
+  table.vals{border-collapse:collapse;width:100%;font-variant-numeric:tabular-nums;background:#fff}
+  table.vals th,table.vals td{border:1px solid #9aa6b8;padding:5px 8px;text-align:center;font-size:21px}
+  table.vals th{background:#f2f5fa;font-size:17px}
+  table.vals td.fin{font-weight:800}
+  table.vals tr.new td{animation:flash 1.2s}
+  @keyframes flash{from{background:#fff1c9}to{background:#fff}}
+  .empty{color:var(--muted);font-size:14px;text-align:center;padding:6px}
+  .status{font-size:18px;padding:12px;border-radius:10px;background:var(--blue-soft);min-height:52px}
+  .status.bad{background:var(--red-soft)} .status.good{background:var(--green-soft)}
+  .alg{font-size:22px;line-height:1.6;font-variant-numeric:tabular-nums}
+  .alg ol{margin:6px 0;padding-left:28px}
+  .alg li{margin:4px 0}
+  .alg li .why{display:block;font-size:14px;color:var(--muted);line-height:1.3}
+  .alg .res{background:var(--green-soft);border-radius:8px;padding:0 8px;font-weight:800}
+  .alg .chkline{font-size:16px;color:var(--muted);margin-top:6px}
+  .inner{color:var(--orange);font-weight:700}
+  .try{list-style:none;margin:0;padding:0}
+  .try li{border:1px solid var(--line);border-radius:10px;padding:8px 10px;margin-bottom:8px}
+  .try .q{font-size:17px}
+  .try .a{display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:6px}
+  .try input{width:150px;padding:7px;font-size:17px;border:1px solid var(--line);border-radius:8px}
+  .try button{padding:7px 10px;font-size:14px}
+  .try .fb{font-size:15px}
+  .try li.done{background:var(--green-soft);border-color:#bfe3ca}
+  .loadlink{background:none;border:0;color:var(--blue);text-decoration:underline;cursor:pointer;font-size:14px;padding:0}
+  .prog{margin-top:10px;font-size:14px;color:var(--muted)}
+  .bar{height:8px;background:var(--line);border-radius:99px;overflow:hidden;margin-top:6px}
+  .bar i{display:block;height:100%;background:var(--green);width:0;transition:width .3s}
+  .code{margin-top:12px;padding:12px;border-radius:10px;background:var(--green-soft);border:2px dashed var(--green);display:none}
+  .code.show{display:block}
+  .code strong{font-size:24px;letter-spacing:.08em}
+  label.name{display:block;margin-top:12px;font-size:14px;color:var(--muted)}
+  label.name input{display:block;width:100%;margin-top:4px;padding:8px;font-size:16px;border:1px solid var(--line);border-radius:8px}
+  details.teacher{margin:0 20px 24px;font-size:14px;color:var(--muted)}
+  details.teacher input{padding:6px;font-size:14px}
+  .hidden{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <h1>Function Machine</h1>
+  <span>Algebra 2 · Unit 2 · Lesson 4 — Composition of Functions</span>
+</header>
+
+<main>
+  <section class="panel">
+    <h2>Rule pairs</h2>
+    <div class="presets" id="presets"></div>
+    <h2 style="margin-top:14px">Your own rules</h2>
+    <div class="custom">
+      <label>f(x) = <input id="cf" autocomplete="off" placeholder="2x^2-3x+1"></label>
+      <label>g(x) = <input id="cg" autocomplete="off" placeholder="x+4"></label>
+      <button class="act" id="useCustom">Use these rules</button>
+      <p class="err" id="cerr"></p>
+      <p class="hint">Whole-number coefficients, powers up to x². Type x² as x^2.</p>
+    </div>
+  </section>
+
+  <section class="machine-wrap">
+    <div class="comp"><span class="big" id="compBig">(g ∘ f)(x) = g(f(x))</span><span class="sub" id="compSub">f is the inner function — it works first.</span></div>
+    <svg id="mach" viewBox="0 0 800 330" aria-label="Two function machines in a row"></svg>
+    <div class="inputs" id="inputs"></div>
+    <div class="own">
+      <label for="xin" style="font-weight:600">Input x =</label>
+      <input id="xin" inputmode="numeric" autocomplete="off" placeholder="7">
+      <button class="act" id="runOwn">▶ Run</button>
+    </div>
+    <p class="err" id="xerr" style="text-align:center"></p>
+    <div class="btns">
+      <button class="act swap" id="swap">⇄ Swap order</button>
+      <button class="act alt" id="clear">Clear tables</button>
+      <label class="chk"><input type="checkbox" id="fast"> Fast</label>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Tables</h2>
+    <div class="tbl on" id="boxFG">
+      <h3>f first, then g <small>g(f(x))</small></h3>
+      <table class="vals" id="tFG"><thead><tr><th>x</th><th>f(x)</th><th>g(f(x))</th></tr></thead><tbody></tbody></table>
+    </div>
+    <div class="tbl" id="boxGF">
+      <h3>g first, then f <small>f(g(x))</small></h3>
+      <table class="vals" id="tGF"><thead><tr><th>x</th><th>g(x)</th><th>f(g(x))</th></tr></thead><tbody></tbody></table>
+    </div>
+    <div class="status" id="status">Drop a number into the machine.</div>
+  </section>
+</main>
+
+<div class="row2">
+  <section class="panel">
+    <h2>Show the algebra</h2>
+    <div class="btns" style="justify-content:flex-start;margin-top:0">
+      <button class="act" id="algStart">Show the algebra</button>
+      <button class="act alt" id="algNext" disabled>Next step ▶</button>
+      <button class="act alt" id="algAll" disabled>All steps</button>
+    </div>
+    <div class="alg" id="alg"><p class="hint">Builds the composite function for the order on the machine: replace x in the outer function with the whole inner function, then simplify.</p></div>
+  </section>
+
+  <section class="panel">
+    <h2>Try this</h2>
+    <ul class="try" id="try"></ul>
+    <div class="prog"><span id="progText">0 of 6 correct</span><div class="bar"><i id="progBar"></i></div></div>
+    <label class="name">Your name (for the completion code)
+      <input id="stuName" autocomplete="off" placeholder="First and last name">
+    </label>
+    <div class="code" id="code"></div>
+  </section>
+</div>
+
+<details class="teacher">
+  <summary>Teacher check</summary>
+  <p>Type a student's name exactly as they entered it to see the code they should have.</p>
+  <input id="tName" placeholder="Student name"> <strong id="tCode"></strong>
+</details>
+
+<script>
+// ================= polynomials: coefficient arrays, c[k] = coefficient of x^k =================
+const trim = c => { const a = c.slice(); while (a.length > 1 && a[a.length - 1] === 0) a.pop(); return a.length ? a : [0]; };
+const padd = (a, b) => { const n = Math.max(a.length, b.length), r = []; for (let i = 0; i < n; i++) r.push((a[i] || 0) + (b[i] || 0)); return trim(r); };
+const pmul = (a, b) => { const r = new Array(a.length + b.length - 1).fill(0); a.forEach((x, i) => b.forEach((y, j) => { r[i + j] += x * y; })); return trim(r); };
+const pscale = (a, k) => trim(a.map(v => v * k));
+const ppow = (a, k) => { let r = [1]; for (let i = 0; i < k; i++) r = pmul(r, a); return r; };
+const peval = (a, x) => a.reduce((s, c, k) => s + c * x ** k, 0);
+const pcompose = (outer, inner) => outer.reduce((s, c, k) => padd(s, pscale(ppow(inner, k), c)), [0]);
+const peq = (a, b) => { a = trim(a); b = trim(b); return a.length === b.length && a.every((v, i) => v === b[i]); };
+
+const SUP = ["", "", "²", "³", "⁴"];
+const MINUS = "−";
+const num = v => (v < 0 ? MINUS : "") + Math.abs(v);
+// list of [coef, deg] (nonzero, highest degree first)
+const terms = a => { const t = []; for (let k = a.length - 1; k >= 0; k--) if (a[k]) t.push([a[k], k]); return t; };
+function termStr(c, k, first) {
+  const a = Math.abs(c);
+  let body = k === 0 ? String(a) : (a === 1 ? "" : String(a)) + "x" + SUP[k];
+  if (first) return (c < 0 ? MINUS : "") + body;
+  return (c < 0 ? " " + MINUS + " " : " + ") + body;
+}
+function joinTerms(list) {
+  if (!list.length) return "0";
+  return list.map(([c, k], i) => termStr(c, k, i === 0)).join("");
+}
+const pstr = a => joinTerms(terms(a));
+
+// parse "2x^2-3x+1" style; returns {ok, poly} or {ok:false, msg}
+function parsePoly(raw) {
+  let s = String(raw).replace(/[−–—]/g, "-").replace(/²/g, "^2").replace(/X/g, "x").replace(/\s+/g, "");
+  if (!s) return { ok: false, msg: "Type a rule." };
+  if (/[a-wyz]/i.test(s)) return { ok: false, msg: "Use x as the only letter." };
+  if (/[()]/.test(s)) return { ok: false, msg: "No parentheses — expand it first, like x^2+4x+4." };
+  if (/[.,\/]/.test(s)) return { ok: false, msg: "Whole-number coefficients only (no decimals or fractions)." };
+  const parts = s.match(/[+-]?[^+-]+/g);
+  if (!parts || parts.join("") !== s) return { ok: false, msg: "That doesn't look like a rule. Try something like 2x^2-3x+1." };
+  const c = [0, 0, 0];
+  for (const p of parts) {
+    const m = p.match(/^([+-]?)(\d*)(?:\*?(x)(?:\^(\d+))?)?$/);
+    if (!m || (!m[2] && !m[3])) return { ok: false, msg: `I can't read "${p.replace(/-/g, MINUS)}". Try something like 2x^2-3x+1.` };
+    const k = m[3] ? (m[4] === undefined ? 1 : +m[4]) : 0;
+    if (k > 2) return { ok: false, msg: "Powers up to x² only." };
+    const coef = (m[1] === "-" ? -1 : 1) * (m[2] === "" ? 1 : +m[2]);
+    if (Math.abs(coef) > 99) return { ok: false, msg: "Keep coefficients between −99 and 99." };
+    c[k] += coef;
+  }
+  return { ok: true, poly: trim(c) };
+}
+
+// ================= composition steps (outer applied to inner) =================
+// returns [{html, why}], last step is the simplified composite
+function compSteps(oName, oPoly, iName, iPoly) {
+  const I = pstr(iPoly), iSpan = `<span class="inner">(${I})</span>`;
+  const head = `${oName}(${iName}(x))`;
+  const out = terms(oPoly);
+  const steps = [];
+  steps.push({ html: `${head} = ${oName}(<span class="inner">${I}</span>)`, why: `The inner function ${iName}(x) = ${I} goes into ${oName}.` });
+  steps.push({ html: `${oName}(x) = ${pstr(oPoly)}`, why: `Write the outer rule.` });
+  // substitute
+  const subParts = out.map(([c, k], i) => {
+    if (k === 0) return termStr(c, 0, i === 0);
+    const a = Math.abs(c), sign = i === 0 ? (c < 0 ? MINUS : "") : (c < 0 ? " " + MINUS + " " : " + ");
+    return sign + (a === 1 ? "" : a) + iSpan + SUP[k];
+  });
+  const subStr = subParts.join("") || "0";
+  steps.push({ html: `${head} = ${subStr}`, why: `Replace every x in ${oName} with (${I}).` });
+  // expand squares (keep outer coefficient outside)
+  let line = subStr;
+  if (out.some(([c, k]) => k === 2) && terms(iPoly).length > 0 && !(iPoly.length === 2 && iPoly[0] === 0 && iPoly[1] === 1)) {
+    const sq = pstr(ppow(iPoly, 2));
+    const expParts = out.map(([c, k], i) => {
+      if (k !== 2) return subParts[i];
+      const a = Math.abs(c), sign = i === 0 ? (c < 0 ? MINUS : "") : (c < 0 ? " " + MINUS + " " : " + ");
+      return sign + (a === 1 && out.length === 1 ? sq : (a === 1 ? "" : a) + "(" + sq + ")");
+    });
+    const e = expParts.join("");
+    if (e !== line) { steps.push({ html: `= ${e}`, why: `Square the inner function: (${I})² = (${I})(${I}) = ${sq}.` }); line = e; }
+  }
+  // distribute: list every term, not combined
+  const dist = [];
+  out.forEach(([c, k]) => terms(pscale(ppow(iPoly, k), c)).forEach(t => dist.push(t)));
+  const dStr = joinTerms(dist);
+  const res = pcompose(oPoly, iPoly), rStr = pstr(res);
+  if (dStr !== line && dStr !== rStr) { steps.push({ html: `= ${dStr}`, why: "Distribute." }); line = dStr; }
+  const fin = { html: `= <span class="res">${rStr}</span>`, why: dStr !== rStr ? "Combine like terms." : "Simplify.", result: rStr };
+  if (line === rStr && steps.length > 3) { fin.why = steps[steps.length - 1].why; steps[steps.length - 1] = fin; }
+  else steps.push(fin);
+  return steps;
+}
+
+// ================= data =================
+const PRESETS = [
+  ["x+1", "2x+3"], ["x^2", "x-3"], ["3x", "x+4"], ["x+2", "x^2"],
+  ["2x-1", "x^2+1"], ["x-5", "-2x"], ["2x-1", "-3x+4"], ["x-1", "2x^2-3x+1"]
+].map(([f, g]) => ({ f: parsePoly(f).poly, g: parsePoly(g).poly }));
+
+const TRY = [
+  { p: 0, q: "f(x) = x + 1, g(x) = 2x + 3. Find g(f(4)).", a: [13] },
+  { p: 0, q: "Same rules. Find f(g(4)).", a: [12] },
+  { p: 1, q: "f(x) = x², g(x) = x − 3. Find g(f(−2)).", a: [1] },
+  { p: 1, q: "Same rules. Find f(g(−2)).", a: [25] },
+  { p: 2, q: "f(x) = 3x, g(x) = x + 4. Find g(f(x)).", a: [4, 3] },
+  { p: 3, q: "f(x) = x + 2, g(x) = x². Find g(f(x)).", a: [4, 4, 1] },
+];
+
+// ================= state =================
+let F = PRESETS[0].f, Gp = PRESETS[0].g, order = "fg", busy = false, lastX = null, preset = 0;
+const rows = { fg: new Map(), gf: new Map() };
+let algShown = 0, algSteps = null;
+const speed = () => document.getElementById("fast").checked ? 0.2 : 1;
+
+// ================= machine drawing =================
+const NS = "http://www.w3.org/2000/svg";
+const el = (tag, attrs = {}, parent) => { const n = document.createElementNS(NS, tag); for (const k in attrs) n.setAttribute(k, attrs[k]); if (parent) parent.appendChild(n); return n; };
+const svg = document.getElementById("mach");
+const SLOT = [150, 460], BW = 190, BY = 70, BH = 190, CY = 165;
+const COL = { in: "#d9822b", mid: "#7a4fb3", out: "#1f8a4c" };
+let M = {};   // machine groups keyed by "f"/"g"
+let ball, ballC, ballT, labs = [];
+
+function ruleSize(s) { return s.length <= 7 ? 30 : s.length <= 10 ? 25 : s.length <= 13 ? 21 : 17; }
+
+function buildMachine(name, slot) {
+  const g = el("g", { transform: `translate(${SLOT[slot]},0)` }, svg);
+  el("rect", { x: -10, y: CY - 22, width: 12, height: 44, fill: "#9aa6b8", rx: 3 }, g);
+  el("rect", { x: BW - 2, y: CY - 22, width: 12, height: 44, fill: "#9aa6b8", rx: 3 }, g);
+  const body = el("rect", { x: 0, y: BY, width: BW, height: BH, rx: 18, fill: "#2E5FA3", stroke: "#1d4176", "stroke-width": 3 }, g);
+  const gear = el("g", { transform: `translate(${BW - 30},${BY + 30})` }, g);
+  el("circle", { r: 16, fill: "none", stroke: "#fff", "stroke-width": 6, "stroke-dasharray": "6 5", opacity: .55 }, gear);
+  el("circle", { r: 5, fill: "#fff", opacity: .55 }, gear);
+  el("text", { x: 22, y: BY + 50, "font-size": 44, "font-weight": 800, fill: "#fff", "font-style": "italic" }, g).textContent = name;
+  el("text", { x: BW / 2, y: BY + 105, "text-anchor": "middle", "font-size": 18, fill: "#dbe6f7" }, g).textContent = name + "(x) =";
+  const rs = pstr(name === "f" ? F : Gp);
+  el("text", { x: BW / 2, y: BY + 145, "text-anchor": "middle", "font-size": ruleSize(rs), "font-weight": 700, fill: "#fff" }, g).textContent = rs;
+  return { g, body, gear, slot };
+}
+
+function drawMachine() {
+  svg.innerHTML = "";
+  // pipes
+  el("line", { x1: 20, y1: CY, x2: 780, y2: CY, stroke: "#d9e0ea", "stroke-width": 26, "stroke-linecap": "round" }, svg);
+  el("text", { x: 40, y: 40, "font-size": 18, fill: "#5b6778", "font-weight": 700 }, svg).textContent = "IN";
+  el("text", { x: 760, y: 40, "font-size": 18, fill: "#5b6778", "font-weight": 700, "text-anchor": "end" }, svg).textContent = "OUT";
+  const first = order === "fg" ? "f" : "g", second = order === "fg" ? "g" : "f";
+  M = {};
+  M[first] = buildMachine(first, 0);
+  M[second] = buildMachine(second, 1);
+  labs = [0, 1, 2].map(i => el("text", { x: [16, 400, 790][i], y: 312, "text-anchor": ["start", "middle", "end"][i], "font-size": 24, "font-weight": 800, fill: [COL.in, COL.mid, COL.out][i] }, svg));
+  ball = el("g", { opacity: 0 }, svg);
+  ballC = el("circle", { r: 36, fill: COL.in, stroke: "#fff", "stroke-width": 4 }, ball);
+  ballT = el("text", { y: 10, "text-anchor": "middle", "font-size": 30, "font-weight": 800, fill: "#fff" }, ball);
+}
+
+function setBall(x, y, val, col, op = 1) {
+  ball.setAttribute("transform", `translate(${x},${y})`);
+  ball.setAttribute("opacity", op);
+  if (val !== undefined) {
+    const s = num(val);
+    ballT.textContent = s;
+    ballT.setAttribute("font-size", s.length <= 3 ? 30 : s.length <= 5 ? 22 : s.length <= 7 ? 16 : 12);
+    ballT.setAttribute("y", s.length <= 3 ? 10 : 7);
+  }
+  if (col) ballC.setAttribute("fill", col);
+}
+
+const ease = t => t < .5 ? 2 * t * t : 1 - (-2 * t + 2) ** 2 / 2;
+function anim(ms, step) {
+  return new Promise(res => {
+    const dur = ms * speed(), t0 = performance.now();
+    const f = now => { const t = dur <= 0 ? 1 : Math.min(1, (now - t0) / dur); step(ease(t), t); if (t < 1) requestAnimationFrame(f); else res(); };
+    requestAnimationFrame(f);
+  });
+}
+const lerp = (a, b, t) => a + (b - a) * t;
+
+async function work(mach) {
+  mach.body.setAttribute("fill", "#3f78c7");
+  await anim(700, (e, t) => { mach.gear.setAttribute("transform", `translate(${BW - 30},${BY + 30}) rotate(${t * 360})`); });
+  mach.body.setAttribute("fill", "#2E5FA3");
+}
+
+function setInputsEnabled(on) {
+  document.querySelectorAll(".num, #runOwn, #swap, #useCustom, .preset").forEach(b => b.disabled = !on);
+}
+
+async function run(x) {
+  if (busy) return;
+  busy = true; setInputsEnabled(false); lastX = x;
+  const first = order === "fg" ? "f" : "g", second = order === "fg" ? "g" : "f";
+  const P1 = first === "f" ? F : Gp, P2 = second === "f" ? F : Gp;
+  const y1 = peval(P1, x), y2 = peval(P2, y1);
+  labs.forEach(l => l.textContent = "");
+  labs[0].textContent = `x = ${num(x)}`;
+  const a0 = SLOT[0] + BW / 2, a1 = SLOT[1] + BW / 2;
+  setBall(60, CY, x, COL.in, 1);
+  await anim(250, e => setBall(60, CY - 30 + 30 * e, undefined, undefined, e));
+  await anim(650, e => setBall(lerp(60, a0, e), CY, undefined, undefined, 1 - Math.max(0, e - .6) * 2.5));
+  await work(M[first]);
+  setBall(SLOT[0] + BW, CY, y1, COL.mid, 1);
+  await anim(450, e => setBall(lerp(SLOT[0] + BW, 400, e), CY));
+  labs[1].textContent = `${first}(${num(x)}) = ${num(y1)}`;
+  await anim(350, () => {});
+  await anim(600, e => setBall(lerp(400, a1, e), CY, undefined, undefined, 1 - Math.max(0, e - .6) * 2.5));
+  await work(M[second]);
+  setBall(SLOT[1] + BW, CY, y2, COL.out, 1);
+  await anim(450, e => setBall(lerp(SLOT[1] + BW, 740, e), CY));
+  labs[2].textContent = `${second}(${num(y1)}) = ${num(y2)}`;
+  rows[order].set(x, [y1, y2]);
+  renderTables(x);
+  busy = false; setInputsEnabled(true);
+  if (algSteps) renderAlg();
+}
+
+function renderTables(newX) {
+  ["fg", "gf"].forEach(o => {
+    const tb = document.querySelector(o === "fg" ? "#tFG tbody" : "#tGF tbody");
+    const keys = [...rows[o].keys()].sort((a, b) => a - b);
+    tb.innerHTML = keys.length ? "" : `<tr><td colspan="3" class="empty">No runs yet</td></tr>`;
+    keys.forEach(k => {
+      const [a, b] = rows[o].get(k);
+      const tr = document.createElement("tr");
+      if (k === newX && o === order) tr.className = "new";
+      tr.innerHTML = `<td>${num(k)}</td><td>${num(a)}</td><td class="fin">${num(b)}</td>`;
+      tb.appendChild(tr);
+    });
+  });
+  document.getElementById("boxFG").classList.toggle("on", order === "fg");
+  document.getElementById("boxGF").classList.toggle("on", order === "gf");
+  // compare
+  const st = document.getElementById("status");
+  const both = [...rows.fg.keys()].filter(k => rows.gf.has(k)).sort((a, b) => a - b);
+  const pick = both.includes(newX) ? newX : both[both.length - 1];
+  if (pick === undefined) {
+    st.className = "status";
+    st.innerHTML = rows.fg.size + rows.gf.size === 0 ? "Drop a number into the machine." :
+      "Now press <b>Swap order</b> and run the same numbers.";
+    return;
+  }
+  const u = rows.fg.get(pick)[1], v = rows.gf.get(pick)[1];
+  if (u === v) {
+    st.className = "status good";
+    st.innerHTML = `At x = ${num(pick)}: g(f(${num(pick)})) = ${num(u)} and f(g(${num(pick)})) = ${num(v)}. <b>Same output.</b>`;
+  } else {
+    st.className = "status bad";
+    st.innerHTML = `At x = ${num(pick)}: g(f(${num(pick)})) = ${num(u)} but f(g(${num(pick)})) = ${num(v)}. <b>Order matters.</b>`;
+  }
+}
+
+function setCompLabel() {
+  document.getElementById("compBig").textContent = order === "fg" ? "(g ∘ f)(x) = g(f(x))" : "(f ∘ g)(x) = f(g(x))";
+  document.getElementById("compSub").textContent = order === "fg" ? "f is the inner function — it works first." : "g is the inner function — it works first.";
+}
+
+async function swap() {
+  if (busy) return;
+  busy = true; setInputsEnabled(false);
+  labs.forEach(l => l.textContent = ""); ball.setAttribute("opacity", 0);
+  const a = order === "fg" ? M.f : M.g, b = order === "fg" ? M.g : M.f;
+  await anim(700, e => {
+    a.g.setAttribute("transform", `translate(${lerp(SLOT[0], SLOT[1], e)},${-60 * Math.sin(Math.PI * e)})`);
+    b.g.setAttribute("transform", `translate(${lerp(SLOT[1], SLOT[0], e)},${60 * Math.sin(Math.PI * e)})`);
+  });
+  order = order === "fg" ? "gf" : "fg";
+  drawMachine(); setCompLabel(); renderTables(null);
+  busy = false; setInputsEnabled(true);
+  if (algSteps) { algShown = 1; renderAlg(); }
+}
+
+// ================= algebra panel =================
+function currentSteps() {
+  return order === "fg" ? compSteps("g", Gp, "f", F) : compSteps("f", F, "g", Gp);
+}
+function renderAlg() {
+  algSteps = currentSteps();
+  const n = Math.min(algShown, algSteps.length);
+  const items = algSteps.slice(0, n).map(s => `<li>${s.html}<span class="why">${s.why}</span></li>`).join("");
+  let chk = "";
+  if (n === algSteps.length) {
+    const res = order === "fg" ? pcompose(Gp, F) : pcompose(F, Gp);
+    const xv = lastX === null ? 2 : lastX;
+    const name = order === "fg" ? "g(f" : "f(g";
+    chk = `<div class="chkline">Check with x = ${num(xv)}: ${algSteps[algSteps.length - 1].result.replace(/x/g, `(${num(xv)})`)} = <b>${num(peval(res, xv))}</b> — the machine gives ${name}(${num(xv)})) = <b>${num(peval(order === "fg" ? Gp : F, peval(order === "fg" ? F : Gp, xv)))}</b>. ✓</div>`;
+  }
+  document.getElementById("alg").innerHTML = `<ol>${items}</ol>${chk}`;
+  document.getElementById("alg").dataset.result = n === algSteps.length ? algSteps[algSteps.length - 1].result : "";
+  document.getElementById("algNext").disabled = n >= algSteps.length;
+  document.getElementById("algAll").disabled = n >= algSteps.length;
+}
+document.getElementById("algStart").onclick = () => { algShown = 1; renderAlg(); };
+document.getElementById("algNext").onclick = () => { algShown++; renderAlg(); };
+document.getElementById("algAll").onclick = () => { algShown = 99; renderAlg(); };
+function resetAlg() {
+  algSteps = null; algShown = 0;
+  document.getElementById("alg").innerHTML = '<p class="hint">Builds the composite function for the order on the machine: replace x in the outer function with the whole inner function, then simplify.</p>';
+  document.getElementById("alg").dataset.result = "";
+  document.getElementById("algNext").disabled = true; document.getElementById("algAll").disabled = true;
+}
+
+// ================= rules =================
+function setRules(f, g, idx) {
+  F = f; Gp = g; preset = idx; lastX = null;
+  rows.fg.clear(); rows.gf.clear();
+  [...document.querySelectorAll(".preset")].forEach((b, k) => b.setAttribute("aria-current", k === idx ? "true" : "false"));
+  drawMachine(); renderTables(null); resetAlg();
+}
+const presetsEl = document.getElementById("presets");
+PRESETS.forEach((p, i) => {
+  const b = document.createElement("button");
+  b.className = "preset";
+  b.innerHTML = `<b>${i + 1}</b>f(x) = ${pstr(p.f)}<br><b style="visibility:hidden">${i + 1}</b>g(x) = ${pstr(p.g)}`;
+  b.onclick = () => { if (!busy) { document.getElementById("cerr").textContent = ""; setRules(p.f, p.g, i); } };
+  presetsEl.appendChild(b);
+});
+document.getElementById("useCustom").onclick = () => {
+  const e = document.getElementById("cerr");
+  const a = parsePoly(document.getElementById("cf").value), b = parsePoly(document.getElementById("cg").value);
+  if (!a.ok) { e.textContent = "f(x): " + a.msg; return; }
+  if (!b.ok) { e.textContent = "g(x): " + b.msg; return; }
+  e.textContent = "";
+  setRules(a.poly, b.poly, -1);
+};
+
+// inputs
+const inputsEl = document.getElementById("inputs");
+for (let v = -3; v <= 5; v++) {
+  const b = document.createElement("button");
+  b.className = "num"; b.textContent = num(v); b.dataset.v = v;
+  b.onclick = () => run(v);
+  inputsEl.appendChild(b);
+}
+document.getElementById("runOwn").onclick = () => {
+  const s = document.getElementById("xin").value.replace(/[−–]/g, "-").trim(), e = document.getElementById("xerr");
+  if (!/^-?\d+$/.test(s) || Math.abs(+s) > 20) { e.textContent = "Type a whole number from −20 to 20."; return; }
+  e.textContent = ""; run(+s);
+};
+document.getElementById("xin").addEventListener("keydown", ev => { if (ev.key === "Enter") document.getElementById("runOwn").click(); });
+document.getElementById("swap").onclick = swap;
+document.getElementById("clear").onclick = () => { if (busy) return; rows.fg.clear(); rows.gf.clear(); renderTables(null); };
+
+// ================= try this =================
+const solved = new Array(TRY.length).fill(false);
+const tryEl = document.getElementById("try");
+TRY.forEach((t, i) => {
+  const li = document.createElement("li");
+  li.innerHTML = `<div class="q"><b>${i + 1}.</b> ${t.q} <button class="loadlink">load rules</button></div>
+    <div class="a"><input aria-label="Answer ${i + 1}" autocomplete="off" placeholder="${t.a.length > 1 ? "e.g. 2x+5" : "number"}"><button class="act alt">Check</button><span class="fb"></span></div>`;
+  li.querySelector(".loadlink").onclick = () => { if (busy) return; const p = PRESETS[t.p]; if (order !== "fg") { order = "fg"; setCompLabel(); } setRules(p.f, p.g, t.p); };
+  const inp = li.querySelector("input"), fb = li.querySelector(".fb");
+  const check = () => {
+    const r = parsePoly(inp.value);
+    if (!r.ok) { fb.textContent = r.msg; fb.style.color = "var(--red)"; return; }
+    if (peq(r.poly, t.a)) {
+      solved[i] = true; li.classList.add("done"); fb.textContent = "✓ Correct"; fb.style.color = "var(--green)";
+    } else {
+      fb.textContent = t.a.length > 1 ? "Not yet — try Show the algebra." : "Not yet — run it in the machine. Which function works first?";
+      fb.style.color = "var(--red)";
+    }
+    updateProgress();
+  };
+  li.querySelector("button.act").onclick = check;
+  inp.addEventListener("keydown", ev => { if (ev.key === "Enter") check(); });
+  tryEl.appendChild(li);
+});
+
+function codeFor(name) {
+  const s = name.trim().toLowerCase().replace(/\s+/g, " ") + "|a2u2-machine";
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+  const A = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let out = "";
+  for (let i = 0; i < 5; i++) { out += A[h % 32]; h = Math.floor(h / 32) ^ (i * 2654435761 >>> 0); h >>>= 0; }
+  return "L4-" + out;
+}
+function updateProgress() {
+  const n = solved.filter(Boolean).length;
+  document.getElementById("progText").textContent = `${n} of ${TRY.length} correct`;
+  document.getElementById("progBar").style.width = (100 * n / TRY.length) + "%";
+  const name = document.getElementById("stuName").value.trim();
+  const box = document.getElementById("code");
+  if (n < TRY.length) { box.className = "code"; return; }
+  box.className = "code show";
+  box.innerHTML = name ? `All 6 correct. Paste this code into Classroom:<br><strong id="codeText">${codeFor(name)}</strong>` : "All 6 correct. Type your name above to get your code.";
+}
+document.getElementById("stuName").addEventListener("input", updateProgress);
+document.getElementById("tName").addEventListener("input", e => {
+  document.getElementById("tCode").textContent = e.target.value.trim() ? codeFor(e.target.value) : "";
+});
+
+setCompLabel();
+setRules(PRESETS[0].f, PRESETS[0].g, 0);
+</script>
+</body>
+</html>

@@ -1,0 +1,379 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Operations Relay</title>
+<style>
+  :root{
+    --bg:#f6f8fb; --panel:#ffffff; --ink:#1b2430; --muted:#5b6778; --line:#d9e0ea;
+    --blue:#2E5FA3; --blue-soft:#eaf1fb; --green:#1f8a4c; --green-soft:#eaf7ec;
+    --red:#c8372d; --red-soft:#fce8e6; --orange:#d9822b; --purple:#7a4fb3;
+    --p1:#2E5FA3; --p2:#d9822b; --p3:#1f8a4c; --p4:#7a4fb3;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  header{background:var(--blue);color:#fff;padding:12px 20px;display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 16px}
+  header h1{margin:0;font-size:26px}
+  header span{opacity:.85;font-size:15px}
+  .tbanner{display:none;background:var(--purple);color:#fff;font-weight:700;padding:8px 20px;font-size:17px}
+  body.tmode .tbanner{display:block}
+  main{display:grid;grid-template-columns:250px minmax(380px,1fr) 320px;gap:16px;padding:16px 20px;align-items:start}
+  @media (max-width:1000px){main{grid-template-columns:minmax(0,1fr)}}
+  @media (max-width:560px){main{padding:12px}.cards{grid-template-columns:1fr 1fr}.fns{font-size:26px}}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:14px}
+  .panel h2{margin:0 0 10px;font-size:15px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+  .picker{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  @media (max-width:1000px){.picker{grid-template-columns:repeat(6,1fr)}}
+  .pick{position:relative;border:2px solid var(--line);background:#fff;border-radius:10px;padding:8px 2px;cursor:pointer;color:var(--ink);font:inherit;text-align:center}
+  .pick b{display:block;font-size:22px}
+  .pick small{display:block;font-size:13px;color:var(--muted)}
+  .pick[aria-current="true"]{border-color:var(--blue);background:var(--blue-soft)}
+  .pick.done::after{content:"✓";position:absolute;top:2px;right:6px;font-size:14px;color:var(--green);font-weight:700}
+  .seg{display:flex;gap:8px}
+  .seg button{flex:1;border:2px solid var(--blue);background:#fff;color:var(--blue);border-radius:10px;padding:8px;font:inherit;font-weight:700;cursor:pointer}
+  .seg button[aria-pressed="true"]{background:var(--blue);color:#fff}
+  .total{margin-top:14px;font-size:16px;color:var(--muted)}
+  .total strong{font-size:26px;color:var(--ink)}
+  .legend{font-size:14px;color:var(--muted);margin-top:12px}
+  .fns{display:flex;flex-wrap:wrap;gap:10px 28px;justify-content:center;font-size:30px;font-weight:700;padding:6px 0 10px}
+  .fns .f{color:var(--blue)} .fns .g{color:var(--orange)}
+  .cards{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px}
+  .ctab{border:2px solid var(--line);background:#fff;border-radius:10px;padding:8px 4px;font:inherit;font-weight:700;font-size:16px;cursor:pointer;color:var(--ink);position:relative}
+  .ctab[aria-current="true"]{border-color:var(--blue);background:var(--blue-soft)}
+  .ctab.done{border-color:var(--green);color:var(--green)}
+  .ctab.done::after{content:" ✓"}
+  .ctab small{display:block;font-weight:600;font-size:13px;color:var(--muted)}
+  .part{border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-top:10px}
+  .part h3{margin:0 0 10px;font-size:22px}
+  .part h3 .tag{font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-right:8px}
+  .opts{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  @media (max-width:560px){.opts{grid-template-columns:1fr}}
+  .opt{display:flex;align-items:center;gap:10px;min-height:66px;border:2px solid var(--line);background:#fff;border-radius:12px;padding:8px 12px;font:inherit;font-size:25px;font-weight:600;cursor:pointer;color:var(--ink);text-align:left;touch-action:manipulation}
+  .opt .L{flex:none;width:32px;height:32px;border-radius:50%;background:var(--blue-soft);color:var(--blue);font-size:17px;font-weight:700;display:inline-flex;align-items:center;justify-content:center}
+  .opt:hover:not(:disabled){border-color:var(--blue)}
+  .opt.wrong{border-color:var(--red);background:var(--red-soft);color:#8f2820;cursor:not-allowed}
+  .opt.right{border-color:var(--green);background:var(--green-soft)}
+  .opt:disabled{cursor:default}
+  body.tmode .opt.key{outline:4px solid var(--purple);outline-offset:2px}
+  .fr{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.2;margin:0 3px}
+  .fr>span:first-child{border-bottom:2px solid currentColor;padding:0 4px}
+  .fr>span:last-child{padding:0 4px}
+  .valrow{display:flex;flex-wrap:wrap;align-items:center;gap:10px}
+  .valrow input{width:170px;font-size:26px;padding:8px 10px;border:2px solid var(--line);border-radius:10px;font-weight:700}
+  .valrow input.ok{border-color:var(--green);background:var(--green-soft)}
+  .valrow .eq{font-size:26px;font-weight:700}
+  button.act{border:0;border-radius:10px;padding:12px 18px;font:inherit;font-size:18px;font-weight:700;cursor:pointer;background:var(--blue);color:#fff;touch-action:manipulation}
+  button.act.alt{background:#fff;color:var(--blue);border:2px solid var(--blue)}
+  button.act:disabled{opacity:.45;cursor:default}
+  .tkey{display:none;margin-top:8px;padding:8px 12px;border-radius:10px;background:#f7f3fc;border-left:5px solid var(--purple);font-size:19px}
+  body.tmode .tkey{display:block}
+  .turn{border-radius:14px;padding:14px;text-align:center;color:#fff;background:var(--p1)}
+  .turn small{display:block;font-size:14px;opacity:.9;text-transform:uppercase;letter-spacing:.06em}
+  .turn strong{display:block;font-size:40px;line-height:1.15}
+  .turn span{font-size:15px;opacity:.95}
+  .order{display:flex;gap:6px;justify-content:center;margin-top:8px}
+  .order i{font-style:normal;font-size:14px;font-weight:700;padding:2px 8px;border-radius:99px;background:#eef1f6;color:var(--muted)}
+  .order i.now{color:#fff}
+  .feedback{margin-top:12px;padding:12px;border-radius:10px;font-size:18px;display:none}
+  .feedback.show{display:block}
+  .feedback.right{background:var(--green-soft);border-left:5px solid var(--green)}
+  .feedback.wrong{background:var(--red-soft);border-left:5px solid var(--red)}
+  .rscore{margin-top:12px;font-size:17px}
+  .rscore strong{font-size:28px}
+  .next{margin-top:12px;display:none}
+  .next.show{display:block}
+  .code{margin-top:12px;padding:12px;border-radius:10px;background:var(--green-soft);border:2px dashed var(--green);display:none;font-size:17px}
+  .code.show{display:block}
+  .code strong{font-size:28px;letter-spacing:.08em}
+  label.name{display:block;margin-top:10px;font-size:14px;color:var(--muted)}
+  label.name input{display:block;width:100%;margin-top:4px;padding:8px;font-size:17px;border:1px solid var(--line);border-radius:8px}
+  details.teacher{margin:0 20px 24px;font-size:15px;color:var(--muted)}
+  details.teacher input[type=text]{padding:6px;font-size:15px}
+  details.teacher .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:8px 0}
+  .hint{font-size:15px;color:var(--muted);margin:8px 0 0}
+  .hidden{display:none!important}
+</style>
+</head>
+<body>
+<header>
+  <h1>Operations Relay</h1>
+  <span>Algebra 2 · Unit 2 · Activity 2 — Function Operations</span>
+</header>
+<div class="tbanner">Teacher mode — answers are showing. No pod code on this device.</div>
+
+<main>
+  <section class="panel">
+    <h2>Rounds</h2>
+    <div class="picker" id="picker"></div>
+    <p class="legend">✓ = all four cards done. Score = points this round (16 max).</p>
+    <h2 style="margin-top:16px">Players in your pod</h2>
+    <div class="seg"><button id="p3" aria-pressed="false">3 players</button><button id="p4" aria-pressed="true">4 players</button></div>
+    <div class="total">Total score<br><strong id="total">0</strong> <span>/ 96</span></div>
+  </section>
+
+  <section class="panel" id="center">
+    <h2 id="roundTitle">Round 1</h2>
+    <div class="fns"><div class="f" id="fx"></div><div class="g" id="gx"></div></div>
+    <div class="cards" id="cards"></div>
+    <div class="part">
+      <h3><span class="tag">Part A · 2 pts</span>Pick <span id="qA"></span></h3>
+      <div class="opts" id="opts"></div>
+      <div class="tkey" id="keyA"></div>
+    </div>
+    <div class="part">
+      <h3><span class="tag">Part B · 2 pts</span>Find <span id="qB"></span></h3>
+      <div class="valrow">
+        <span class="eq" id="qB2"></span><span class="eq">=</span>
+        <input id="val" inputmode="text" autocomplete="off" aria-label="Your value">
+        <button class="act" id="checkVal">Check</button>
+      </div>
+      <p class="hint">Whole number, fraction like −3/5, or decimal to 2 places.</p>
+      <div class="tkey" id="keyB"></div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="turn" id="turn"><small>Whose turn</small><strong id="turnName">Player 1</strong><span>Drives this card. Next player checks.</span></div>
+    <div class="order" id="order"></div>
+    <div class="feedback" id="feedback"></div>
+    <div class="next" id="next"><button class="act" id="nextBtn">Next card →</button></div>
+    <div class="rscore">This round: <strong id="rscore">0</strong> / 16</div>
+    <label class="name">Pod name<input id="podName" autocomplete="off" placeholder="e.g. Pod 3 or The Vertices"></label>
+    <label class="name">Class period<input id="section" autocomplete="off" placeholder="e.g. 2"></label>
+    <div class="code" id="code"></div>
+  </section>
+</main>
+
+<details class="teacher" id="teacher">
+  <summary>Teacher check</summary>
+  <p>Type a pod's name and class period exactly as they entered them to see the code they should have.</p>
+  <div class="row"><input type="text" id="tPod" placeholder="Pod name"> <input type="text" id="tSec" placeholder="Period"> <strong id="tCode"></strong></div>
+  <div class="row"><label><input type="checkbox" id="tmode"> Teacher mode — reveal every answer for the debrief (turns off the pod code on this device)</label></div>
+</details>
+
+<script>
+/* RELAY DATA START */
+const ROUNDS = [{"f": "3x + 2", "g": "x − 4", "cards": [{"key": "sum", "name": "Sum", "sym": "+", "a": 2, "fa": "8", "ga": "−2", "val": {"n": 6, "d": 1}, "valText": "6", "ans": 1, "opts": [{"h": "4x + 6", "hint": "Copy every term of g(x) with its own sign, then add."}, {"h": "4x − 2", "hint": ""}, {"h": "2x + 6", "hint": "That is the difference. Sum means add f(x) and g(x)."}, {"h": "4x² − 2", "hint": "Only like terms combine. When you add, the exponents stay the same."}], "note": ""}, {"key": "diff", "name": "Difference", "sym": "−", "a": -1, "fa": "−1", "ga": "−5", "val": {"n": 4, "d": 1}, "valText": "4", "ans": 2, "opts": [{"h": "2x − 2", "hint": "The minus sign goes to EVERY term of g(x), not just the first one."}, {"h": "4x − 2", "hint": "That is the sum. Difference means subtract all of g(x)."}, {"h": "2x + 6", "hint": ""}, {"h": "−2x − 6", "hint": "Order matters: (f − g) means f(x) first, then subtract g(x)."}], "note": ""}, {"key": "prod", "name": "Product", "sym": "·", "a": 3, "fa": "11", "ga": "−1", "val": {"n": -11, "d": 1}, "valText": "−11", "ans": 0, "opts": [{"h": "3x² − 10x − 8", "hint": ""}, {"h": "3x² + 10x − 8", "hint": "Check the signs when you combine the middle terms."}, {"h": "3x² − 8", "hint": "Multiply EVERY term of f by EVERY term of g. Try a grid."}, {"h": "−7x − 8", "hint": "When you multiply, ADD the exponents: x · x = x², x² · x = x³."}], "note": ""}, {"key": "quot", "name": "Quotient", "sym": "/", "a": 1, "fa": "5", "ga": "−3", "val": {"n": -5, "d": 3}, "valText": "−5/3", "ans": 3, "opts": [{"h": "<span class=\"fr\"><span>3x + 2</span><span>x + 4</span></span>", "hint": "Copy g(x) exactly as the bottom — check the sign."}, {"h": "<span class=\"fr\"><span>x − 4</span><span>3x + 2</span></span>", "hint": "(f/g) means f(x) on top and g(x) on the bottom."}, {"h": "3", "hint": "You can't divide only the first terms. Leave it as a fraction unless the top factors."}, {"h": "<span class=\"fr\"><span>3x + 2</span><span>x − 4</span></span>", "hint": ""}], "note": "x ≠ 4 because g(x) = 0 there"}]}, {"f": "x² + 2x − 3", "g": "2x + 5", "cards": [{"key": "sum", "name": "Sum", "sym": "+", "a": 1, "fa": "0", "ga": "7", "val": {"n": 7, "d": 1}, "valText": "7", "ans": 2, "opts": [{"h": "5x² + 2", "hint": "Only like terms combine. When you add, the exponents stay the same."}, {"h": "x² + 4x − 8", "hint": "Copy every term of g(x) with its own sign, then add."}, {"h": "x² + 4x + 2", "hint": ""}, {"h": "x² − 8", "hint": "That is the difference. Sum means add f(x) and g(x)."}], "note": ""}, {"key": "diff", "name": "Difference", "sym": "−", "a": -2, "fa": "−3", "ga": "1", "val": {"n": -4, "d": 1}, "valText": "−4", "ans": 1, "opts": [{"h": "x² + 4x + 2", "hint": "That is the sum. Difference means subtract all of g(x)."}, {"h": "x² − 8", "hint": ""}, {"h": "−x² + 8", "hint": "Order matters: (f − g) means f(x) first, then subtract g(x)."}, {"h": "x² + 2", "hint": "The minus sign goes to EVERY term of g(x), not just the first one."}], "note": ""}, {"key": "prod", "name": "Product", "sym": "·", "a": 2, "fa": "5", "ga": "9", "val": {"n": 45, "d": 1}, "valText": "45", "ans": 3, "opts": [{"h": "2x³ − 9x² + 4x − 15", "hint": "Check the signs when you combine the middle terms."}, {"h": "7x² + 8x − 15", "hint": "When you multiply, ADD the exponents: x · x = x², x² · x = x³."}, {"h": "2x³ − 15", "hint": "Multiply EVERY term of f by EVERY term of g. Try a grid."}, {"h": "2x³ + 9x² + 4x − 15", "hint": ""}], "note": ""}, {"key": "quot", "name": "Quotient", "sym": "/", "a": 0, "fa": "−3", "ga": "5", "val": {"n": -3, "d": 5}, "valText": "−3/5", "ans": 0, "opts": [{"h": "<span class=\"fr\"><span>x² + 2x − 3</span><span>2x + 5</span></span>", "hint": ""}, {"h": "<span class=\"fr\"><span>x² + 2x − 3</span><span>2x − 5</span></span>", "hint": "Copy g(x) exactly as the bottom — check the sign."}, {"h": "<span class=\"fr\"><span>2x + 5</span><span>x² + 2x − 3</span></span>", "hint": "(f/g) means f(x) on top and g(x) on the bottom."}, {"h": "<span class=\"fr\"><span>x</span><span>2</span></span>", "hint": "You can't divide only the first terms. Leave it as a fraction unless the top factors."}], "note": "x ≠ −5/2 because g(x) = 0 there"}]}, {"f": "x² − 16", "g": "x + 4", "cards": [{"key": "sum", "name": "Sum", "sym": "+", "a": 2, "fa": "−12", "ga": "6", "val": {"n": -6, "d": 1}, "valText": "−6", "ans": 3, "opts": [{"h": "x² − x − 20", "hint": "That is the difference. Sum means add f(x) and g(x)."}, {"h": "2x³ − 12", "hint": "Only like terms combine. When you add, the exponents stay the same."}, {"h": "x² + x − 20", "hint": "Copy every term of g(x) with its own sign, then add."}, {"h": "x² + x − 12", "hint": ""}], "note": ""}, {"key": "diff", "name": "Difference", "sym": "−", "a": -3, "fa": "−7", "ga": "1", "val": {"n": -8, "d": 1}, "valText": "−8", "ans": 0, "opts": [{"h": "x² − x − 20", "hint": ""}, {"h": "−x² + x + 20", "hint": "Order matters: (f − g) means f(x) first, then subtract g(x)."}, {"h": "x² + x − 12", "hint": "That is the sum. Difference means subtract all of g(x)."}, {"h": "x² − x − 12", "hint": "The minus sign goes to EVERY term of g(x), not just the first one."}], "note": ""}, {"key": "prod", "name": "Product", "sym": "·", "a": 1, "fa": "−15", "ga": "5", "val": {"n": -75, "d": 1}, "valText": "−75", "ans": 1, "opts": [{"h": "x³ − 64", "hint": "Multiply EVERY term of f by EVERY term of g. Try a grid."}, {"h": "x³ + 4x² − 16x − 64", "hint": ""}, {"h": "5x² − 16x − 64", "hint": "When you multiply, ADD the exponents: x · x = x², x² · x = x³."}, {"h": "x³ − 4x² − 16x − 64", "hint": "Check the signs when you combine the middle terms."}], "note": ""}, {"key": "quot", "name": "Quotient", "sym": "/", "a": 5, "fa": "9", "ga": "9", "val": {"n": 1, "d": 1}, "valText": "1", "ans": 1, "opts": [{"h": "<span class=\"fr\"><span>x + 4</span><span>x² − 16</span></span>", "hint": "(f/g) means f(x) on top and g(x) on the bottom."}, {"h": "x − 4", "hint": ""}, {"h": "x + 4", "hint": "Factor the top first. Then cancel the factor that matches g(x)."}, {"h": "x² − 4", "hint": "You can't divide only the constants. Factor the top, then cancel a matching factor."}], "note": "x ≠ −4 because g(x) = 0 there"}]}, {"f": "x² + 2", "g": "x² − 3x", "cards": [{"key": "sum", "name": "Sum", "sym": "+", "a": -1, "fa": "3", "ga": "4", "val": {"n": 7, "d": 1}, "valText": "7", "ans": 0, "opts": [{"h": "2x² − 3x + 2", "hint": ""}, {"h": "3x + 2", "hint": "That is the difference. Sum means add f(x) and g(x)."}, {"h": "2x² + 3x + 2", "hint": "Copy every term of g(x) with its own sign, then add."}, {"h": "2x⁴ − 3x + 2", "hint": "Only like terms combine. When you add, the exponents stay the same."}], "note": ""}, {"key": "diff", "name": "Difference", "sym": "−", "a": 2, "fa": "6", "ga": "−2", "val": {"n": 8, "d": 1}, "valText": "8", "ans": 2, "opts": [{"h": "−3x − 2", "hint": "Order matters: (f − g) means f(x) first, then subtract g(x)."}, {"h": "−3x + 2", "hint": "The minus sign goes to EVERY term of g(x), not just the first one."}, {"h": "3x + 2", "hint": ""}, {"h": "2x² − 3x + 2", "hint": "That is the sum. Difference means subtract all of g(x)."}], "note": ""}, {"key": "prod", "name": "Product", "sym": "·", "a": -2, "fa": "6", "ga": "10", "val": {"n": 60, "d": 1}, "valText": "60", "ans": 2, "opts": [{"h": "x⁴ − x² − 6x", "hint": "When you multiply, ADD the exponents: x · x = x², x² · x = x³."}, {"h": "x⁴ + 3x³ + 2x² − 6x", "hint": "Check the signs when you combine the middle terms."}, {"h": "x⁴ − 3x³ + 2x² − 6x", "hint": ""}, {"h": "x⁴", "hint": "Multiply EVERY term of f by EVERY term of g. Try a grid."}], "note": ""}, {"key": "quot", "name": "Quotient", "sym": "/", "a": 1, "fa": "3", "ga": "−2", "val": {"n": -3, "d": 2}, "valText": "−3/2", "ans": 3, "opts": [{"h": "<span class=\"fr\"><span>x² − 3x</span><span>x² + 2</span></span>", "hint": "(f/g) means f(x) on top and g(x) on the bottom."}, {"h": "1", "hint": "You can't divide only the first terms. Leave it as a fraction unless the top factors."}, {"h": "<span class=\"fr\"><span>x² + 2</span><span>x² + 3x</span></span>", "hint": "Copy g(x) exactly as the bottom — check the sign."}, {"h": "<span class=\"fr\"><span>x² + 2</span><span>x² − 3x</span></span>", "hint": ""}], "note": "x ≠ 0, 3 because g(x) = 0 there"}]}, {"f": "−2x + 7", "g": "x² − x − 6", "cards": [{"key": "sum", "name": "Sum", "sym": "+", "a": 3, "fa": "1", "ga": "0", "val": {"n": 1, "d": 1}, "valText": "1", "ans": 3, "opts": [{"h": "x² − 3x + 13", "hint": "Copy every term of g(x) with its own sign, then add."}, {"h": "−2x² + 1", "hint": "Only like terms combine. When you add, the exponents stay the same."}, {"h": "−x² − x + 13", "hint": "That is the difference. Sum means add f(x) and g(x)."}, {"h": "x² − 3x + 1", "hint": ""}], "note": ""}, {"key": "diff", "name": "Difference", "sym": "−", "a": -1, "fa": "9", "ga": "−4", "val": {"n": 13, "d": 1}, "valText": "13", "ans": 1, "opts": [{"h": "−x² − 3x + 1", "hint": "The minus sign goes to EVERY term of g(x), not just the first one."}, {"h": "−x² − x + 13", "hint": ""}, {"h": "x² + x − 13", "hint": "Order matters: (f − g) means f(x) first, then subtract g(x)."}, {"h": "x² − 3x + 1", "hint": "That is the sum. Difference means subtract all of g(x)."}], "note": ""}, {"key": "prod", "name": "Product", "sym": "·", "a": 0, "fa": "7", "ga": "−6", "val": {"n": -42, "d": 1}, "valText": "−42", "ans": 0, "opts": [{"h": "−2x³ + 9x² + 5x − 42", "hint": ""}, {"h": "5x² + 7x − 42", "hint": "When you multiply, ADD the exponents: x · x = x², x² · x = x³."}, {"h": "−2x³ − 9x² + 5x − 42", "hint": "Check the signs when you combine the middle terms."}, {"h": "−2x³ − 42", "hint": "Multiply EVERY term of f by EVERY term of g. Try a grid."}], "note": ""}, {"key": "quot", "name": "Quotient", "sym": "/", "a": 2, "fa": "3", "ga": "−4", "val": {"n": -3, "d": 4}, "valText": "−3/4", "ans": 1, "opts": [{"h": "<span class=\"fr\"><span>−2x + 7</span><span>x² − x + 6</span></span>", "hint": "Copy g(x) exactly as the bottom — check the sign."}, {"h": "<span class=\"fr\"><span>−2x + 7</span><span>x² − x − 6</span></span>", "hint": ""}, {"h": "<span class=\"fr\"><span>x² − x − 6</span><span>−2x + 7</span></span>", "hint": "(f/g) means f(x) on top and g(x) on the bottom."}, {"h": "−<span class=\"fr\"><span>2</span><span>x</span></span>", "hint": "You can't divide only the first terms. Leave it as a fraction unless the top factors."}], "note": "x ≠ −2, 3 because g(x) = 0 there"}]}, {"f": "x² + 5x + 6", "g": "x + 3", "cards": [{"key": "sum", "name": "Sum", "sym": "+", "a": -2, "fa": "0", "ga": "1", "val": {"n": 1, "d": 1}, "valText": "1", "ans": 3, "opts": [{"h": "7x² + 9", "hint": "Only like terms combine. When you add, the exponents stay the same."}, {"h": "x² + 4x + 3", "hint": "That is the difference. Sum means add f(x) and g(x)."}, {"h": "x² + 6x + 3", "hint": "Copy every term of g(x) with its own sign, then add."}, {"h": "x² + 6x + 9", "hint": ""}], "note": ""}, {"key": "diff", "name": "Difference", "sym": "−", "a": 1, "fa": "12", "ga": "4", "val": {"n": 8, "d": 1}, "valText": "8", "ans": 3, "opts": [{"h": "x² + 6x + 9", "hint": "That is the sum. Difference means subtract all of g(x)."}, {"h": "−x² − 4x − 3", "hint": "Order matters: (f − g) means f(x) first, then subtract g(x)."}, {"h": "x² + 4x + 9", "hint": "The minus sign goes to EVERY term of g(x), not just the first one."}, {"h": "x² + 4x + 3", "hint": ""}], "note": ""}, {"key": "prod", "name": "Product", "sym": "·", "a": -1, "fa": "2", "ga": "2", "val": {"n": 4, "d": 1}, "valText": "4", "ans": 2, "opts": [{"h": "x³ − 8x² + 21x + 18", "hint": "Check the signs when you combine the middle terms."}, {"h": "x³ + 18", "hint": "Multiply EVERY term of f by EVERY term of g. Try a grid."}, {"h": "x³ + 8x² + 21x + 18", "hint": ""}, {"h": "4x² + 26x + 18", "hint": "When you multiply, ADD the exponents: x · x = x², x² · x = x³."}], "note": ""}, {"key": "quot", "name": "Quotient", "sym": "/", "a": 4, "fa": "42", "ga": "7", "val": {"n": 6, "d": 1}, "valText": "6", "ans": 0, "opts": [{"h": "x + 2", "hint": ""}, {"h": "x − 2", "hint": "Factor the top first. Then cancel the factor that matches g(x)."}, {"h": "x² + 5x + 2", "hint": "You can't divide only the constants. Factor the top, then cancel a matching factor."}, {"h": "<span class=\"fr\"><span>x + 3</span><span>x² + 5x + 6</span></span>", "hint": "(f/g) means f(x) on top and g(x) on the bottom."}], "note": "x ≠ −3 because g(x) = 0 there"}]}];
+/* RELAY DATA END */
+
+const PCOL = ["var(--p1)", "var(--p2)", "var(--p3)", "var(--p4)"];
+const $ = id => document.getElementById(id);
+const neg = v => String(v).replace(/-/g, "−");
+// state per card: aTries, aDone, aPts, bTries, bDone, bPts, wrongOpts
+const S = ROUNDS.map(r => r.cards.map(() => ({ aTries: 0, aDone: false, aPts: 0, bTries: 0, bDone: false, bPts: 0, wrong: [] })));
+let cur = 0, card = 0, players = 4, completed = 0, usedTeacher = false;
+
+const fg = c => c.sym === "/" ? "(f/g)" : `(f ${c.sym} g)`;
+const label = (c) => fg(c) + "(x)";
+const labelAt = (c) => fg(c) + `(${neg(c.a)})`;
+const cardDone = (r, k) => S[r][k].aDone && S[r][k].bDone;
+const roundDone = r => S[r].every(s => s.aDone && s.bDone);
+const roundScore = r => S[r].reduce((t, s) => t + s.aPts + s.bPts, 0);
+const opWord = { sum: "add", diff: "subtract", prod: "multiply", quot: "divide" };
+
+function whoseTurn() { return completed % players; }
+
+function renderTurn() {
+  const p = whoseTurn();
+  $("turn").style.background = PCOL[p];
+  $("turnName").textContent = "Player " + (p + 1);
+  $("order").innerHTML = Array.from({ length: players }, (_, i) =>
+    `<i class="${i === p ? "now" : ""}" style="${i === p ? "background:" + PCOL[i] : ""}">P${i + 1}</i>`).join("");
+}
+
+function renderPicker() {
+  $("picker").innerHTML = "";
+  ROUNDS.forEach((_, i) => {
+    const b = document.createElement("button");
+    b.className = "pick" + (roundDone(i) ? " done" : "");
+    b.setAttribute("aria-current", i === cur ? "true" : "false");
+    b.setAttribute("aria-label", "Round " + (i + 1));
+    b.innerHTML = `<b>${i + 1}</b><small>${roundScore(i)} / 16</small>`;
+    b.onclick = () => selectRound(i);
+    $("picker").appendChild(b);
+  });
+  $("total").textContent = ROUNDS.reduce((t, _, i) => t + roundScore(i), 0);
+}
+
+function renderCards() {
+  const r = ROUNDS[cur];
+  $("cards").innerHTML = "";
+  r.cards.forEach((c, k) => {
+    const b = document.createElement("button");
+    b.className = "ctab" + (cardDone(cur, k) ? " done" : "");
+    b.setAttribute("aria-current", k === card ? "true" : "false");
+    b.innerHTML = `${c.name}<small>${fg(c)}</small>`;
+    b.onclick = () => { card = k; renderCard(); };
+    $("cards").appendChild(b);
+  });
+}
+
+function renderCard() {
+  const r = ROUNDS[cur], c = r.cards[card], s = S[cur][card];
+  renderCards();
+  $("qA").textContent = label(c);
+  $("qB").textContent = labelAt(c);
+  $("qB2").textContent = labelAt(c);
+  const box = $("opts"); box.innerHTML = "";
+  c.opts.forEach((o, i) => {
+    const b = document.createElement("button");
+    b.className = "opt" + (i === c.ans ? " key" : "") + (s.wrong.includes(i) ? " wrong" : "") + (s.aDone && i === c.ans ? " right" : "");
+    b.innerHTML = `<span class="L">${"ABCD"[i]}</span><span>${o.h}</span>`;
+    b.disabled = s.aDone || s.wrong.includes(i);
+    b.onclick = () => pick(i);
+    box.appendChild(b);
+  });
+  const inp = $("val");
+  inp.value = s.bDone ? c.valText : "";
+  inp.disabled = s.bDone; inp.className = s.bDone ? "ok" : "";
+  $("checkVal").disabled = s.bDone;
+  $("keyA").innerHTML = `Answer: <b>${"ABCD"[c.ans]}</b> — ${c.opts[c.ans].h}${c.note ? ` &nbsp;(${c.note})` : ""}`;
+  $("keyB").innerHTML = `Answer: f(${neg(c.a)}) = ${c.fa}, g(${neg(c.a)}) = ${c.ga} → ${labelAt(c)} = <b>${c.valText}</b>`;
+  $("feedback").className = "feedback";
+  $("next").className = "next" + (cardDone(cur, card) ? " show" : "");
+  setNextLabel();
+  $("rscore").textContent = roundScore(cur);
+}
+
+function setNextLabel() {
+  const nextK = S[cur].findIndex(s => !(s.aDone && s.bDone));
+  $("nextBtn").textContent = nextK >= 0 ? "Next card →" : (cur < ROUNDS.length - 1 ? "Next round →" : "See pod code");
+}
+
+function fb(ok, html) {
+  const f = $("feedback");
+  f.className = "feedback show " + (ok ? "right" : "wrong");
+  f.innerHTML = html;
+}
+
+function afterPart() {
+  const c = ROUNDS[cur].cards[card];
+  if (cardDone(cur, card)) {
+    completed++;
+    renderTurn();
+    let msg = `<b>Card done!</b> ${labelAt(c)} = ${c.valText}.`;
+    if (c.note) msg += ` Remember: ${c.note}.`;
+    msg += ` Pass to <b>Player ${whoseTurn() + 1}</b>.`;
+    fb(true, msg);
+    $("next").className = "next show"; setNextLabel();
+    renderCards(); renderPicker(); updateCode();
+  }
+  $("rscore").textContent = roundScore(cur);
+  renderPicker();
+}
+
+function pick(i) {
+  const c = ROUNDS[cur].cards[card], s = S[cur][card];
+  if (s.aDone) return;
+  s.aTries++;
+  if (i === c.ans) {
+    s.aDone = true; s.aPts = s.aTries === 1 ? 2 : 1;
+    renderCard();
+    fb(true, `<b>Correct (+${s.aPts}).</b> ${label(c)} = ${c.opts[c.ans].h}${c.note ? `, ${c.note}` : ""}. Now do Part B.`);
+    afterPart();
+  } else {
+    s.wrong.push(i);
+    renderCard();
+    fb(false, `<b>Not yet — try again.</b> Hint: ${c.opts[i].hint}`);
+  }
+}
+
+// exact check: fraction a/b, integer, or decimal within 0.005
+function parseVal(t) {
+  t = t.replace(/[−–—]/g, "-").replace(/\s+/g, "");
+  let m = t.match(/^\(?([+-]?\d+)\)?\/\(?([+-]?\d+)\)?$/);
+  if (m) { const n = +m[1], d = +m[2]; if (d === 0) return null; return { kind: "frac", n, d }; }
+  m = t.match(/^[+-]?(\d+\.?\d*|\.\d+)$/);
+  if (m) return { kind: "dec", v: parseFloat(t) };
+  return null;
+}
+function matches(p, val) {
+  if (p.kind === "frac") return p.n * val.d === val.n * p.d;
+  return Math.abs(p.v - val.n / val.d) <= 0.005 + 1e-9;
+}
+
+function checkVal() {
+  const c = ROUNDS[cur].cards[card], s = S[cur][card];
+  if (s.bDone) return;
+  const p = parseVal($("val").value);
+  if (!p) { fb(false, "Type a number like −4, 3/5, or 0.6."); return; }
+  s.bTries++;
+  if (matches(p, c.val)) {
+    s.bDone = true; s.bPts = s.bTries === 1 ? 2 : 1;
+    $("val").value = c.valText; $("val").disabled = true; $("val").className = "ok"; $("checkVal").disabled = true;
+    fb(true, `<b>Correct (+${s.bPts}).</b> ${labelAt(c)} = ${c.valText}.${s.aDone ? "" : " Now do Part A."}`);
+    afterPart();
+  } else {
+    const a = neg(c.a);
+    const hint = s.bTries === 1
+      ? `Find f(${a}) and g(${a}) first. Then ${opWord[c.key]}.`
+      : `f(${a}) = ${c.fa} and g(${a}) = ${c.ga}. Now ${opWord[c.key]}: ${c.fa} ${c.sym} (${c.ga}).`;
+    fb(false, `<b>Not yet — try again.</b> Hint: ${hint}`);
+  }
+}
+
+function selectRound(i) {
+  cur = i;
+  const k = S[i].findIndex(s => !(s.aDone && s.bDone));
+  card = k >= 0 ? k : 0;
+  $("roundTitle").textContent = "Round " + (i + 1);
+  $("fx").textContent = "f(x) = " + ROUNDS[i].f;
+  $("gx").textContent = "g(x) = " + ROUNDS[i].g;
+  renderPicker(); renderCard();
+}
+
+$("nextBtn").onclick = () => {
+  const k = S[cur].findIndex(s => !(s.aDone && s.bDone));
+  if (k >= 0) { card = k; renderCard(); return; }
+  const r = S.findIndex((_, i) => !roundDone(i));
+  if (r >= 0) { selectRound(r); return; }
+  updateCode(); $("code").scrollIntoView({ behavior: "smooth", block: "center" });
+};
+$("checkVal").onclick = checkVal;
+$("val").addEventListener("keydown", e => { if (e.key === "Enter") checkVal(); });
+
+function setPlayers(n) {
+  players = n;
+  $("p3").setAttribute("aria-pressed", n === 3); $("p4").setAttribute("aria-pressed", n === 4);
+  renderTurn();
+}
+$("p3").onclick = () => setPlayers(3);
+$("p4").onclick = () => setPlayers(4);
+
+// pod code
+function codeFor(pod, sec) {
+  const s = pod.trim().toLowerCase().replace(/\s+/g, " ") + "|" + sec.trim().toLowerCase().replace(/\s+/g, " ") + "|a2u2-relay";
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+  const A = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let out = "";
+  for (let i = 0; i < 5; i++) { out += A[h % 32]; h = Math.floor(h / 32) ^ (i * 2654435761 >>> 0); h >>>= 0; }
+  return "OR-" + out;
+}
+function updateCode() {
+  const box = $("code");
+  const all = S.every((_, i) => roundDone(i));
+  if (!all) { box.className = "code"; return; }
+  box.className = "code show";
+  const total = ROUNDS.reduce((t, _, i) => t + roundScore(i), 0);
+  const pod = $("podName").value.trim(), sec = $("section").value.trim();
+  if (usedTeacher) box.innerHTML = "All 6 rounds done. Teacher mode was used on this device, so there is no pod code.";
+  else if (!pod || !sec) box.innerHTML = `All 6 rounds done — score <b>${total} / 96</b>. Type your pod name and class period above to get your code.`;
+  else box.innerHTML = `All 6 rounds done — score <b>${total} / 96</b>.<br>Pod code (one person pastes it in Classroom with the score):<br><strong id="codeText">${codeFor(pod, sec)}</strong>`;
+}
+$("podName").addEventListener("input", updateCode);
+$("section").addEventListener("input", updateCode);
+const tUpd = () => { const p = $("tPod").value, s = $("tSec").value; $("tCode").textContent = p.trim() && s.trim() ? codeFor(p, s) : ""; };
+$("tPod").addEventListener("input", tUpd); $("tSec").addEventListener("input", tUpd);
+$("tmode").addEventListener("change", e => {
+  document.body.classList.toggle("tmode", e.target.checked);
+  if (e.target.checked) usedTeacher = true;
+  updateCode();
+});
+
+renderTurn();
+selectRound(0);
+</script>
+</body>
+</html>
