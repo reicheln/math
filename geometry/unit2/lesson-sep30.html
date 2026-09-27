@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sept 30 — Translations &amp; Rotations</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+ --bg:#0d1620;--panel:#16222e;--panel2:#1d2c3a;--ink:#eef4f9;--muted:#93a8ba;--line:#28394a;
+ --accent:#5aa9e6;--go:#46c07f;--warn:#e8a04a;--red:#ef6b4a;--ghost:#5b6e80;--scale:1}
+:root[data-theme="light"]{--bg:#eef2f6;--panel:#fff;--panel2:#f5f8fb;--ink:#14202b;--muted:#5c6f80;
+ --line:#dbe3ec;--accent:#2e5fa3;--go:#1f7a4d;--warn:#b5651d;--red:#c2451f;--ghost:#9fb0bf}
+*{box-sizing:inherit}html{font-size:calc(16px*var(--scale))}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:"Source Sans 3",system-ui,sans-serif;
+ overflow:hidden;font-size:1rem}
+.app{display:grid;grid-template-rows:auto 1fr auto;height:100%}
+header{display:flex;align-items:center;gap:12px;padding:9px 18px;border-bottom:1px solid var(--line);background:var(--panel)}
+header h1{font-size:1rem;margin:0;font-weight:800;white-space:nowrap}
+header h1 em{font-style:normal;color:var(--accent)}
+.mini{font:inherit;font-size:.83rem;font-weight:600;background:var(--panel2);color:var(--ink);
+ border:1px solid var(--line);border-radius:8px;padding:6px 10px;cursor:pointer}
+.mini:hover{border-color:var(--accent)}
+.spacer{flex:1}
+.sizer{display:inline-flex;align-items:center;gap:5px;background:var(--panel2);border:1px solid var(--line);
+ border-radius:9px;padding:3px 7px}
+.sizer b{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:800}
+.sizer button{padding:2px 8px;font-size:.95rem;line-height:1.2}
+.sizer #sizeVal{font-size:.76rem;font-variant-numeric:tabular-nums;color:var(--muted);min-width:2.9em;text-align:center}
+.counter{font-size:.83rem;color:var(--muted);font-variant-numeric:tabular-nums}
+main{display:grid;grid-template-columns:1fr minmax(300px,390px);min-height:0}
+@media(max-width:900px){main{grid-template-columns:1fr}}
+.stage{padding:14px 20px 0;display:flex;flex-direction:column;min-height:0}
+.title{font-size:clamp(1.3rem,calc(3vw*var(--scale)),2.2rem);font-weight:800;margin:0 0 3px;letter-spacing:-.02em;line-height:1.08}
+.sub{color:var(--muted);font-size:clamp(.85rem,calc(1.3vw*var(--scale)),1.05rem);margin:0 0 8px}
+.canvas{flex:1;min-height:0;display:grid;place-items:center}
+svg{display:block;max-width:100%;max-height:100%;height:auto}
+.side{border-left:1px solid var(--line);background:var(--panel);padding:16px;overflow-y:auto;display:flex;
+ flex-direction:column;gap:12px}
+.note{background:var(--panel2);border:1px solid var(--line);border-left:4px solid var(--go);border-radius:11px;padding:13px 15px}
+.note h3{margin:0 0 7px;font-size:.73rem;text-transform:uppercase;letter-spacing:.1em;color:var(--go);font-weight:800}
+.note .big{font-size:clamp(1.1rem,calc(2.1vw*var(--scale)),1.55rem);font-weight:800;font-variant-numeric:tabular-nums;line-height:1.35}
+.note .sm{font-size:.92rem;color:var(--muted);margin-top:6px;line-height:1.45}
+.coords{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:11px 14px}
+.coords h3{margin:0 0 7px;font-size:.73rem;text-transform:uppercase;letter-spacing:.1em;color:var(--muted);font-weight:800}
+.coords table{width:100%;border-collapse:collapse;font-size:clamp(.92rem,calc(1.5vw*var(--scale)),1.12rem);font-variant-numeric:tabular-nums}
+.coords td{padding:4px 2px}
+.coords td:first-child{font-weight:800;color:var(--accent);width:2.2em}
+.coords td.to{color:var(--muted);width:1.6em;text-align:center}
+.coords tr.off td{opacity:.22}
+.ask{background:color-mix(in srgb,var(--warn) 13%,transparent);border:1px solid var(--warn);
+ border-radius:11px;padding:11px 14px;font-size:clamp(.92rem,calc(1.5vw*var(--scale)),1.1rem);font-weight:600;color:var(--warn)}
+.tn{border-top:2px solid var(--warn);background:color-mix(in srgb,var(--warn) 9%,transparent);
+ padding:7px 20px 9px;font-size:.85rem;color:var(--warn)}
+.tn b{font-size:.7em;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:2px;opacity:.85}
+.tn.hide{display:none}
+footer{display:flex;align-items:center;gap:10px;padding:8px 18px;border-top:1px solid var(--line);background:var(--panel)}
+footer button{font:inherit;font-weight:700;font-size:.88rem;padding:9px 16px;border-radius:9px;cursor:pointer;
+ border:1px solid var(--line);background:var(--panel2);color:var(--ink)}
+footer button.go{background:var(--go);border-color:var(--go);color:#07130d}
+footer button:disabled{opacity:.35;cursor:not-allowed}
+footer .hint{color:var(--muted);font-size:.78rem}
+kbd{background:var(--panel2);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;
+ padding:1px 6px;font-size:.82em;font-weight:700;color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <h1>Wednesday Sept 30 <em>&nbsp;Translations &amp; Rotations</em></h1>
+  <div class="spacer"></div>
+  <span class="counter" id="count"></span>
+  <button class="mini" id="tnBtn" aria-pressed="true" title="Hide the orange strip at the bottom so only the students’ directions show">My notes on</button>
+  <button class="mini" id="themeBtn" title="Switch between the dark screen and a light one">Light</button>
+  <span class="sizer" title="Make everything on screen bigger or smaller. Turn it up for the TVs, down for your laptop.">
+    <b>Text size</b>
+    <button class="mini" id="sizeDn" title="Smaller text">&minus;</button>
+    <span id="sizeVal">100%</span>
+    <button class="mini" id="sizeUp" title="Bigger text">+</button>
+  </span>
+  <button class="mini" id="fsBtn" title="Fill the whole screen — press F, or Esc to come back">Full screen</button>
+</header>
+<main>
+  <section class="stage">
+    <h2 class="title" id="sTitle">&mdash;</h2>
+    <p class="sub" id="sSub"></p>
+    <div class="canvas"><svg id="stage" viewBox="0 0 560 560"></svg></div>
+  </section>
+  <aside class="side" id="side"></aside>
+</main>
+<div class="tn" id="tn"></div>
+<footer>
+  <button id="prev">&larr; Back</button>
+  <button class="go" id="play">&#9654;&nbsp; Play</button>
+  <button id="next">Next &rarr;</button>
+  <span class="hint"><kbd>Space</kbd> play again &nbsp; <kbd>&rarr;</kbd> next &nbsp; <kbd>N</kbd> hide my notes</span>
+</footer>
+</div>
+<script>
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var NS="http://www.w3.org/2000/svg";
+function el(n,a,p){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);
+  if(p)p.appendChild(e);return e}
+var LO=-9,HI=9,V=560;
+function sx(x){return (x-LO)/(HI-LO)*V}
+function sy(y){return V-(y-LO)/(HI-LO)*V}
+function nz(n){var r=Math.round(n*100)/100;return String(r).replace("-","\u2212")}
+function sg(n){return n>=0?"+ "+n:"\u2212 "+Math.abs(n)}
+
+/* ---------------- slides ---------------- */
+var TRI=[["A",-5,1],["B",-2,4],["C",-1,0]];
+var SL=[
+{t:"A translation slides EVERY point the same way",
+ s:"Watch all three corners move together. Nothing turns. Nothing changes size.",
+ kind:"trans", pre:TRI, h:6, k:-3, arrows:true,
+ notes:[{h:"What you are watching",b:"every point moves \u27E86, \u22123\u27E9",
+   s:"Six to the right, three down. The same for A, B and C \u2014 that is what makes it a translation and not something else."}],
+ ask:"Before it moves: which way will the triangle go?",
+ tn:["Play it twice. Second time, ask them to watch ONE vertex only.",
+     "The three arrows staying parallel is the thing to point at."]},
+
+{t:"The rule, written down",
+ s:"This is what goes in your packet on page 2.",
+ kind:"trans", pre:TRI, h:6, k:-3, arrows:true, instant:true,
+ notes:[{h:"Coordinate notation",b:"(x, y) \u2192 (x + 6, y \u2212 3)",
+   s:"h is how far across. k is how far up or down. Add h to every x. Add k to every y."},
+  {h:"Vector notation",b:"\u27E86, \u22123\u27E9",
+   s:"Exactly the same information, written shorter. Across first, then up or down \u2014 always in that order."}],
+ tn:["Have them copy BOTH into the packet. The two notations are one idea, and the test uses both.",
+     "Point at the picture while you say 'six across, three down'."]},
+
+{t:"Example 1",
+ s:"\u25B3ABC translated along \u27E86, \u22123\u27E9",
+ kind:"trans", pre:TRI, h:6, k:-3, arrows:true, table:true,
+ notes:[{h:"The arithmetic",b:"A(\u22125, 1) \u2192 A\u2032(1, \u22122)",
+   s:"\u22125 + 6 = 1.   1 \u2212 3 = \u22122.   Do the same to B and C."}],
+ ask:"Work out A\u2032 on paper before I play it.",
+ tn:["Take two or three answers OUT LOUD before pressing play.",
+     "If someone gets it instantly, ask how \u2014 not whether it is right."]},
+
+{t:"Example 2 \u2014 your turn",
+ s:"\u25B3DEF: D(3, 4)  E(6, 2)  F(4, \u22121)   translated along \u27E8\u22127, 1\u27E9",
+ kind:"trans", pre:[["D",3,4],["E",6,2],["F",4,-1]], h:-7, k:1, arrows:true, table:true,
+ notes:[{h:"Negative h means LEFT",b:"(x, y) \u2192 (x \u2212 7, y + 1)",
+   s:"Seven to the LEFT, one UP. A negative first number always means left."}],
+ ask:"All three image points. Write them down before I play it.",
+ tn:["This is where sign errors show. Ask specifically for D\u2032 \u2014 3 \u2212 7 = \u22124 trips people.",
+     "Answers: D\u2032(\u22124, 5)  E\u2032(\u22121, 3)  F\u2032(\u22123, 0)"]},
+
+{t:"Working backwards",
+ s:"Nobody tells you the rule. Both triangles are given \u2014 find it.",
+ kind:"trans", pre:[["P",1,2],["Q",4,3],["R",2,5]], h:-4, k:3, arrows:true, table:true, backwards:true,
+ notes:[{h:"How to find it",b:"pick ONE vertex and its image",
+   s:"P(1, 2) went to P\u2032(\u22123, 5). From 1 to \u22123 is 4 to the left. From 2 to 5 is 3 up."},
+  {h:"Then check it",b:"\u27E8\u22124, 3\u27E9",
+   s:"Test the same vector on Q and R before you commit. One vertex is a guess; three is an answer."}],
+ ask:"How far across, and how far up? Use P and P\u2032.",
+ tn:["THE second-vertex check is the habit the Oct 9 test rewards. Do not let them skip it.",
+     "This reverse direction is the half of the standard that went untested last year."]},
+
+{t:"A rotation turns every point about a fixed point",
+ s:"The origin stays still. Everything else travels on a circle around it.",
+ kind:"rot", pre:TRI, deg:90, paths:true,
+ notes:[{h:"What you are watching",b:"90\u00B0 counterclockwise about the origin",
+   s:"Each corner sweeps along its own circle. The corner closest to the origin travels the shortest way round."}],
+ ask:"Which quadrant will A end up in?",
+ tn:["Play it slowly. Point at the dotted arcs \u2014 each vertex has its own radius.",
+     "The origin is the ONE point that does not move. Say it while it plays."]},
+
+{t:"The three rotation rules",
+ s:"All about the origin. All counterclockwise.",
+ kind:"rot", pre:TRI, deg:90, paths:true, instant:true,
+ notes:[{h:"Copy all three",b:"90\u00B0 \u2192 (\u2212y, x)\n180\u00B0 \u2192 (\u2212x, \u2212y)\n270\u00B0 \u2192 (y, \u2212x)",
+   s:"Notice 90\u00B0 and 270\u00B0 both SWAP the two numbers. Only the minus sign moves."},
+  {h:"Going clockwise?",b:"90\u00B0 CW = 270\u00B0 CCW",
+   s:"Convert it first, then use the rule. 270\u00B0 CW = 90\u00B0 CCW. 180\u00B0 is the same either way."}],
+ tn:["The error of the week is negating instead of swapping. Say 'swap first, then sign'.",
+     "Make them copy all three plus the clockwise conversions."]},
+
+{t:"Example 3",
+ s:"\u25B3ABC rotated 90\u00B0 counterclockwise about the origin",
+ kind:"rot", pre:TRI, deg:90, paths:true, table:true,
+ notes:[{h:"The arithmetic",b:"A(\u22125, 1) \u2192 A\u2032(\u22121, \u22125)",
+   s:"Rule is (\u2212y, x). Swap to get (1, \u22125), then negate the first: (\u22121, \u22125)."},
+  {h:"Check the quadrant",b:"II \u2192 III",
+   s:"A started in Quadrant II. A quarter turn counterclockwise lands it in Quadrant III. If yours is not there, you negated instead of swapping."}],
+ ask:"A is at (\u22125, 1). Where does it land?",
+ tn:["Answers: A\u2032(\u22121, \u22125)  B\u2032(\u22124, \u22122)  C\u2032(0, \u22121).",
+     "Ask for the WRONG answer first: 'who got (5, \u22121)?' Then show the quadrant check."]},
+
+{t:"Example 4 \u2014 half a turn",
+ s:"\u25B3ABC rotated 180\u00B0 about the origin",
+ kind:"rot", pre:TRI, deg:180, paths:true, table:true,
+ notes:[{h:"The easiest rule",b:"(x, y) \u2192 (\u2212x, \u2212y)",
+   s:"No swapping at all. Just flip both signs. Every point ends up straight through the origin, the same distance out the other side."}],
+ ask:"Half a turn. What happens to the signs?",
+ tn:["Answers: A\u2032(5, \u22121)  B\u2032(2, \u22124)  C\u2032(1, 0).",
+     "180\u00B0 is the one they get right. Use it to build confidence before the clockwise items."]},
+
+{t:"Clockwise is just the long way round",
+ s:"\u25B3ABC rotated 90\u00B0 CLOCKWISE \u2014 which is the same as 270\u00B0 counterclockwise",
+ kind:"rot", pre:TRI, deg:-90, paths:true, table:true,
+ notes:[{h:"Convert first, then use a rule",b:"90\u00B0 CW = 270\u00B0 CCW",
+   s:"There is no clockwise rule. Turn it into a counterclockwise one and then use (y, \u2212x)."},
+  {h:"The arithmetic",b:"A(\u22125, 1) \u2192 A\u2032(1, 5)",
+   s:"Rule (y, \u2212x): swap to (1, \u22125), then negate the second: (1, 5)."}],
+ ask:"Which counterclockwise turn lands in the same place?",
+ tn:["Answers: A\u2032(1, 5)  B\u2032(4, 2)  C\u2032(0, 1).",
+     "Watch it go the OTHER way round the circle and finish in the same spot as a 270\u00B0 CCW turn.",
+     "That visual is the whole argument for the conversion."]}
+];
+
+/* ---------------- drawing ---------------- */
+var idx=0, raf=null, showTN=true;
+function grid(s){
+  for(var v=LO;v<=HI;v++){
+    el("line",{x1:sx(v),y1:sy(LO),x2:sx(v),y2:sy(HI),stroke:"var(--line)","stroke-width":1},s);
+    el("line",{x1:sx(LO),y1:sy(v),x2:sx(HI),y2:sy(v),stroke:"var(--line)","stroke-width":1},s);}
+  el("line",{x1:sx(LO),y1:sy(0),x2:sx(HI),y2:sy(0),stroke:"var(--muted)","stroke-width":2},s);
+  el("line",{x1:sx(0),y1:sy(LO),x2:sx(0),y2:sy(HI),stroke:"var(--muted)","stroke-width":2},s);
+  for(var t=LO+1;t<=HI-1;t++){ if(t===0||t%2)continue;
+    var a=el("text",{x:sx(t),y:sy(0)+15,"text-anchor":"middle","font-size":11,fill:"var(--muted)"},s);
+    a.textContent=nz(t);
+    var b=el("text",{x:sx(0)-7,y:sy(t)+4,"text-anchor":"end","font-size":11,fill:"var(--muted)"},s);
+    b.textContent=nz(t);}
+}
+function tri(s,pts,col,dash,lab,w){
+  var d=pts.map(function(p,i){return (i?"L":"M")+sx(p[0])+" "+sy(p[1])}).join(" ")+" Z";
+  var pa=el("path",{d:d,fill:"none",stroke:col,"stroke-width":w||3,"stroke-linejoin":"round"},s);
+  if(dash)pa.setAttribute("stroke-dasharray",dash);
+  pts.forEach(function(p,i){
+    el("circle",{cx:sx(p[0]),cy:sy(p[1]),r:5,fill:col},s);
+    if(lab){var t=el("text",{x:sx(p[0])+9,y:sy(p[1])-8,"font-size":16,"font-weight":800,fill:col},s);
+      t.textContent=lab[i];}});
+}
+function rot(p,deg){var a=deg*Math.PI/180,c=Math.cos(a),s2=Math.sin(a);
+  return [p[0]*c-p[1]*s2, p[0]*s2+p[1]*c]}
+function ease(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2}
+
+function render(anim){
+  var S=SL[idx], s=$("stage");
+  while(s.firstChild)s.removeChild(s.firstChild);
+  grid(s);
+  var base=S.pre.map(function(p){return [p[1],p[2]]});
+  var labs=S.pre.map(function(p){return p[0]});
+  var endPts = S.kind==="trans"
+    ? base.map(function(p){return [p[0]+S.h,p[1]+S.k]})
+    : base.map(function(p){return rot(p,S.deg)});
+
+  if(S.kind==="rot" && S.paths){
+    base.forEach(function(p){
+      var r=Math.hypot(p[0],p[1]); if(r<.2)return;
+      el("circle",{cx:sx(0),cy:sy(0),r:sx(r)-sx(0),fill:"none",stroke:"var(--ghost)",
+        "stroke-width":1,"stroke-dasharray":"3 5",opacity:.55},s);});
+    el("circle",{cx:sx(0),cy:sy(0),r:7,fill:"none",stroke:"var(--warn)","stroke-width":2.5},s);
+  }
+  if(S.kind==="trans" && S.arrows){
+    base.forEach(function(p,i){
+      el("line",{x1:sx(p[0]),y1:sy(p[1]),x2:sx(endPts[i][0]),y2:sy(endPts[i][1]),
+        stroke:"var(--warn)","stroke-width":2,"stroke-dasharray":"5 5",opacity:.75},s);});
+  }
+  tri(s,base,S.backwards?"var(--ink)":"var(--ghost)",S.backwards?null:null,labs,S.backwards?3:2.5);
+  var moving=el("g",{},s);
+  var ghostEnd = S.instant || S.backwards;
+  if(ghostEnd) tri(s,endPts,"var(--accent)","7 5",labs.map(function(l){return l+"\u2032"}));
+
+  function frame(pts){
+    while(moving.firstChild)moving.removeChild(moving.firstChild);
+    tri(moving,pts,"var(--accent)",null,null);
+  }
+  if(!ghostEnd) frame(base);
+
+  if(anim && !ghostEnd){
+    var t0=null, DUR=1700;
+    cancelAnimationFrame(raf);
+    (function go(ts){
+      if(!t0)t0=ts;
+      var u=Math.min(1,(ts-t0)/DUR), e=ease(u);
+      var cur = S.kind==="trans"
+        ? base.map(function(p){return [p[0]+S.h*e, p[1]+S.k*e]})
+        : base.map(function(p){return rot(p,S.deg*e)});
+      frame(cur);
+      if(u<1) raf=requestAnimationFrame(go);
+      else { tri(s,endPts,"var(--accent)","7 5",labs.map(function(l){return l+"\u2032"})); showRows(true); }
+    })(performance.now());
+    showRows(false);
+  } else if(ghostEnd) showRows(true);
+
+  $("sTitle").textContent=S.t; $("sSub").textContent=S.s;
+  $("count").textContent=(idx+1)+" / "+SL.length;
+  var side=$("side"); side.innerHTML="";
+  if(S.ask){var a=document.createElement("div");a.className="ask";a.textContent=S.ask;side.appendChild(a)}
+  S.notes.forEach(function(n){
+    var d=document.createElement("div"); d.className="note";
+    d.innerHTML="<h3>"+n.h+"</h3><div class='big'>"+n.b.replace(/\n/g,"<br>")+
+      "</div><div class='sm'>"+n.s+"</div>";
+    side.appendChild(d);});
+  if(S.table){
+    var c=document.createElement("div"); c.className="coords"; c.id="coordBox";
+    c.innerHTML="<h3>Where each vertex lands</h3><table>"+
+      labs.map(function(l,i){
+        return "<tr class='off'><td>"+l+"</td><td>("+nz(base[i][0])+", "+nz(base[i][1])+
+        ")</td><td class='to'>\u2192</td><td>"+l+"\u2032 ("+nz(endPts[i][0])+", "+nz(endPts[i][1])+")</td></tr>";
+      }).join("")+"</table>";
+    side.appendChild(c);
+  }
+  var tn=$("tn");
+  if(showTN && S.tn){tn.className="tn";
+    tn.innerHTML="<b>For you</b>"+S.tn.map(function(l){return "<div>"+l+"</div>"}).join("")}
+  else tn.className="tn hide";
+  $("prev").disabled = idx===0; $("next").disabled = idx===SL.length-1;
+  $("play").style.display = (S.instant||S.backwards) ? "none" : "";
+}
+function showRows(on){
+  var c=$("coordBox"); if(!c)return;
+  Array.prototype.forEach.call(c.querySelectorAll("tr"),function(r,i){
+    if(!on){r.className="off";return}
+    setTimeout(function(){r.className=""},i*320);});
+}
+function go(n){idx=Math.max(0,Math.min(SL.length-1,idx+n));render(false);
+  if(!SL[idx].instant&&!SL[idx].backwards)setTimeout(function(){render(true)},260)}
+$("next").addEventListener("click",function(){go(1)});
+$("prev").addEventListener("click",function(){go(-1)});
+$("play").addEventListener("click",function(){render(true)});
+$("tnBtn").addEventListener("click",function(){showTN=!showTN;
+  this.setAttribute("aria-pressed",String(showTN));
+  this.textContent=showTN?"My notes on":"My notes off";render(false)});
+$("themeBtn").addEventListener("click",function(){
+  var on=document.documentElement.getAttribute("data-theme")==="light";
+  document.documentElement.setAttribute("data-theme",on?"dark":"light");
+  this.textContent=on?"Light":"Dark";render(false)});
+var scale=1;
+function setScale(v){scale=Math.max(.75,Math.min(1.7,v));
+  document.documentElement.style.setProperty("--scale",scale)}
+$("sizeUp").addEventListener("click",function(){setScale(scale+.1)});
+$("sizeDn").addEventListener("click",function(){setScale(scale-.1)});
+$("fsBtn").addEventListener("click",function(){
+  if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen()});
+document.addEventListener("keydown",function(e){
+  if(e.code==="Space"){e.preventDefault();render(true)}
+  if(e.key==="ArrowRight")go(1);
+  if(e.key==="ArrowLeft")go(-1);
+  if(e.key==="n"||e.key==="N")$("tnBtn").click();
+  if(e.key==="f"||e.key==="F")$("fsBtn").click()});
+try{var sc=parseFloat(localStorage.getItem("u2scale")); if(sc)setScale(sc);}catch(e){}
+render(false); setTimeout(function(){render(true)},400);
+})();
+</script>
+</body>
+</html>

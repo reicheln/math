@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Transformations Explorer — Unit 2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+ --paper:#f4f6f9;--panel:#fff;--ink:#15222d;--muted:#5e6f7e;--line:#dde5ed;--grid:#e3eaf1;--axis:#93a6b5;
+ --pre:#1b2530;--img:#2e5fa3;--accent:#2e5fa3;--ok:#1f7a4d;--warn:#b5651d;--r:12px}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#0f1821;--panel:#17232e;--ink:#e7eef4;
+ --muted:#9bb0c0;--line:#26343f;--grid:#22303a;--axis:#50677a;--pre:#e7eef4;--img:#7fb0e8;
+ --accent:#7fb0e8;--ok:#5cc48a;--warn:#e0a35c}}
+:root[data-theme="dark"]{--paper:#0f1821;--panel:#17232e;--ink:#e7eef4;--muted:#9bb0c0;--line:#26343f;
+ --grid:#22303a;--axis:#50677a;--pre:#e7eef4;--img:#7fb0e8;--accent:#7fb0e8;--ok:#5cc48a;--warn:#e0a35c}
+*{box-sizing:inherit}html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:"Source Sans 3",system-ui,sans-serif;font-size:16px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding:18px 16px 60px}
+h1{font-size:1.5rem;margin:0 0 3px;font-weight:700;letter-spacing:-.01em}
+h1 span{color:var(--muted);font-weight:400;font-size:1rem}
+.sub{color:var(--muted);font-size:.92rem;margin:0 0 16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;margin-bottom:16px}
+.card h2{font-size:1.05rem;margin:0 0 10px;font-weight:600}
+.grid2{display:grid;grid-template-columns:minmax(300px,1fr) minmax(280px,340px);gap:18px;align-items:start}
+@media(max-width:820px){.grid2{grid-template-columns:1fr}}
+svg{display:block;width:100%;height:auto}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px}
+.seg button{flex:1 1 auto;font:inherit;font-size:.86rem;font-weight:600;padding:8px 10px;cursor:pointer;
+ border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:8px}
+.seg button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+.ctl label{display:flex;justify-content:space-between;font-size:.9rem;font-weight:600;margin-bottom:5px}
+.ctl label b{font-variant-numeric:tabular-nums;color:var(--accent)}
+.ctl{margin-bottom:12px}
+input[type=range]{width:100%;accent-color:var(--accent);height:26px}
+.rule{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:13px 15px;margin-top:6px}
+.rule .k{font-size:.74rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);font-weight:700}
+.rule .v{font-size:1.24rem;font-weight:700;font-variant-numeric:tabular-nums;margin-top:2px}
+table{width:100%;border-collapse:collapse;font-size:.92rem;margin-top:10px}
+th,td{text-align:left;padding:6px 9px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+th{font-size:.78rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+.btn{font:inherit;font-weight:600;font-size:.9rem;padding:9px 15px;border-radius:9px;cursor:pointer;
+ border:1px solid var(--accent);background:var(--accent);color:#fff}
+.btn.ghost{background:transparent;color:var(--accent)}
+input[type=number]{font:inherit;padding:7px 9px;border:1px solid var(--line);border-radius:8px;
+ background:var(--paper);color:var(--ink);width:78px;text-align:center}
+.qrow{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:8px 0}
+.verdict{font-weight:600;font-size:.93rem;min-height:1.4em;margin-top:8px}
+.verdict.good{color:var(--ok)}.verdict.off{color:var(--warn)}
+.legend{display:flex;gap:14px;flex-wrap:wrap;font-size:.84rem;color:var(--muted);margin-top:7px}
+.legend i{display:inline-block;width:20px;border-top:3px solid;margin-right:5px;vertical-align:4px}
+.score{font-size:.86rem;color:var(--muted)}
+.code{font-family:ui-monospace,Menlo,monospace;font-size:1.25rem;font-weight:700;letter-spacing:.1em;
+ color:var(--ok);padding:11px;background:var(--paper);border-radius:9px;text-align:center;margin-top:10px}
+.hidden{display:none!important}
+.hint{font-size:.87rem;color:var(--muted);margin-top:8px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Transformations Explorer <span>· change the numbers, watch the rule</span></h1>
+<p class="sub">Geometry · Unit 2 — the figure is the same every time. Only the rule changes.</p>
+
+<div class="seg" id="shapes" style="margin-bottom:8px">
+  <button data-s="tri" aria-pressed="true">Triangle</button>
+  <button data-s="quad" aria-pressed="false">Quadrilateral</button>
+  <button data-s="L" aria-pressed="false">L-shape</button>
+</div>
+
+<div class="seg" id="modes">
+  <button data-m="t" aria-pressed="true">Translation</button>
+  <button data-m="r" aria-pressed="false">Reflection</button>
+  <button data-m="o" aria-pressed="false">Rotation</button>
+  <button data-m="d" aria-pressed="false">Dilation</button>
+  <button data-m="c" aria-pressed="false">Composition</button>
+</div>
+
+<div class="grid2">
+  <div class="card" style="padding:12px">
+    <svg id="stage" viewBox="0 0 520 520" role="img" aria-label="Coordinate plane"></svg>
+    <div class="legend">
+      <span><i style="border-color:var(--pre)"></i>pre-image</span>
+      <span><i style="border-color:var(--img);border-top-style:dashed"></i>image</span>
+    </div>
+  </div>
+
+  <div>
+    <div class="card" style="margin-bottom:14px">
+      <h2 id="ctlTitle">Move it</h2>
+      <div id="controls"></div>
+      <div class="rule">
+        <div class="k">The rule</div><div class="v" id="ruleTxt">—</div>
+      </div>
+      <div class="rule" id="extraBox">
+        <div class="k" id="extraK">As a vector</div><div class="v" id="extraTxt">—</div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Where each vertex lands</h2>
+      <table id="tbl"></table>
+      <p class="hint" id="hint"></p>
+    </div>
+  </div>
+</div>
+
+
+<div id="compPanel" class="hidden">
+ <div class="grid2">
+  <div class="card" style="padding:12px">
+    <svg id="cstage" viewBox="0 0 520 520" role="img" aria-label="Coordinate plane"></svg>
+    <div class="legend">
+      <span><i style="border-color:var(--pre)"></i>pre-image  A</span>
+      <span><i style="border-color:#e0a35c;border-top-style:dashed"></i>first image  A′</span>
+      <span><i style="border-color:var(--img)"></i>second image  A″</span>
+    </div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn" id="cplay">&#9654; Play both steps</button>
+    </div>
+  </div>
+  <div>
+    <div class="card" style="margin-bottom:14px">
+      <h2>Step 1</h2>
+      <div id="cstep1"></div>
+      <div class="rule"><div class="k">Step 1 rule</div><div class="v" id="crule1">—</div></div>
+    </div>
+    <div class="card" style="margin-bottom:14px">
+      <h2>Step 2 <span style="font-weight:400;color:var(--muted);font-size:.85rem">— acts on the FIRST IMAGE, not the original</span></h2>
+      <div id="cstep2"></div>
+      <div class="rule"><div class="k">Step 2 rule</div><div class="v" id="crule2">—</div></div>
+    </div>
+    <div class="card">
+      <h2>Where each vertex lands</h2>
+      <table id="ctbl"></table>
+    </div>
+  </div>
+ </div>
+</div>
+
+<div class="card" id="quizCard">
+  <h2>Now without the picture</h2>
+  <p class="hint" style="margin-top:0">Five problems. Work them on paper first — the grid above will not show you the answer.</p>
+  <div id="quiz"></div>
+  <button class="btn" id="check">Check</button>
+  <button class="btn ghost" id="newSet">New set</button>
+  <span class="score" id="score"></span>
+  <div class="verdict" id="qv"></div>
+  <div class="code hidden" id="code"></div>
+</div>
+
+</div>
+<script>
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var SVGNS="http://www.w3.org/2000/svg";
+function el(n,a){var e=document.createElementNS(SVGNS,n);for(var k in a)e.setAttribute(k,a[k]);return e}
+
+var SHAPES={
+  tri:{n:"Triangle",  pts:[["A",2,1],["B",6,2],["C",4,5]]},
+  quad:{n:"Quadrilateral", pts:[["A",1,1],["B",5,2],["C",6,5],["D",2,4]]},
+  L:{n:"The L",      pts:[["A",1,1],["B",4,1],["C",4,2],["D",2,2],["E",2,4],["F",1,4]]}
+};
+var shape="tri";
+function TRIpts(){return SHAPES[shape].pts}
+var LO=-8,HI=8,VIEW=520;
+function fitWindow(){
+  var all=TRIpts().map(function(v){return [v[1],v[2]]});
+  all=all.concat(all.map(apply));
+  var m=8;
+  all.forEach(function(p){m=Math.max(m,Math.abs(p[0]),Math.abs(p[1]))});
+  m=Math.ceil(m/2)*2; LO=-m; HI=m;
+}
+function sx(x){return (x-LO)/(HI-LO)*VIEW}
+function sy(y){return VIEW-(y-LO)/(HI-LO)*VIEW}
+function neat(n){return (Math.round(n*100)/100).toString().replace("-","\u2212")}
+
+var mode="t", P={h:3,k:-2,line:"x",ang:90,dir:1,k2:2,cx:0,cy:0};
+
+/* ---------- the four maps ---------- */
+function apply(p){
+  var x=p[0],y=p[1];
+  if(mode==="t") return [x+P.h, y+P.k];
+  if(mode==="r"){
+    if(P.line==="x") return [x,-y];
+    if(P.line==="y") return [-x,y];
+    if(P.line==="yx") return [y,x];
+    return [-y,-x];
+  }
+  if(mode==="o"){
+    var a=((P.ang*P.dir)%360+360)%360;
+    var u=x-P.cx, v=y-P.cy, r;
+    if(a===90) r=[-v,u]; else if(a===180) r=[-u,-v];
+    else if(a===270) r=[v,-u]; else r=[u,v];
+    return [r[0]+P.cx, r[1]+P.cy];
+  }
+  return [P.cx+P.k2*(x-P.cx), P.cy+P.k2*(y-P.cy)];
+}
+function ruleText(){
+  if(mode==="t"){
+    var a=P.h>=0?"x + "+P.h:"x \u2212 "+Math.abs(P.h);
+    var b=P.k>=0?"y + "+P.k:"y \u2212 "+Math.abs(P.k);
+    return "(x, y) \u2192 ("+a+", "+b+")";
+  }
+  if(mode==="r") return {x:"(x, y) \u2192 (x, \u2212y)",y:"(x, y) \u2192 (\u2212x, y)",
+    yx:"(x, y) \u2192 (y, x)",ynx:"(x, y) \u2192 (\u2212y, \u2212x)"}[P.line];
+  if(mode==="o"){
+    var a=((P.ang*P.dir)%360+360)%360;
+    var base={0:"(x, y) \u2192 (x, y)",90:"(x, y) \u2192 (\u2212y, x)",
+      180:"(x, y) \u2192 (\u2212x, \u2212y)",270:"(x, y) \u2192 (y, \u2212x)"}[a];
+    if(P.cx===0&&P.cy===0) return base;
+    return "no simple rule \u2014 the center is not the origin";
+  }
+  if(P.cx===0&&P.cy===0) return "(x, y) \u2192 ("+neat(P.k2)+"x, "+neat(P.k2)+"y)";
+  return "no simple rule \u2014 the center is not the origin";
+}
+function extraText(){
+  if(mode==="t") return ["As a vector","\u27E8"+P.h+", "+P.k+"\u27E9"];
+  if(mode==="r") return ["Line of reflection",
+    {x:"the x-axis",y:"the y-axis",yx:"y = x",ynx:"y = \u2212x"}[P.line]];
+  if(mode==="o"){
+    var a=((P.ang*P.dir)%360+360)%360;
+    var said=P.ang+"\u00B0 "+(P.dir>0?"counterclockwise":"clockwise");
+    var about=" about ("+neat(P.cx)+", "+neat(P.cy)+")";
+    return ["What you turned", said+about+(P.dir<0&&a!==180&&a!==0?"   =  "+a+"\u00B0 CCW":"")];
+  }
+  return ["Scale factor", "k = "+neat(P.k2)+" about ("+neat(P.cx)+", "+neat(P.cy)+")"+
+    (P.k2>1?"  \u2014 enlargement":P.k2<1?"  \u2014 reduction":"")];
+}
+function hintText(){
+  if(mode==="t") return "Every vertex moves by the same amount \u2014 three of them, four, or six. Switch to the L and watch: the rule does not care how many corners there are.";
+  if(mode==="r") return "Fold along the line and the two figures land on each other. Check the orientation \u2014 A\u2192B\u2192C now runs the other way.";
+  if(mode==="o") return P.cx===0&&P.cy===0
+    ? "Watch the quadrants. A quarter turn counterclockwise takes Quadrant I to Quadrant II."
+    : "Move the center off the origin and the tidy rule stops working. Trick: write the vector from the center to each vertex, turn THAT, then add it back onto the center.";
+  return "The origin, each vertex and its image all sit on one straight line. Angles are unchanged; only the size moved.";
+}
+
+/* ---------- draw ---------- */
+function draw(){
+  fitWindow();
+  var s=$("stage"); while(s.firstChild) s.removeChild(s.firstChild);
+  for(var v=LO;v<=HI;v++){
+    s.appendChild(el("line",{x1:sx(v),y1:sy(LO),x2:sx(v),y2:sy(HI),stroke:"var(--grid)","stroke-width":1}));
+    s.appendChild(el("line",{x1:sx(LO),y1:sy(v),x2:sx(HI),y2:sy(v),stroke:"var(--grid)","stroke-width":1}));
+  }
+  s.appendChild(el("line",{x1:sx(LO),y1:sy(0),x2:sx(HI),y2:sy(0),stroke:"var(--axis)","stroke-width":1.6}));
+  s.appendChild(el("line",{x1:sx(0),y1:sy(LO),x2:sx(0),y2:sy(HI),stroke:"var(--axis)","stroke-width":1.6}));
+  var stp=(HI-LO)>24?4:2;
+  for(var t=LO+stp;t<=HI-stp;t+=stp){ if(t===0)continue;
+    var a=el("text",{x:sx(t),y:sy(0)+13,"text-anchor":"middle","font-size":10,fill:"var(--muted)"});
+    a.textContent=neat(t); s.appendChild(a);
+    var b=el("text",{x:sx(0)-6,y:sy(t)+4,"text-anchor":"end","font-size":10,fill:"var(--muted)"});
+    b.textContent=neat(t); s.appendChild(b);
+  }
+  if(mode==="r"){
+    var L={x:[[LO,0],[HI,0]],y:[[0,LO],[0,HI]],yx:[[LO,LO],[HI,HI]],ynx:[[LO,HI],[HI,LO]]}[P.line];
+    s.appendChild(el("line",{x1:sx(L[0][0]),y1:sy(L[0][1]),x2:sx(L[1][0]),y2:sy(L[1][1]),
+      stroke:"var(--warn)","stroke-width":2.5,"stroke-dasharray":"7 4"}));
+  }
+  if(mode==="o"||mode==="d"){
+    s.appendChild(el("circle",{cx:sx(P.cx),cy:sy(P.cy),r:6,fill:"none",stroke:"var(--warn)","stroke-width":2.4}));
+    var cl=el("text",{x:sx(P.cx)+9,y:sy(P.cy)+14,"font-size":11,"font-weight":700,fill:"var(--warn)"});
+    cl.textContent="center ("+neat(P.cx)+", "+neat(P.cy)+")"; s.appendChild(cl);
+  }
+
+  var img=TRIpts().map(function(v){return apply([v[1],v[2]])});
+  if(mode==="d") img.forEach(function(q,i){
+    s.appendChild(el("line",{x1:sx(P.cx),y1:sy(P.cy),x2:sx(q[0]),y2:sy(q[1]),
+      stroke:"var(--warn)","stroke-width":1,"stroke-dasharray":"3 4",opacity:.7}));
+  });
+  poly(s,TRIpts().map(function(v){return [v[1],v[2]]}),"var(--pre)",null,
+       TRIpts().map(function(v){return v[0]}));
+  poly(s,img,"var(--img)","6 4",TRIpts().map(function(v){return v[0]+"\u2032"}));
+
+  $("ruleTxt").textContent=ruleText();
+  var ex=extraText(); $("extraK").textContent=ex[0]; $("extraTxt").textContent=ex[1];
+  $("tbl").innerHTML="<tr><th>Vertex</th><th>Before</th><th>After</th></tr>"+
+    TRIpts().map(function(v,i){
+      return "<tr><td>"+v[0]+"</td><td>("+neat(v[1])+", "+neat(v[2])+")</td><td><b>"+
+        v[0]+"\u2032 ("+neat(img[i][0])+", "+neat(img[i][1])+")</b></td></tr>";
+    }).join("");
+  $("hint").textContent=hintText();
+}
+function poly(s,pts,col,dash,labels){
+  var d=pts.map(function(p,i){return (i?"L":"M")+sx(p[0])+" "+sy(p[1])}).join(" ")+" Z";
+  var pa=el("path",{d:d,fill:"none",stroke:col,"stroke-width":2.4,"stroke-linejoin":"round"});
+  if(dash)pa.setAttribute("stroke-dasharray",dash);
+  s.appendChild(pa);
+  pts.forEach(function(p,i){
+    s.appendChild(el("circle",{cx:sx(p[0]),cy:sy(p[1]),r:3.6,fill:col}));
+    var t=el("text",{x:sx(p[0])+7,y:sy(p[1])-6,"font-size":12,"font-weight":700,fill:col});
+    t.textContent=labels[i]; s.appendChild(t);
+  });
+}
+
+/* ---------- controls ---------- */
+function slider(id,label,min,max,step,val,fmt){
+  return '<div class="ctl"><label for="'+id+'">'+label+' <b id="'+id+'v">'+fmt(val)+
+    '</b></label><input type="range" id="'+id+'" min="'+min+'" max="'+max+'" step="'+step+'" value="'+val+'"></div>';
+}
+function buildControls(){
+  var c=$("controls"), html="";
+  if(mode==="t"){
+    $("ctlTitle").textContent="Slide it";
+    html=slider("h","Horizontal  h",-8,8,1,P.h,function(v){return v>=0?"+"+v:"\u2212"+Math.abs(v)})+
+         slider("k","Vertical  k",-8,8,1,P.k,function(v){return v>=0?"+"+v:"\u2212"+Math.abs(v)});
+  } else if(mode==="r"){
+    $("ctlTitle").textContent="Flip it";
+    html='<div class="seg" id="lineSeg">'+
+      [["x","the x-axis"],["y","the y-axis"],["yx","y = x"],["ynx","y = \u2212x"]].map(function(o){
+        return '<button data-l="'+o[0]+'" aria-pressed="'+(P.line===o[0])+'">'+o[1]+'</button>';
+      }).join("")+'</div>';
+  } else if(mode==="o"){
+    $("ctlTitle").textContent="Turn it";
+    html='<div class="seg" id="angSeg">'+[0,90,180,270].map(function(a){
+        return '<button data-a="'+a+'" aria-pressed="'+(P.ang===a)+'">'+a+'\u00B0</button>';
+      }).join("")+'</div>'+
+      '<div class="seg" id="dirSeg">'+[[1,"counterclockwise"],[-1,"clockwise"]].map(function(o){
+        return '<button data-d="'+o[0]+'" aria-pressed="'+(P.dir===o[0])+'">'+o[1]+'</button>';
+      }).join("")+'</div>'
+      + slider("cx","Center  x",-5,5,1,P.cx,function(v){return neat(v)})
+      + slider("cy","Center  y",-5,5,1,P.cy,function(v){return neat(v)});
+  } else {
+    $("ctlTitle").textContent="Resize it";
+    html=slider("k2","Scale factor  k",0.5,3,0.5,P.k2,function(v){return "\u00D7"+neat(v)})
+      + slider("cx","Center  x",-5,5,1,P.cx,function(v){return neat(v)})
+      + slider("cy","Center  y",-5,5,1,P.cy,function(v){return neat(v)});
+  }
+  c.innerHTML=html;
+  ["h","k","k2","cx","cy"].forEach(function(id){
+    var e=$(id); if(!e)return;
+    e.addEventListener("input",function(){
+      P[id]=Number(this.value);
+      var f=id==="k2"?function(v){return "\u00D7"+neat(v)}
+        :(id==="cx"||id==="cy")?function(v){return neat(v)}
+        :function(v){return v>=0?"+"+v:"\u2212"+Math.abs(v)};
+      $(id+"v").textContent=f(P[id]); draw();
+    });
+  });
+  wireSeg("lineSeg","l",function(v){P.line=v});
+  wireSeg("angSeg","a",function(v){P.ang=Number(v)});
+  wireSeg("dirSeg","d",function(v){P.dir=Number(v)});
+}
+function wireSeg(id,attr,set){
+  var box=$(id); if(!box)return;
+  Array.prototype.forEach.call(box.children,function(b){
+    b.addEventListener("click",function(){
+      Array.prototype.forEach.call(box.children,function(o){o.setAttribute("aria-pressed","false")});
+      this.setAttribute("aria-pressed","true"); set(this.getAttribute("data-"+attr)); draw();
+    });
+  });
+}
+Array.prototype.forEach.call($("shapes").children,function(b){
+  b.addEventListener("click",function(){
+    Array.prototype.forEach.call($("shapes").children,function(o){o.setAttribute("aria-pressed","false")});
+    this.setAttribute("aria-pressed","true"); shape=this.getAttribute("data-s"); draw();
+  });
+});
+Array.prototype.forEach.call($("modes").children,function(b){
+  b.addEventListener("click",function(){
+    Array.prototype.forEach.call($("modes").children,function(o){o.setAttribute("aria-pressed","false")});
+    this.setAttribute("aria-pressed","true"); mode=this.getAttribute("data-m");
+    if(mode==="t"||mode==="r"){P.cx=0;P.cy=0;}
+    $("extraBox").style.display="block";
+    buildControls(); draw(); makeQuiz();
+  });
+});
+
+/* ---------- quiz ---------- */
+var QS=[];
+function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+function makeQuiz(){
+  QS=[];
+  for(var i=0;i<5;i++){
+    var x=rnd(-6,6), y=rnd(-6,6), q;
+    if(mode==="t"){
+      var h=rnd(-6,6),k=rnd(-6,6);
+      q={txt:"("+neat(x)+", "+neat(y)+") translated by \u27E8"+h+", "+k+"\u27E9",a:[x+h,y+k]};
+    } else if(mode==="r"){
+      var ls=[["the x-axis",[x,-y]],["the y-axis",[-x,y]],["y = x",[y,x]],["y = \u2212x",[-y,-x]]];
+      var p=ls[rnd(0,3)];
+      q={txt:"("+neat(x)+", "+neat(y)+") reflected over "+p[0],a:p[1]};
+    } else if(mode==="o"){
+      var os=[["90\u00B0 counterclockwise",[-y,x]],["180\u00B0",[-x,-y]],
+              ["270\u00B0 counterclockwise",[y,-x]],["90\u00B0 clockwise",[y,-x]]];
+      var o=os[rnd(0,3)];
+      q={txt:"("+neat(x)+", "+neat(y)+") rotated "+o[0]+" about the origin",a:o[1]};
+    } else {
+      var kk=[0.5,2,3][rnd(0,2)];
+      q={txt:"("+neat(x)+", "+neat(y)+") dilated about the origin by k = "+neat(kk),a:[kk*x,kk*y]};
+    }
+    QS.push(q);
+  }
+  $("quiz").innerHTML=QS.map(function(q,i){
+    return '<div class="qrow"><span style="min-width:22px;font-weight:700">'+(i+1)+'.</span>'+
+      '<span style="flex:1;min-width:230px">'+q.txt+'</span>'+
+      '<span>(</span><input type="number" step="any" data-i="'+i+'" data-c="0">'+
+      '<span>,</span><input type="number" step="any" data-i="'+i+'" data-c="1"><span>)</span></div>';
+  }).join("");
+  $("qv").textContent=""; $("score").textContent=""; $("code").classList.add("hidden");
+}
+$("newSet").addEventListener("click",makeQuiz);
+$("check").addEventListener("click",function(){
+  var ins=$("quiz").querySelectorAll("input"), got={}, blank=false;
+  ins.forEach(function(inp){
+    var i=inp.getAttribute("data-i"), c=inp.getAttribute("data-c");
+    if(inp.value===""){blank=true;return}
+    got[i]=got[i]||[]; got[i][c]=Number(inp.value);
+  });
+  if(blank){$("qv").className="verdict off";$("qv").textContent="Fill in all ten boxes first.";return}
+  var right=0;
+  QS.forEach(function(q,i){
+    var ok=Math.abs(got[i][0]-q.a[0])<1e-6 && Math.abs(got[i][1]-q.a[1])<1e-6;
+    if(ok)right++;
+    $("quiz").querySelectorAll('[data-i="'+i+'"]').forEach(function(inp){
+      inp.style.borderColor= ok?"var(--ok)":"var(--warn)";
+    });
+  });
+  $("score").textContent=right+" / 5";
+  var v=$("qv");
+  if(right===5){
+    v.className="verdict good"; v.textContent="All five. Try a different transformation, or a new set.";
+    $("code").textContent="U2-EXPL-"+({t:"TR",r:"RF",o:"RO",d:"DI"}[mode])+"-"+(3100+right*11);
+    $("code").classList.remove("hidden");
+  } else {
+    v.className="verdict off";
+    v.textContent=right+" of 5. Set the sliders above to match a wrong one and see where it actually lands.";
+  }
+});
+
+buildControls(); draw(); makeQuiz();
+})();
+</script>
+
+<script>
+/* ---------- Composition tab: two transformations in a row ---------- */
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var NS="http://www.w3.org/2000/svg";
+function el(n,a){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);return e}
+var PRE=[["A",2,1],["B",6,2],["C",4,5]];
+var S=[{type:"t",h:0,k:-4,line:"y",ang:90,dir:1},{type:"r",h:0,k:0,line:"x",ang:90,dir:1}];
+var LO=-10,HI=10,V=520;
+function sx(x){return (x-LO)/(HI-LO)*V} function sy(y){return V-(y-LO)/(HI-LO)*V}
+function nz(n){var r=Math.round(n*100)/100;return String(r).replace("-","\u2212")}
+function apply(st,p){
+  var x=p[0],y=p[1];
+  if(st.type==="t") return [x+st.h,y+st.k];
+  if(st.type==="r"){
+    if(st.line==="x") return [x,-y]; if(st.line==="y") return [-x,y];
+    if(st.line==="yx") return [y,x]; return [-y,-x];
+  }
+  var a=((st.ang*st.dir)%360+360)%360;
+  if(a===90) return [-y,x]; if(a===180) return [-x,-y]; if(a===270) return [y,-x]; return [x,y];
+}
+function ruleOf(st){
+  if(st.type==="t"){
+    var a=st.h>=0?"x + "+st.h:"x \u2212 "+Math.abs(st.h), b=st.k>=0?"y + "+st.k:"y \u2212 "+Math.abs(st.k);
+    return "translate:  (x, y) \u2192 ("+a+", "+b+")";
+  }
+  if(st.type==="r") return "reflect over "+{x:"the x-axis",y:"the y-axis",yx:"y = x",ynx:"y = \u2212x"}[st.line]+
+    ":  (x, y) \u2192 "+{x:"(x, \u2212y)",y:"(\u2212x, y)",yx:"(y, x)",ynx:"(\u2212y, \u2212x)"}[st.line];
+  var a=((st.ang*st.dir)%360+360)%360;
+  return "rotate "+st.ang+"\u00B0 "+(st.dir>0?"counterclockwise":"clockwise")+
+    ":  (x, y) \u2192 "+{90:"(\u2212y, x)",180:"(\u2212x, \u2212y)",270:"(y, \u2212x)",0:"(x, y)"}[a];
+}
+function controls(i){
+  var st=S[i], box=$("cstep"+(i+1));
+  var h='<div class="seg" style="margin-bottom:8px">'+
+    [["t","Translate"],["r","Reflect"],["o","Rotate"]].map(function(o){
+      return '<button data-ty="'+o[0]+'" aria-pressed="'+(st.type===o[0])+'">'+o[1]+'</button>'}).join("")+'</div>';
+  if(st.type==="t"){
+    h+='<div class="ctl"><label>h <b>'+st.h+'</b></label><input type="range" data-p="h" min="-8" max="8" step="1" value="'+st.h+'"></div>'+
+       '<div class="ctl"><label>k <b>'+st.k+'</b></label><input type="range" data-p="k" min="-8" max="8" step="1" value="'+st.k+'"></div>';
+  } else if(st.type==="r"){
+    h+='<div class="seg">'+[["x","x-axis"],["y","y-axis"],["yx","y = x"],["ynx","y = \u2212x"]].map(function(o){
+      return '<button data-ln="'+o[0]+'" aria-pressed="'+(st.line===o[0])+'">'+o[1]+'</button>'}).join("")+'</div>';
+  } else {
+    h+='<div class="seg" style="margin-bottom:6px">'+[90,180,270].map(function(a){
+      return '<button data-an="'+a+'" aria-pressed="'+(st.ang===a)+'">'+a+'\u00B0</button>'}).join("")+'</div>'+
+      '<div class="seg">'+[[1,"counterclockwise"],[-1,"clockwise"]].map(function(o){
+      return '<button data-dr="'+o[0]+'" aria-pressed="'+(st.dir===o[0])+'">'+o[1]+'</button>'}).join("")+'</div>';
+  }
+  box.innerHTML=h;
+  box.querySelectorAll("[data-ty]").forEach(function(b){b.onclick=function(){st.type=this.dataset.ty;controls(i);draw()}});
+  box.querySelectorAll("[data-p]").forEach(function(r){r.oninput=function(){st[this.dataset.p]=+this.value;
+    this.previousElementSibling.querySelector("b").textContent=this.value;draw()}});
+  box.querySelectorAll("[data-ln]").forEach(function(b){b.onclick=function(){st.line=this.dataset.ln;controls(i);draw()}});
+  box.querySelectorAll("[data-an]").forEach(function(b){b.onclick=function(){st.ang=+this.dataset.an;controls(i);draw()}});
+  box.querySelectorAll("[data-dr]").forEach(function(b){b.onclick=function(){st.dir=+this.dataset.dr;controls(i);draw()}});
+}
+function poly(svg,pts,col,dash,lab,w){
+  var d=pts.map(function(p,i){return (i?"L":"M")+sx(p[0])+" "+sy(p[1])}).join(" ")+" Z";
+  var pa=el("path",{d:d,fill:"none",stroke:col,"stroke-width":w||2.4,"stroke-linejoin":"round"});
+  if(dash)pa.setAttribute("stroke-dasharray",dash); svg.appendChild(pa);
+  pts.forEach(function(p,i){svg.appendChild(el("circle",{cx:sx(p[0]),cy:sy(p[1]),r:4,fill:col}));
+    if(lab){var t=el("text",{x:sx(p[0])+7,y:sy(p[1])-6,"font-size":13,"font-weight":700,fill:col});t.textContent=lab[i];svg.appendChild(t);}});
+}
+var raf=null;
+function draw(anim){
+  var svg=$("cstage"); while(svg.firstChild)svg.removeChild(svg.firstChild);
+  var base=PRE.map(function(v){return [v[1],v[2]]}), L=PRE.map(function(v){return v[0]});
+  var one=base.map(function(p){return apply(S[0],p)}), two=one.map(function(p){return apply(S[1],p)});
+  for(var v=LO;v<=HI;v++){
+    svg.appendChild(el("line",{x1:sx(v),y1:sy(LO),x2:sx(v),y2:sy(HI),stroke:"var(--grid,#dde5ed)","stroke-width":1}));
+    svg.appendChild(el("line",{x1:sx(LO),y1:sy(v),x2:sx(HI),y2:sy(v),stroke:"var(--grid,#dde5ed)","stroke-width":1}));}
+  svg.appendChild(el("line",{x1:sx(LO),y1:sy(0),x2:sx(HI),y2:sy(0),stroke:"#556","stroke-width":1.6}));
+  svg.appendChild(el("line",{x1:sx(0),y1:sy(LO),x2:sx(0),y2:sy(HI),stroke:"#556","stroke-width":1.6}));
+  poly(svg,base,"var(--pre,#1e3a5f)",null,L,2.6);
+  if(!anim){
+    poly(svg,one,"#e0a35c","6 4",L.map(function(x){return x+"\u2032"}));
+    poly(svg,two,"var(--img,#2e7d32)",null,L.map(function(x){return x+"\u2033"}),2.6);
+  }
+  $("crule1").textContent=ruleOf(S[0]); $("crule2").textContent=ruleOf(S[1]);
+  $("ctbl").innerHTML="<tr><th>Vertex</th><th>Pre-image</th><th>First image</th><th>Second image</th></tr>"+
+    L.map(function(n,i){return "<tr><td><b>"+n+"</b></td><td>("+nz(base[i][0])+", "+nz(base[i][1])+")</td><td>"+
+      n+"\u2032 ("+nz(one[i][0])+", "+nz(one[i][1])+")</td><td>"+n+"\u2033 ("+nz(two[i][0])+", "+nz(two[i][1])+")</td></tr>"}).join("");
+  if(anim){
+    var g=el("g",{}); svg.appendChild(g); var t0=null;
+    cancelAnimationFrame(raf);
+    (function go(ts){ if(!t0)t0=ts; var u=Math.min(1,(ts-t0)/2600);
+      while(g.firstChild)g.removeChild(g.firstChild);
+      var cur;
+      if(u<0.5){var e=u*2; cur=base.map(function(p,i){return [p[0]+(one[i][0]-p[0])*e,p[1]+(one[i][1]-p[1])*e]});}
+      else { poly(g,one,"#e0a35c","6 4",null); var e2=(u-0.5)*2;
+             cur=one.map(function(p,i){return [p[0]+(two[i][0]-p[0])*e2,p[1]+(two[i][1]-p[1])*e2]}); }
+      poly(g,cur,"var(--img,#2e7d32)",null,null,2.6);
+      if(u<1) raf=requestAnimationFrame(go); else draw(false);
+    })(performance.now());
+  }
+}
+function show(on){
+  var grid=document.querySelector(".wrap > .grid2"), quiz=$("quizCard"), comp=$("compPanel");
+  if(grid) grid.classList.toggle("hidden",on);
+  if(quiz) quiz.classList.toggle("hidden",on);
+  if(comp) comp.classList.toggle("hidden",!on);
+  var shapes=$("shapes"); if(shapes) shapes.classList.toggle("hidden",on);
+  if(on){controls(0);controls(1);draw();}
+}
+document.querySelectorAll('#modes button').forEach(function(b){
+  b.addEventListener("click",function(){ show(this.getAttribute("data-m")==="c"); });
+});
+$("cplay").addEventListener("click",function(){draw(true)});
+})();
+</script>
+
+</body>
+</html>

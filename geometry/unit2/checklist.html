@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Unit 2 Setup Checklist</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+ --paper:#f4f6f9;--panel:#fff;--ink:#15222d;--muted:#5e6f7e;--line:#dde5ed;
+ --accent:#2e5fa3;--ok:#1f7a4d;--warn:#b5651d;--red:#c2451f;--r:12px}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#0f1821;--panel:#17232e;--ink:#e7eef4;
+ --muted:#9bb0c0;--line:#26343f;--accent:#7fb0e8;--ok:#5cc48a;--warn:#e0a35c;--red:#ff7a52}}
+*{box-sizing:inherit}html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:"Source Sans 3",system-ui,sans-serif;font-size:16px;line-height:1.5}
+.wrap{max-width:900px;margin:0 auto;padding:20px 16px 70px}
+h1{font-size:1.6rem;margin:0 0 3px;letter-spacing:-.015em}
+.sub{color:var(--muted);margin:0 0 16px;font-size:.93rem}
+.bar{position:sticky;top:0;z-index:5;background:var(--paper);padding:10px 0 12px;border-bottom:1px solid var(--line);margin-bottom:16px}
+.track{height:10px;background:var(--panel);border:1px solid var(--line);border-radius:99px;overflow:hidden}
+.track i{display:block;height:100%;background:var(--ok);width:0%;transition:width .3s}
+.barrow{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:7px;gap:10px;flex-wrap:wrap}
+.barrow b{font-size:1.05rem}
+.barrow span{color:var(--muted);font-size:.85rem}
+.barrow button{font:inherit;font-size:.8rem;font-weight:600;padding:5px 11px;border-radius:8px;cursor:pointer;
+ border:1px solid var(--line);background:var(--panel);color:var(--muted)}
+section{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:15px 18px;margin-bottom:15px}
+section h2{font-size:1.06rem;margin:0 0 3px;font-weight:700}
+section .when{font-size:.76rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;
+ padding:2px 9px;border-radius:99px;margin-left:9px;vertical-align:2px}
+.w1{background:var(--red);color:#fff}.w2{background:var(--warn);color:#fff}.w3{background:var(--accent);color:#fff}
+section .lead{color:var(--muted);font-size:.89rem;margin:0 0 11px}
+label.item{display:flex;gap:11px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line);cursor:pointer}
+label.item:first-of-type{border-top:0}
+label.item input{margin:3px 0 0;width:19px;height:19px;accent-color:var(--ok);flex:0 0 auto;cursor:pointer}
+label.item .tx{flex:1;min-width:0}
+label.item .tx b{display:block;font-weight:600}
+label.item .tx span{display:block;color:var(--muted);font-size:.85rem;margin-top:1px}
+label.item.done .tx b{text-decoration:line-through;opacity:.5}
+label.item.done .tx span{opacity:.45}
+code{background:var(--paper);border:1px solid var(--line);padding:1px 6px;border-radius:5px;font-size:.85em}
+.done-tag{font-size:.72rem;font-weight:800;color:var(--ok);letter-spacing:.06em}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Unit 2 — Setup Checklist</h1>
+<p class="sub">Everything that has to exist before September 29. Ticks are saved in this browser.</p>
+
+<div class="bar">
+  <div class="barrow">
+    <b id="count">0 of 0 done</b>
+    <span id="urgent"></span>
+    <button id="reset">Clear all ticks</button>
+  </div>
+  <div class="track"><i id="fill"></i></div>
+</div>
+
+<div id="list"></div>
+
+</div>
+<script>
+(function(){
+"use strict";
+var SECTIONS=[
+{h:"Order this first",w:"w1",when:"do today",
+ lead:"Shipping is the only thing here that can make you miss the 29th.",
+ items:[
+  ["Snap cubes — at least 140","4 per student for Pick & Place. A 2 cm edge matches the printed grid."],
+  ["Folders or dividers — 16","The barrier between partners. Any manila folder works."],
+  ["Patty paper — 1 pack","The Oct 1 fold test. Tracing paper works if you cannot get patty paper."],
+  ["Laser pointers (8) and small flat mirrors (8) — optional","Only for the optional real-laser build at the end of Oct 1. The simulation does the whole lab without them. Skip if you are not running it."]]},
+
+{h:"Put the website up",w:"w1",when:"week before",
+ lead:"Everything in the website folder goes into your GitHub Pages repo as-is. No build step.",
+ items:[
+  ["Upload all 6 HTML files and 2 PDFs","index, console, explorer, laser-lab, lesson-sep30, checklist, plus the pacing guide and reference sheet."],
+  ["Do NOT upload the Student Notebook","It matches definitions from a purchased curriculum. Google Classroom only — never the public site."],
+  ["Open the hub on a student Chromebook and click every tile","The one test that catches a broken relative path."],
+  ["Open console.html on the classroom machine and set the text size","It remembers. Set it once at the TV size you want."],
+  ["Click through all 13 days in the console","Fifteen minutes, and it is also your lesson prep for the unit."]]},
+
+{h:"Google Classroom — post once, pin it",w:"w1",when:"week before",
+ lead:"Four things pinned at the top. Students should never have to hunt.",
+ items:[
+  ["Pin the hub link","Title it <b>Unit 2 — everything you need</b>. This is the only link they memorize."],
+  ["Pin the Student Notebook PDF","13 pages — definitions, worked examples, 61 problems, all answers. Classroom only."],
+  ["Pin the pacing guide PDF","Or link the copy on the site."],
+  ["Post the class expectations","Two lines: no homework, practice happens in the first ten minutes, being on time is the whole game."]]},
+
+{h:"DeltaMath — 5 class sets, plus Monday sets",w:"w2",when:"week before",
+ lead:"All in-class warm ups. These names match exactly what the console tells students to open.",
+ items:[
+  ["<code>U2 Warm Up · Points and Quadrants</code> — Sep 30","10 items. Plot a point, name the quadrant. Prior knowledge on purpose."],
+  ["<code>U2 · Translations and Rotations</code> — Oct 1","8 items. Graph the image from a rule; rotate 90/180/270 about the origin. Mix in two clockwise."],
+  ["<code>U2 · Reflections</code> — Oct 6","10 items. All four lines, plus two over a line like x = 3 or y = −2. Those two are the ones they miss."],
+  ["<code>U2 · Compositions</code> — Oct 7","8 items. Two moves each. Pick a module that asks for the first image, not just the final answer."],
+  ["<code>U2 Mixed Review</code> — Oct 8","12 items, every topic including dilations. Last practice before the test."],
+  ["Monday sets, one per standard 3.1–3.4 — Oct 5 and Oct 12","Small sets, assigned per student from the ledger for YELLOW and GREEN. Not to the whole class."]]},
+
+{h:"Gimkit — 4 kits",w:"w2",when:"week before",
+ lead:"Three CSVs are in the Gimkit folder. Import each as a new kit.",
+ items:[
+  ["Unit 1 retrieval kit — Sep 29","Your own: coordinate plane, distance, midpoint. Nothing from Unit 2."],
+  ["Import <code>U2_Gimkit_SetA_TranslationsRotations.csv</code> — runs Mon Oct 5","16 questions."],
+  ["Import <code>U2_Gimkit_SetB_Reflections.csv</code> — runs Fri Oct 2","16 questions. Everything taught through reflections."],
+  ["Import <code>U2_Gimkit_SetC_Compositions.csv</code> — runs Wed Oct 7 and again Mon Oct 12","16 questions. Adds compositions and dilations."]]},
+
+{h:"Printing",w:"w2",when:"week before",
+ lead:"The packets are the only thing students write on day to day. Everything else is a screen.",
+ items:[
+  ["Student Packet Week 1 — ~135 copies, 6 pages, stapled","Hand out Tue Sep 29."],
+  ["Student Packet Week 2 — ~135 copies, 4 pages, stapled","Hand out Tue Oct 6. Includes the composition lab and the Oct 8 review page."],
+  ["Go Deeper card — ~135 copies, 1 page","Goes in the Week 1 packet and stays there all unit."],
+  ["Exit tickets — <code>U2_ExitTickets_PrintAndCut</code>, ~68 of each page","Two tickets per page, cut line down the middle. Give the whole file to a TA."],
+  ["CFA Forms A/B — ~68 of each, 4 pages","Wed Oct 7. Alternate down the rows. Standards 3.1–3.4, each scored 0–4."],
+  ["Test Forms 1/2 — ~68 of each, 5 pages","Fri Oct 9. Alternate down the rows."],
+  ["Hotel project booklets — SIX plans, 6 pages each, ~23 of each","Launch Tue Oct 13, due Thu Oct 15. No two neighbors should share a letter."],
+  ["<code>U2_Task_HotelGrids_11x17</code> — 6 pages, print on 11×17","One page per plan letter. ~23 of each, single-sided so the back is free for the extension."]]},
+
+{h:"Physical prep — do it once, reuse every year",w:"w2",when:"week before",
+ lead:"Laminate everything in the Lab Materials folder. It survives four sections a day.",
+ items:[
+  ["Print and laminate the Pick & Place grids — ~36 of pages 1–2","Page 1 is the plain grid for Round 1, page 2 the coordinate grid for Rounds 2–4."],
+  ["Cut the 8 Director cards apart and bag them by pod","Pages 3–4. Keep them with the pod folders."],
+  ["Bag 4 snap cubes per student, one cube marked red","The red cube is the anchor. Mark it now, not on the 29th."],
+  ["Check the Mirror Shot simulation on a student Chromebook","It is the whole Oct 1 lab. If it does not load there, you have no lab."]]},
+
+{h:"The week before you teach it",w:"w3",when:"final week",
+ lead:"The things that are easy to forget and expensive to miss.",
+ items:[
+  ["Reprint the syllabus","It should show Unit 2 running Sep 29 – Oct 15, with the test on Oct 9 and the project Oct 13–15."],
+  ["Set up the ledger","Four standards (3.1–3.4) down the side, students across. Paper or a sheet, either is fine."],
+  ["Tell your colleagues the CFA and test dates","CFA Wed Oct 7, test Fri Oct 9. Both are department common assessments."],
+  ["Send colleagues the hotel project and rubric","Six plans, one rubric. It needs only graph paper and a pencil, so it works whatever order they taught in."],
+  ["Agree how the project score enters the gradebook","It is scored 0–4 on all four standards, after the test. Decide whether it replaces, averages with, or sits beside the test score."],
+  ["Decide whether the reference sheet is available on the CFA and test","It changes what they measure. Worth a department conversation, not a default."],
+  ["Block out 20 minutes to blind-score 10 papers after the CFA","Across all four sections and both forms. The only real check on drift between sections."]]}
+];
+
+var L=document.getElementById("list");
+SECTIONS.forEach(function(sec,si){
+  var el=document.createElement("section");
+  el.innerHTML="<h2>"+sec.h+'<span class="when '+sec.w+'">'+sec.when+"</span></h2>"+
+    '<p class="lead">'+sec.lead+"</p>"+
+    sec.items.map(function(it,ii){
+      return '<label class="item"><input type="checkbox" data-k="'+si+"-"+ii+'">'+
+        '<span class="tx"><b>'+it[0]+"</b><span>"+it[1]+"</span></span></label>";
+    }).join("");
+  L.appendChild(el);
+});
+
+var boxes=Array.prototype.slice.call(document.querySelectorAll("input[type=checkbox]"));
+function save(){
+  try{
+    var o={}; boxes.forEach(function(b){ if(b.checked) o[b.getAttribute("data-k")]=1; });
+    localStorage.setItem("u2check",JSON.stringify(o));
+  }catch(e){}
+}
+function paint(){
+  var n=0;
+  boxes.forEach(function(b){
+    b.parentNode.className = "item"+(b.checked?" done":"");
+    if(b.checked)n++;
+  });
+  document.getElementById("count").textContent=n+" of "+boxes.length+" done";
+  document.getElementById("fill").style.width=(n/boxes.length*100)+"%";
+  var urgent=0, tot=0;
+  boxes.forEach(function(b){
+    var si=+b.getAttribute("data-k").split("-")[0];
+    if(SECTIONS[si].w==="w1"){tot++; if(!b.checked)urgent++;}
+  });
+  document.getElementById("urgent").textContent = urgent
+    ? urgent+" of "+tot+" urgent items still open"
+    : "everything urgent is done";
+}
+boxes.forEach(function(b){ b.addEventListener("change",function(){save();paint()}); });
+document.getElementById("reset").addEventListener("click",function(){
+  if(!confirm("Clear every tick?"))return;
+  boxes.forEach(function(b){b.checked=false}); save(); paint();
+});
+try{
+  var o=JSON.parse(localStorage.getItem("u2check")||"{}");
+  boxes.forEach(function(b){ if(o[b.getAttribute("data-k")]) b.checked=true; });
+}catch(e){}
+paint();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Mirror Shot — Laser Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+ --paper:#f4f6f9;--panel:#fff;--ink:#15222d;--muted:#5e6f7e;--line:#dde5ed;--grid:#dfe7ef;
+ --mirror:#1f6fb8;--beam:#e0342c;--tgt:#1b7f5a;--ghost:#9aa8b5;--accent:#2e5fa3;--warn:#b5651d;--ok:#1f7a4d;--r:12px}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#0f1821;--panel:#17232e;--ink:#e7eef4;
+ --muted:#9bb0c0;--line:#26343f;--grid:#223039;--mirror:#5aa9e6;--beam:#ff6b52;--tgt:#5cc48a;
+ --ghost:#5d7285;--accent:#7fb0e8;--warn:#e0a35c;--ok:#5cc48a}}
+*{box-sizing:inherit}html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:"Source Sans 3",system-ui,sans-serif;font-size:16px;line-height:1.5}
+.wrap{max-width:1180px;margin:0 auto;padding:18px 16px 60px}
+h1{font-size:1.5rem;margin:0 0 3px;font-weight:700;letter-spacing:-.01em}
+h1 span{color:var(--muted);font-weight:400;font-size:1rem}
+.sub{color:var(--muted);font-size:.92rem;margin:0 0 16px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:15px 17px;margin-bottom:15px}
+.card h2{font-size:1.04rem;margin:0 0 9px;font-weight:600}
+.step{display:inline-block;background:var(--accent);color:#fff;font-size:.73rem;font-weight:700;
+ padding:2px 9px;border-radius:99px;margin-right:9px;vertical-align:2px;letter-spacing:.04em}
+.grid2{display:grid;grid-template-columns:minmax(300px,1.1fr) minmax(280px,340px);gap:17px;align-items:start}
+@media(max-width:840px){.grid2{grid-template-columns:1fr}}
+svg{display:block;width:100%;height:auto}
+.ctl{margin-bottom:11px}
+.ctl label{display:flex;justify-content:space-between;font-size:.89rem;font-weight:600;margin-bottom:4px}
+.ctl label b{font-variant-numeric:tabular-nums;color:var(--accent)}
+input[type=range]{width:100%;accent-color:var(--accent);height:26px}
+input[type=number]{font:inherit;padding:7px 9px;border:1px solid var(--line);border-radius:8px;
+ background:var(--paper);color:var(--ink);width:96px;text-align:center}
+.btn{font:inherit;font-weight:700;font-size:.9rem;padding:9px 15px;border-radius:9px;cursor:pointer;
+ border:1px solid var(--accent);background:var(--accent);color:#fff}
+.btn.ghost{background:transparent;color:var(--accent)}
+.btn.fire{border-color:var(--beam);background:var(--beam)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:9px}
+.verdict{font-weight:700;font-size:.95rem;min-height:1.4em;margin-top:9px}
+.verdict.good{color:var(--ok)}.verdict.off{color:var(--warn)}
+.pill{display:inline-block;font-size:.74rem;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+ padding:3px 10px;border-radius:99px;background:var(--panel);border:1px solid var(--line);color:var(--muted)}
+.pill.on{background:var(--ok);border-color:var(--ok);color:#fff}
+table{width:100%;border-collapse:collapse;font-size:.9rem;margin-top:9px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+th{font-size:.77rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);font-weight:600}
+.note{font-size:.87rem;color:var(--muted);margin-top:9px}
+.lock{background:color-mix(in srgb,var(--warn) 12%,transparent);border:1px solid var(--warn);
+ border-radius:10px;padding:11px 13px;font-size:.93rem;color:var(--warn);font-weight:600}
+.code{font-family:ui-monospace,Menlo,monospace;font-size:1.25rem;font-weight:700;letter-spacing:.1em;
+ color:var(--ok);padding:11px;background:var(--paper);border-radius:9px;text-align:center;margin-top:10px}
+.hidden{display:none}
+.legend{display:flex;gap:13px;flex-wrap:wrap;font-size:.82rem;color:var(--muted);margin-top:7px}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:50%;margin-right:5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<h1>Mirror Shot <span>· hit the target you cannot see</span></h1>
+<p class="sub">Geometry · Unit 2 · October 1 — this grid matches the paper on your desk. Work it on paper first.</p>
+
+<div class="card">
+  <h2><span class="step">STEP 1</span>Read your station</h2>
+  <p style="margin:0 0 6px">The mirror lies along a grid line. The laser pivots at <b>P</b> and never moves. <b>T</b> is behind the barrier — the beam has to bounce to reach it.</p>
+  <div class="row">
+    <span>Station</span>
+    <button class="btn ghost" data-st="0">1</button>
+    <button class="btn ghost" data-st="1">2</button>
+    <button class="btn ghost" data-st="2">3</button>
+    <span class="note" style="margin:0">Each station has different numbers. Use the one on your card.</span>
+  </div>
+</div>
+
+<div class="grid2">
+  <div class="card" style="padding:11px">
+    <svg id="stage" viewBox="0 0 560 560"></svg>
+    <div class="legend">
+      <span><i style="background:var(--mirror)"></i>line of reflection</span>
+      <span><i style="background:var(--tgt)"></i>target T</span>
+      <span><i style="background:var(--ghost)"></i>T&prime; — you mark this</span>
+      <span><i style="background:var(--beam)"></i>beam</span>
+    </div>
+  </div>
+
+  <div>
+    <div class="card" style="margin-bottom:13px">
+      <h2><span class="step">STEP 2</span>Construct T&prime; on paper</h2>
+      <p class="note" style="margin-top:0">Reflect T across the line of reflection. Same perpendicular distance, opposite side. Type what you get — the screen will not show you.</p>
+      <div class="row">
+        <span>T&prime; = (</span>
+        <input type="number" id="tpx" step="1" style="width:70px" placeholder="x">
+        <span>,</span>
+        <input type="number" id="tpy" step="1" style="width:70px" placeholder="y">
+        <span>)</span>
+        <button class="btn" id="checkT">Check</button>
+      </div>
+      <div class="verdict" id="tv"></div>
+    </div>
+
+    <div class="card" id="aimCard" style="margin-bottom:13px">
+      <h2><span class="step">STEP 3</span>Aim along P to T&prime;</h2>
+      <div class="lock" id="aimLock">Construct T&prime; correctly first. You do not get to aim by trial and error.</div>
+      <div id="aimBody" class="hidden">
+        <div class="ctl">
+          <label for="ang">Aim angle <b id="angv">0&deg;</b></label>
+          <input type="range" id="ang" min="0" max="180" step="0.5" value="45">
+        </div>
+        <p class="note" style="margin-top:0">Measured from the positive x-direction at P, the same way your protractor reads.</p>
+        <div class="row">
+          <button class="btn fire" id="fire">Fire</button>
+          <button class="btn ghost" id="clear">Clear beams</button>
+        </div>
+        <div class="verdict" id="fv"></div>
+        <p class="note" id="tries"></p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2><span class="step">STEP 4</span>Ten shots</h2>
+      <p class="note" style="margin-top:0">Real protractors are not exact. Set how finely you can read yours, then fire ten times from the same instruction.</p>
+      <div class="ctl">
+        <label for="prec">I can read my protractor to <b id="precv">&plusmn;0.5&deg;</b></label>
+        <input type="range" id="prec" min="0" max="2" step="0.25" value="0.5">
+      </div>
+      <div class="row">
+        <button class="btn" id="ten" disabled>Fire ten shots</button>
+        <button class="btn ghost" id="resetTen">Reset</button>
+      </div>
+      <table id="tenTbl"></table>
+      <p class="note" id="tenNote"></p>
+      <div class="code hidden" id="code"></div>
+    </div>
+  </div>
+</div>
+
+</div>
+<script>
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var NS="http://www.w3.org/2000/svg";
+function el(n,a,p){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);
+  if(p)p.appendChild(e);return e}
+var LO=-2,HI=16,V=560;
+function sx(x){return (x-LO)/(HI-LO)*V}
+function sy(y){return V-(y-LO)/(HI-LO)*V}
+function nz(n){return String(Math.round(n*100)/100).replace("-","\u2212")}
+
+/* mirror is the horizontal line y = my. P and T are lattice points. */
+var STATIONS=[
+ {my:8,  P:[3,2],  T:[11,5]},
+ {my:9,  P:[2,3],  T:[12,6]},
+ {my:7,  P:[4,1],  T:[13,4]}
+];
+var st=0, solved=false, beams=[], tries=0, shots=[];
+function S(){return STATIONS[st]}
+function Tp(){var s=S();return [s.T[0], 2*s.my - s.T[1]]}
+function trueAngle(){
+  var s=S(), t=Tp();
+  var a=Math.atan2(t[1]-s.P[1], t[0]-s.P[0])*180/Math.PI;
+  return (a+360)%360;
+}
+/* where a beam fired at angle a from P actually lands on the target's horizontal line */
+function landing(a){
+  var s=S(), r=a*Math.PI/180;
+  var dx=Math.cos(r), dy=Math.sin(r);
+  if(dy<=0) return null;                         // never reaches the mirror
+  var tHit=(s.my-s.P[1])/dy;                     // travel to the mirror
+  var hx=s.P[0]+dx*tHit;
+  var dy2=-dy;                                   // reflect off a horizontal mirror
+  var tT=(s.T[1]-s.my)/dy2;
+  if(tT<=0) return null;
+  return {mirror:[hx,s.my], land:[hx+dx*tT, s.T[1]]};
+}
+
+function draw(){
+  var s=$("stage"); while(s.firstChild)s.removeChild(s.firstChild);
+  var st0=S();
+  for(var v=LO;v<=HI;v++){
+    el("line",{x1:sx(v),y1:sy(LO),x2:sx(v),y2:sy(HI),stroke:"var(--grid)","stroke-width":1},s);
+    el("line",{x1:sx(LO),y1:sy(v),x2:sx(HI),y2:sy(v),stroke:"var(--grid)","stroke-width":1},s);}
+  el("line",{x1:sx(LO),y1:sy(0),x2:sx(HI),y2:sy(0),stroke:"var(--muted)","stroke-width":1.6},s);
+  el("line",{x1:sx(0),y1:sy(LO),x2:sx(0),y2:sy(HI),stroke:"var(--muted)","stroke-width":1.6},s);
+  for(var t=0;t<=HI-1;t+=2){ if(t===0)continue;
+    var a=el("text",{x:sx(t),y:sy(0)+14,"text-anchor":"middle","font-size":10,fill:"var(--muted)"},s);
+    a.textContent=t;
+    var b=el("text",{x:sx(0)-6,y:sy(t)+4,"text-anchor":"end","font-size":10,fill:"var(--muted)"},s);
+    b.textContent=t;}
+  // mirror
+  el("line",{x1:sx(LO),y1:sy(st0.my),x2:sx(HI),y2:sy(st0.my),
+    stroke:"var(--mirror)","stroke-width":5,"stroke-linecap":"butt"},s);
+  var ml=el("text",{x:sx(HI)-4,y:sy(st0.my)-9,"text-anchor":"end","font-size":11,
+    "font-weight":700,fill:"var(--mirror)"},s);
+  ml.textContent="mirror:  y = "+st0.my;
+  // barrier between P and T
+  var bx=(st0.P[0]+st0.T[0])/2;
+  el("line",{x1:sx(bx),y1:sy(0),x2:sx(bx),y2:sy(st0.my-0.6),stroke:"var(--muted)",
+    "stroke-width":4,"stroke-dasharray":"7 5",opacity:.55},s);
+  var bl=el("text",{x:sx(bx),y:sy(0)-6,"text-anchor":"middle","font-size":10,fill:"var(--muted)"},s);
+  bl.textContent="barrier";
+  // beams
+  beams.forEach(function(b){
+    el("line",{x1:sx(S().P[0]),y1:sy(S().P[1]),x2:sx(b.mirror[0]),y2:sy(b.mirror[1]),
+      stroke:"var(--beam)","stroke-width":2,opacity:b.o},s);
+    el("line",{x1:sx(b.mirror[0]),y1:sy(b.mirror[1]),x2:sx(b.land[0]),y2:sy(b.land[1]),
+      stroke:"var(--beam)","stroke-width":2,opacity:b.o},s);
+    el("circle",{cx:sx(b.land[0]),cy:sy(b.land[1]),r:4,fill:"var(--beam)",opacity:b.o},s);});
+  // T'
+  if(solved){
+    var t=Tp();
+    el("circle",{cx:sx(t[0]),cy:sy(t[1]),r:6,fill:"none",stroke:"var(--ghost)","stroke-width":2,
+      "stroke-dasharray":"3 3"},s);
+    var tl=el("text",{x:sx(t[0])+9,y:sy(t[1])+5,"font-size":12,"font-weight":700,fill:"var(--ghost)"},s);
+    tl.textContent="T\u2032";
+    el("line",{x1:sx(S().P[0]),y1:sy(S().P[1]),x2:sx(t[0]),y2:sy(t[1]),
+      stroke:"var(--ghost)","stroke-width":1.2,"stroke-dasharray":"4 5",opacity:.8},s);
+  }
+  // P and T
+  el("circle",{cx:sx(st0.P[0]),cy:sy(st0.P[1]),r:7,fill:"var(--ink)"},s);
+  var pl=el("text",{x:sx(st0.P[0])-10,y:sy(st0.P[1])+5,"text-anchor":"end","font-size":13,
+    "font-weight":800,fill:"var(--ink)"},s);
+  pl.textContent="P ("+st0.P[0]+", "+st0.P[1]+")";
+  var g=el("g",{},s);
+  el("line",{x1:sx(st0.T[0])-9,y1:sy(st0.T[1])-9,x2:sx(st0.T[0])+9,y2:sy(st0.T[1])+9,
+    stroke:"var(--tgt)","stroke-width":3.4,"stroke-linecap":"round"},g);
+  el("line",{x1:sx(st0.T[0])-9,y1:sy(st0.T[1])+9,x2:sx(st0.T[0])+9,y2:sy(st0.T[1])-9,
+    stroke:"var(--tgt)","stroke-width":3.4,"stroke-linecap":"round"},g);
+  var tl2=el("text",{x:sx(st0.T[0])+13,y:sy(st0.T[1])+5,"font-size":13,"font-weight":800,
+    fill:"var(--tgt)"},s);
+  tl2.textContent="T ("+st0.T[0]+", "+st0.T[1]+")";
+}
+
+/* ---- station picker ---- */
+Array.prototype.forEach.call(document.querySelectorAll("[data-st]"),function(b){
+  b.addEventListener("click",function(){
+    st=+this.getAttribute("data-st");
+    Array.prototype.forEach.call(document.querySelectorAll("[data-st]"),function(x){
+      x.className="btn ghost"});
+    this.className="btn";
+    solved=false;beams=[];tries=0;shots=[];
+    $("tpx").value="";$("tpy").value="";$("tv").textContent="";
+    $("aimLock").classList.remove("hidden");$("aimBody").classList.add("hidden");
+    $("fv").textContent="";$("tries").textContent="";$("ten").disabled=true;
+    $("tenTbl").innerHTML="";$("tenNote").textContent="";$("code").classList.add("hidden");
+    draw();});
+});
+document.querySelector("[data-st='0']").className="btn";
+
+/* ---- step 2: construct T' ---- */
+$("checkT").addEventListener("click",function(){
+  var t=Tp(), gx=Number($("tpx").value), gy=Number($("tpy").value), v=$("tv");
+  if($("tpx").value===""||$("tpy").value===""){
+    v.className="verdict off"; v.textContent="Work it out on paper first, then type it here."; return;}
+  if(gx===t[0]&&gy===t[1]){
+    solved=true; v.className="verdict good";
+    v.textContent="Correct. T\u2032 is ("+t[0]+", "+t[1]+"). Now you may aim.";
+    $("aimLock").classList.add("hidden"); $("aimBody").classList.remove("hidden");
+    draw();
+  } else {
+    v.className="verdict off";
+    var hint = (gy===S().T[1]) ? " You kept the y-coordinate. A reflection across a horizontal mirror changes it."
+      : (gx!==S().T[0]) ? " The x-coordinate should not change \u2014 the mirror is horizontal." : "";
+    v.textContent="Not yet."+hint+" How far is T from the line of reflection?";
+  }
+});
+
+/* ---- step 3: aim and fire ---- */
+$("ang").addEventListener("input",function(){
+  $("angv").textContent=Number(this.value).toFixed(1)+"\u00B0";});
+$("angv").textContent="45.0\u00B0";
+$("fire").addEventListener("click",function(){
+  var a=Number($("ang").value), r=landing(a), v=$("fv");
+  tries++;
+  if(!r){ v.className="verdict off"; v.textContent="That beam never reaches the mirror. Aim higher."; return;}
+  beams.forEach(function(b){b.o=.25});
+  beams.push({mirror:r.mirror,land:r.land,o:1});
+  if(beams.length>6) beams.shift();
+  draw();
+  var miss=Math.abs(r.land[0]-S().T[0]);
+  if(miss<0.12){
+    v.className="verdict good";
+    v.textContent="HIT. The true aim is "+trueAngle().toFixed(1)+"\u00B0 \u2014 the line straight from P to T\u2032.";
+    $("ten").disabled=false;
+  } else {
+    v.className="verdict off";
+    v.textContent="Missed by "+nz(miss)+" grid squares, "+(r.land[0]>S().T[0]?"to the right.":"to the left.");
+  }
+  $("tries").textContent="Shots fired: "+tries+(tries>3?"  \u2014 stop guessing. Measure the angle from P to T\u2032 on your paper.":"");
+});
+$("clear").addEventListener("click",function(){beams=[];draw();$("fv").textContent=""});
+
+/* ---- step 4: ten shots with reading error ---- */
+$("prec").addEventListener("input",function(){
+  $("precv").innerHTML="&plusmn;"+Number(this.value).toFixed(2)+"&deg;";});
+$("ten").addEventListener("click",function(){
+  var p=Number($("prec").value), base=trueAngle();
+  shots=[];
+  for(var i=0;i<10;i++){
+    var a=base+(Math.random()*2-1)*p, r=landing(a);
+    shots.push(r ? (r.land[0]-S().T[0]) : 0);
+  }
+  var mean=shots.reduce(function(a,b){return a+b},0)/10;
+  var spread=Math.max.apply(null,shots)-Math.min.apply(null,shots);
+  var worst=Math.max.apply(null,shots.map(Math.abs));
+  $("tenTbl").innerHTML="<tr><th>Shot</th><th>Miss, grid squares</th></tr>"+
+    shots.map(function(v,i){return "<tr><td>"+(i+1)+"</td><td>"+nz(v)+"</td></tr>"}).join("")+
+    "<tr><th>Average</th><th>"+nz(mean)+"</th></tr>"+
+    "<tr><th>Spread</th><th>"+nz(spread)+"</th></tr>"+
+    "<tr><th>Worst</th><th>"+nz(worst)+"</th></tr>";
+  $("tenNote").textContent = p===0
+    ? "With a perfect protractor every shot lands dead on. That is the simulation being less honest than a real desk."
+    : "Same instruction ten times, and they scatter. Nothing changed except how finely you could read the angle. The reflection was exact every time \u2014 the misses came from the protractor, not the math.";
+  $("code").textContent="U2-LASER-"+(4100+st*7+Math.round(spread*10));
+  $("code").classList.remove("hidden");
+});
+$("resetTen").addEventListener("click",function(){
+  shots=[];$("tenTbl").innerHTML="";$("tenNote").textContent="";$("code").classList.add("hidden")});
+
+draw();
+})();
+</script>
+</body>
+</html>

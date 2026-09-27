@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Unit 2 Class Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+ --bg:#0d1620;--panel:#16222e;--panel2:#1d2c3a;--ink:#eef4f9;--muted:#93a8ba;--line:#28394a;
+ --accent:#5aa9e6;--go:#46c07f;--warn:#e8a04a;--red:#ef6b4a;--pre:#eef4f9;--img:#5aa9e6;--scale:1}
+:root[data-theme="light"]{--bg:#eef2f6;--panel:#fff;--panel2:#f5f8fb;--ink:#14202b;--muted:#5c6f80;
+ --line:#dbe3ec;--accent:#2e5fa3;--go:#1f7a4d;--warn:#b5651d;--red:#c2451f;--pre:#14202b;--img:#2e5fa3}
+*{box-sizing:inherit}html{font-size:calc(16px*var(--scale))}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:"Source Sans 3",system-ui,sans-serif;
+ overflow:hidden;font-size:1rem}
+.app{display:grid;grid-template-rows:auto 1fr auto;height:100%}
+header{display:flex;align-items:center;gap:11px;padding:8px 16px;border-bottom:1px solid var(--line);background:var(--panel)}
+header h1{font-size:.95rem;margin:0;font-weight:800;white-space:nowrap}
+header h1 em{font-style:normal;color:var(--accent)}
+select,.mini{font:inherit;font-size:.82rem;font-weight:600;background:var(--panel2);color:var(--ink);
+ border:1px solid var(--line);border-radius:8px;padding:5px 9px;cursor:pointer}
+.mini:hover{border-color:var(--accent)}
+.mini[aria-pressed=true]{background:var(--warn);border-color:var(--warn);color:#1a1005}
+.spacer{flex:1}
+.sizer{display:inline-flex;align-items:center;gap:5px;background:var(--panel2);border:1px solid var(--line);
+ border-radius:9px;padding:3px 7px}
+.sizer b{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:800}
+.sizer button{padding:2px 8px;font-size:.95rem;line-height:1.2}
+.sizer #sizeVal{font-size:.76rem;font-variant-numeric:tabular-nums;color:var(--muted);min-width:2.9em;text-align:center}
+.tag{font-size:.68rem;font-weight:800;letter-spacing:.09em;padding:3px 9px;border-radius:99px;text-transform:uppercase}
+.tag.lab{background:var(--warn);color:#1a1005}.tag.math{background:var(--accent);color:#06121c}
+.tag.assess{background:var(--red);color:#1d0803}.tag.int{background:var(--go);color:#04130b}
+.tool{display:inline-block;font-size:.42em;font-weight:800;letter-spacing:.09em;text-transform:uppercase;padding:4px 11px;border-radius:99px;vertical-align:middle;margin-left:14px;position:relative;top:-.28em}
+.tool.gim{background:#7d4bd6;color:#fff}
+.tool.dm{background:#1f8a5f;color:#fff}
+.plan li i{font-style:normal;font-size:.72em;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:1px 6px;border-radius:5px;margin-left:5px}
+.plan li i.gim{background:#7d4bd6;color:#fff}
+.plan li i.dm{background:#1f8a5f;color:#fff}
+main{display:grid;grid-template-columns:1fr 310px;min-height:0}
+@media(max-width:900px){main{grid-template-columns:1fr}}
+.stage{padding:14px 24px 0;display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.phaseName{font-size:clamp(1.4rem,calc(3.4vw*var(--scale)),2.5rem);font-weight:800;line-height:1.05;margin:0 0 3px;letter-spacing:-.02em}
+.phaseSub{color:var(--muted);font-size:clamp(.88rem,calc(1.3vw*var(--scale)),1.08rem);margin:0 0 9px}
+.need{display:inline-block;background:var(--panel2);border:1px solid var(--line);border-radius:8px;
+ padding:5px 11px;font-size:clamp(.8rem,calc(1.15vw*var(--scale)),.98rem);margin-bottom:12px}
+.need b{color:var(--warn);font-size:.74em;letter-spacing:.09em;text-transform:uppercase;margin-right:7px}
+.body{overflow-y:auto;min-height:0;display:flex;gap:20px;align-items:flex-start;padding-bottom:12px}
+.steps{list-style:none;padding:0;margin:0;counter-reset:s;flex:1;min-width:0}
+.steps li{font-size:clamp(1.02rem,calc(1.95vw*var(--scale)),1.5rem);line-height:1.38;padding:9px 0 9px 42px;position:relative;
+ border-bottom:1px solid var(--line)}
+.steps li:before{content:counter(s);counter-increment:s;position:absolute;left:0;top:11px;width:28px;height:28px;
+ border-radius:50%;background:var(--accent);color:#08121b;font-size:.72em;font-weight:800;display:grid;place-items:center}
+.steps li u{text-decoration:none;font-weight:800;color:var(--warn)}
+.steps li.bare{padding-left:0;border-bottom:0}
+.steps li.bare:before{content:none;counter-increment:none;display:none}
+.demo{flex:0 0 clamp(200px,calc(30vw*var(--scale)),420px)}
+.demo svg{display:block;width:100%;height:auto;background:var(--panel);border:1px solid var(--line);border-radius:12px}
+.dctl{margin-top:9px;display:flex;flex-direction:column;gap:7px}
+.dctl .cr{display:flex;align-items:center;gap:8px;font-size:.84rem;font-weight:700}
+.dctl .cr label{min-width:1.5em;color:var(--muted)}
+.dctl .cr input[type=range]{flex:1;accent-color:var(--accent);height:22px}
+.dctl .cr b{min-width:2.6em;text-align:right;font-variant-numeric:tabular-nums;color:var(--accent)}
+.dctl .seg2{display:flex;gap:5px;flex-wrap:wrap}
+.dctl .seg2 button{flex:1 1 auto;font:inherit;font-size:.76rem;font-weight:700;padding:5px 7px;cursor:pointer;
+ border:1px solid var(--line);background:transparent;color:var(--muted);border-radius:7px}
+.dctl .seg2 button[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#08121b}
+.rulebox{margin-top:9px;background:var(--panel2);border:1px solid var(--line);border-left:3px solid var(--go);
+ border-radius:9px;padding:9px 12px;font-size:.98rem;font-weight:800;font-variant-numeric:tabular-nums;min-height:1.3em}
+.rulebox span{display:block;font-size:.72rem;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+ color:var(--muted);margin-bottom:2px}
+.dbtns{display:flex;gap:7px;margin-top:9px}
+.dbtns button{flex:1;font:inherit;font-size:.83rem;font-weight:700;padding:7px 0;border-radius:8px;cursor:pointer;
+ border:1px solid var(--go);background:transparent;color:var(--go)}
+.dbtns button.play{border-color:var(--accent);color:var(--accent)}
+.revBtn{font:inherit;font-size:.7rem;font-weight:800;letter-spacing:.05em;text-transform:uppercase;
+ padding:3px 11px;border-radius:7px;cursor:pointer;border:1px solid var(--go);background:transparent;
+ color:var(--go);flex:0 0 auto}
+.revBtn.on{background:var(--go);color:#07130d}
+.plainline{display:block;margin-top:5px;font-size:.82em;font-style:italic;color:var(--go);opacity:.95}
+.plainline b{font-style:normal;font-size:.86em;letter-spacing:.06em;opacity:.85}
+.fill{display:inline-block;min-width:5.5em;border-bottom:2px solid var(--warn);text-align:center;
+ font-weight:800;color:var(--warn)}
+.fill.on{border-bottom-color:var(--go);color:var(--go)}
+.demo .cap{font-size:.92rem;margin:0 0 7px;font-weight:600;line-height:1.35}
+.demo .ans{margin-top:8px;font-size:.98rem;font-weight:700;font-variant-numeric:tabular-nums;color:var(--go);min-height:1.3em}
+.demo button{font:inherit;font-size:.82rem;font-weight:700;padding:6px 13px;border-radius:8px;cursor:pointer;
+ border:1px solid var(--go);background:transparent;color:var(--go);margin-top:7px}
+.tn{border-top:2px solid var(--warn);background:color-mix(in srgb,var(--warn) 9%,transparent);
+ padding:8px 24px 10px;font-size:clamp(.78rem,calc(1.05vw*var(--scale)),.95rem);color:var(--warn);line-height:1.42}
+.tn b{font-size:.72em;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:3px;opacity:.85}
+.tn div{margin:2px 0}
+.tn.hide{display:none}
+.rail{border-left:1px solid var(--line);background:var(--panel);padding:14px;display:flex;flex-direction:column;
+ gap:11px;min-height:0;overflow-y:auto}
+.clock{text-align:center;background:var(--panel2);border:1px solid var(--line);border-radius:14px;padding:11px 8px}
+.clock .t{font-size:clamp(2.2rem,calc(5.6vw*var(--scale)),3.5rem);font-weight:800;font-variant-numeric:tabular-nums;line-height:1;letter-spacing:-.03em}
+.clock .t.low{color:var(--red)}
+.clock .lbl{color:var(--muted);font-size:.74rem;text-transform:uppercase;letter-spacing:.09em;margin-top:4px}
+.row{display:flex;gap:6px}
+.row button{flex:1;font:inherit;font-weight:700;font-size:.83rem;padding:8px 0;border-radius:9px;cursor:pointer;
+ border:1px solid var(--line);background:var(--panel2);color:var(--ink)}
+.row button.go{background:var(--go);border-color:var(--go);color:#07130d}
+.bar{height:6px;background:var(--panel2);border-radius:99px;overflow:hidden;border:1px solid var(--line)}
+.bar i{display:block;height:100%;background:var(--accent);width:0%;transition:width .35s linear}
+.rail h3{font-size:.7rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);margin:2px 0 0;font-weight:700}
+.plan{list-style:none;margin:0;padding:0;font-size:.83rem}
+.plan li{display:flex;justify-content:space-between;gap:8px;padding:6px 8px;border-radius:7px;cursor:pointer}
+.plan li:hover{background:var(--panel2)}
+.plan li.on{background:var(--accent);color:#08121b;font-weight:700}
+.plan li b{font-variant-numeric:tabular-nums;opacity:.85}
+a.lnk{display:block;text-decoration:none;color:var(--ink);background:var(--panel2);border:1px solid var(--line);
+ border-left:3px solid var(--accent);border-radius:9px;padding:8px 10px;font-size:.83rem;font-weight:600}
+a.lnk span{display:block;color:var(--muted);font-weight:400;font-size:.75rem;margin-top:1px}
+footer{display:flex;align-items:center;gap:13px;padding:7px 16px;border-top:1px solid var(--line);
+ background:var(--panel);font-size:.77rem;color:var(--muted)}
+kbd{background:var(--panel2);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;
+ padding:1px 6px;font-family:inherit;font-size:.82em;font-weight:700;color:var(--ink)}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <h1>Unit&nbsp;2 <em>Console</em></h1>
+  <select id="daySel"></select>
+  <span class="tag" id="kindTag"></span>
+  <div class="spacer"></div>
+  <button class="mini" id="tnBtn" aria-pressed="true" title="Hide the orange strip at the bottom so only the students’ directions show">My notes on</button>
+  <button class="mini" id="themeBtn" title="Switch between the dark screen and a light one">Light</button>
+  <span class="sizer" title="Make everything on screen bigger or smaller. Turn it up for the TVs, down for your laptop.">
+    <b>Text size</b>
+    <button class="mini" id="sizeDn" title="Smaller text">&minus;</button>
+    <span id="sizeVal">100%</span>
+    <button class="mini" id="sizeUp" title="Bigger text">+</button>
+  </span>
+  <button class="mini" id="fsBtn" title="Fill the whole screen — press F, or Esc to come back">Full screen</button>
+</header>
+<main>
+  <section class="stage">
+    <h2 class="phaseName" id="pName">&mdash;</h2>
+    <p class="phaseSub" id="pSub"></p>
+    <div class="need" id="pNeed" style="display:none"></div>
+    <div class="body">
+      <ol class="steps" id="pSteps"></ol>
+      <div class="demo" id="demo" style="display:none">
+        <p class="cap" id="dCap"></p>
+        <svg id="dSvg" viewBox="0 0 340 340"></svg>
+        <div id="dCtl" class="dctl"></div>
+        <div class="rulebox" id="dRule"></div>
+        <div class="ans" id="dAns"></div>
+        <div class="dbtns">
+          <button id="dPlay" class="play">&#9654;&nbsp; Play</button>
+          <button id="dBtn">Reveal</button>
+        </div>
+      </div>
+    </div>
+  </section>
+  <aside class="rail">
+    <div class="clock"><div class="t" id="clk">0:00</div><div class="lbl" id="clkLbl">paused</div></div>
+    <div class="bar"><i id="bar"></i></div>
+    <div class="row"><button class="go" id="run">Start</button><button id="reset">Reset</button></div>
+    <div class="row"><button id="prev">&larr; Prev</button><button id="next">Next &rarr;</button></div>
+    <h3>Today</h3><ul class="plan" id="plan"></ul>
+    <h3>Links</h3><div id="links"></div>
+  </aside>
+</main>
+<div class="tn" id="tn"></div>
+<footer>
+  <span><kbd>Space</kbd> start</span><span><kbd>&rarr;</kbd> next</span><span><kbd>&larr;</kbd> back</span>
+  <span><kbd>R</kbd> reveal</span><span><kbd>N</kbd> hide my notes</span><span><kbd>F</kbd> full screen</span>
+  <div class="spacer"></div><span id="dayTag"></span>
+</footer>
+</div>
+<script>
+(function(){
+"use strict";
+var $=function(i){return document.getElementById(i)};
+var NS="http://www.w3.org/2000/svg";
+function el(n,a){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);return e}
+
+var L={
+ exp:{h:"Transformations Explorer",s:"play with the rule",u:"explorer.html"},
+ sep30:{h:"Sept 30 animated lesson",s:"teach from this \u2014 examples move",u:"lesson-sep30.html"},
+ laser:{h:"Mirror Shot laser lab",s:"Oct 1 \u2014 grid matches your paper",u:"laser-lab.html"},
+ sheet:{h:"Mirror Shot data sheet",s:"Recorders enter pod data",u:"https://docs.google.com/spreadsheets/d/1ltLziHEwaifhf62PJIpRpWI7zLGB9FubvzkdDEAYVz8/edit"},
+ hub:{h:"Unit 2 hub",s:"student links",u:"index.html"}
+};
+function D(cap,pre,img,ans,opt){var o=opt||{};o.cap=cap;o.pre=pre;o.img=img;o.ans=ans;return o}
+
+/* Every block: n = title, m = minutes, s = subtitle, need = on your desk,
+   do = EXPLICIT student directions (big, numbered, on the TV),
+   tn = teacher notes (small orange strip, hideable with N) */
+var DAYS=[
+/* ============================ TUE SEP 29 ============================ */
+{d:"Tue Sep 29",k:"lab",t:"Pick & Place",
+ targets:["3.1","I can describe a motion precisely enough that someone else can carry it out."],
+ links:[L.hub],
+ blocks:[
+  {n:"WARM UP",m:10,s:"Gimkit · Unit 1 retrieval · 10 min",
+   need:"Chromebook · join code on Screen 2",
+   do:["Open your Chromebook and join the Gimkit with the code on Screen 2.",
+       "Play until the timer on this screen hits zero.",
+       "When it stops, close the lid all the way. Chromebooks stay shut for the rest of today."],
+   tn:["Coordinate plane, distance, midpoint. Nothing from this unit — today is a discovery day.",
+       "Start on the bell. Do not wait for stragglers."]},
+  {n:"BUILD YOUR L",m:5,s:"Every pod builds the same thing",
+   need:"4 snap cubes · plain grid · folder · Week 1 packet",
+   do:["Take exactly 4 snap cubes from the bag.",
+       "Snap them into the L shape shown on Screen 2.",
+       "Find the one cube with the red sticker. That is your <u>anchor cube</u>.",
+       "Put the anchor cube on the START outline, bottom left of your grid.",
+       "Stand the folder up between you and your partner so neither of you can see the other’s grid."],
+   tn:["Two pods will build a mirror-image L. Let them — it surfaces in Round 2 and is worth more than a correction now.",
+       "Red cube marked in advance. Marking them live costs four minutes, four times over."]},
+  {n:"ROUND 1",m:8,s:"Plain grid · no coordinates · Director talks, Operator builds",
+   need:"Plain grid · packet page 1",
+   do:["<b>Director:</b> move your L somewhere on the grid. Do not show your partner.",
+       "Tell your partner how to move theirs so it ends up in the same place.",
+       "<b>Operator:</b> do exactly what you are told. Nothing else.",
+       "Drop the folder. Did the two grids match?",
+       "In your packet, write down the instruction that caused the biggest problem."],
+   tn:["They will say “up a bit” and “over there.” Let it fail. The failure is the lesson.",
+       "Do NOT supply the word 'units' yet. They should feel the need for it first."]},
+  {n:"ROUND 2",m:8,s:"Coordinate grid · now they have numbers",
+   need:"Coordinate grid · packet page 1",
+   do:["Swap roles. New Director.",
+       "Same game, but now your grid has numbers on it.",
+       "Move your L. Describe the move so your partner lands in the same place.",
+       "Drop the folder. Did it match this time?",
+       "Write down what the numbers let you say that you could not say in Round 1."],
+   tn:["Most pods now succeed. Ask one that did: “What did you say this time that you could not say before?”",
+       "The word you are fishing for is <b>units</b> — and a direction."]},
+  {n:"ROUND 3",m:10,s:"Turning · the hard one",
+   need:"Coordinate grid · packet page 1",
+   do:["Swap roles again.",
+       "This time your L must be <u>turned</u>, not just slid.",
+       "Describe the turn so your partner can reproduce it exactly.",
+       "Drop the folder. Almost nobody matches on the first try.",
+       "Write down every piece of information a turn needs that a slide does not."],
+   tn:["This is the block that earns the day. Three things are missing and they will find them in this order:",
+       "how far (the angle) · which way (clockwise or not) · <b>around what point</b> — the last one is the one nobody says."]},
+  {n:"ROUND 4",m:10,s:"One sentence for the whole motion",
+   need:"Coordinate grid · packet page 1",
+   do:["Last round. Director moves the L — a slide AND a turn.",
+       "You get <u>one sentence</u>. Write it down before you say it out loud.",
+       "Read it once. Your partner builds. No follow-up questions allowed.",
+       "Drop the folder.",
+       "In your packet: what did you have to put in that sentence that you did not need in Round 1?"],
+   tn:["Collect two or three of the winning sentences. You will put them on the board tomorrow.",
+       "A sentence that works will name a distance, a direction, an angle, a turn direction and a center."]},
+  {n:"DEBRIEF",m:4,s:"What a complete instruction contains",
+   do:["Pods report: what made an instruction work?",
+       "We are building the class list on the board. Copy it into your packet.",
+       "Tomorrow we turn this list into rules that work every time."],
+   tn:["Keep the list in THEIR words today. Tomorrow you replace their words with the real terms.",
+       "Do not hand them 'translation' or 'rotation' yet. They get those tomorrow, attached to something they already built."]},
+  {n:"EXIT TICKET",m:6,s:"Half sheet · hand to me at the door",
+   need:"Half sheet · pencil",
+   do:["Write the one instruction from today that a partner could follow with no questions asked.",
+       "Then write one that failed, and say what was missing from it.",
+       "Name and period. Hand it to me at the door."],
+   tn:["Sort these tonight into: names a distance and direction / names a turn completely / vague.",
+       "That sort is your Red–Yellow–Green for Monday."]}
+ ]},
+
+/* ============================ WED SEP 30 ============================ */
+{d:"Wed Sep 30",k:"math",t:"Translations & rotations — the rules",
+ targets:["3.1  ·  3.4","I can write a translation and a rotation as a rule and use it."],
+ links:[L.exp,L.sep30],
+ blocks:[
+  {n:"WARM UP",m:10,tool:"dm",s:"DeltaMath in class · points and quadrants · 10 min",
+   need:"Chromebook",
+   do:["Open DeltaMath: <b>U2 Warm Up · Points and Quadrants</b>. Ten items.",
+       "Plot each point and name the quadrant.",
+       "You already know this. It is here because everything today depends on it."],
+   tn:["Prior knowledge only — nothing from this unit has been taught yet.",
+       "Watch who is slow to plot. That is who will struggle at the board in twenty minutes."]},
+  {n:"WHAT BROKE YESTERDAY",m:5,s:"Their sentences, on the board",
+   need:"Week 1 packet, page 1",
+   do:["These are your sentences from Round 4.",
+       "Which one would work on any figure, on any grid, every time?",
+       "That is what a <u>rule</u> is. Today we write two of them."],
+   tn:["Use the actual sentences you collected. Borrowed examples do not land the same way."]},
+  {n:"TRANSLATIONS",m:12,s:"A slide · packet page 2 · pencil",
+   need:"Week 1 packet, page 2 · pencil",
+   do:["Fill in the TRANSLATION box on page 2 as we build it.",
+       "Every point moves the same <u>distance</u> in the same <u>direction</u>.",
+       "The rule: <b>(x, y) → (x + h, y + k)</b>.",
+       "The vector ⟨ h, k ⟩ says the same thing a different way."],
+   demo:D("Set h and k, then press Play.",[[-5,1],[-2,4],[-1,0]],null,null,
+     {kind:"trans",controls:true,h:6,k:-3,labels:["A","B","C"]}),
+   tn:["Run it once with a negative k. Ask what ⟨ 6, −3 ⟩ means before you press Play.",
+       "“Right 6, DOWN 3” — the sign is the whole point. Say it out loud."]},
+  {n:"ROTATIONS",m:14,s:"A turn · three things, not one",
+   need:"Week 1 packet, page 2 · pencil",
+   do:["A rotation needs THREE things. You found them yesterday in Round 3.",
+       "<b>Center</b> · <b>angle</b> · <b>direction</b>. Write all three on page 2.",
+       "Counterclockwise is the positive direction.",
+       "Now the three rules about the origin — fill the table on page 2."],
+   demo:D("Pick an angle and a direction, then press Play.",[[-5,1],[-2,4],[-1,0]],null,null,
+     {kind:"rot",controls:true,deg:90,labels:["A","B","C"]}),
+   tn:["90° ccw (−y, x) · 180° (−x, −y) · 270° ccw (y, −x).",
+       "Show 90° clockwise and 270° counterclockwise back to back. Same picture. Say it is the same turn."]},
+  {n:"WORKING BACKWARDS",m:10,s:"Given both figures, find the move",
+   do:["Now the other direction: you are given the figure AND the image.",
+       "Work one vertex at a time. What single move takes P to P′?",
+       "Then check it on Q and R. If either one fails, it was not the answer."],
+   demo:D("What translation maps △PQR onto △P′Q′R′? Work one piece at a time.",
+     [[2,-1],[5,0],[3,2]],[[-3,2],[0,3],[-2,5]],null,
+     {labels:["P","Q","R"],rule:"(x, y) → (x − 5, y + 3)      ⟨−5, 3⟩",
+      stages:[{arrows:[0],t:"Start with <b>P(2, −1)</b> and its image <b>P′(−3, 2)</b>."},
+              {arrows:[0,1],t:"Check it on <b>Q</b>. Same move?"},
+              {arrows:[0,1,2],t:"And <b>R</b>. All three agree, so the move is confirmed."}]}),
+   tn:["This is the half of the standard last year's test never asked. Spend the full ten minutes.",
+       "Insist on the check. A student who confirms on one vertex has guessed, not solved."]},
+  {n:"PRACTICE",m:4,s:"Packet page 2 · the two at the bottom",
+   need:"Week 1 packet, page 2",
+   do:["Work part (a) and part (b) at the bottom of page 2.",
+       "(b) starts from the ORIGINAL triangle, not from your answer to (a).",
+       "Check with the Explorer when you finish."],
+   tn:["The (b)-from-(a) mistake is the most common one on this page. Say it before they start."]},
+  {n:"EXIT TICKET",m:6,s:"Half sheet · hand to me at the door",
+   need:"Half sheet · pencil",
+   do:["1. Translate P(5, −2) along ⟨ −3, 4 ⟩. Give P′.",
+       "2. Rotate Q(4, −2) 90° counterclockwise about the origin. Give Q′.",
+       "Name and period. Hand it to me at the door."],
+   tn:["Answers: P′(2, 2) and Q′(2, 4).",
+       "Anyone writing Q′(−4, 2) negated instead of swapping. Pile those separately — they drive Monday."]}
+ ]},
+
+/* ============================ THU OCT 1 ============================= */
+{d:"Thu Oct 1",k:"lab",t:"Reflections",
+ targets:["3.1  ·  3.4","I can reflect a figure over a line and say why the image is where it is."],
+ links:[L.exp,L.laser],
+ blocks:[
+  {n:"WARM UP",m:8,tool:"dm",s:"DeltaMath in class · translations and rotations · 8 min",
+   need:"Chromebook",
+   do:["Open DeltaMath: <b>U2 · Translations and Rotations</b>. Eight items.",
+       "This is yesterday’s work. The rules are on page 2 of your packet if you need them."],
+   tn:["Eight items, not ten — today is tight and the lab at the end must not get squeezed."]},
+  {n:"THE FOLD TEST",m:10,s:"Patty paper · do this before any rule",
+   need:"Patty paper · pencil · Week 1 packet, page 3",
+   do:["Trace the triangle AND the dashed line onto your patty paper.",
+       "Fold along the dashed line. Trace the triangle through. Unfold.",
+       "Pick any corner and its image. Measure both distances to the fold.",
+       "They are equal.",
+       "That is the definition: each point and its image are the <u>same distance</u> from the <u>line of reflection</u>."],
+   demo:D("Watch the flip. Pick a different line and play it again.",[[2,1],[6,3],[4,6]],null,null,
+     {kind:"refl",controls:true,axis:"x",labels:["A","B","C"]}),
+   tn:["Physical first, rule second. Hold up a folded sheet and point at the two equal distances.",
+       "“Same distance from the line of reflection” is the wording the notebook and both tests use. Say it three times today."]},
+  {n:"THE RULES",m:10,s:"Packet page 3 · pencil",
+   need:"Week 1 packet, page 3 · pencil",
+   do:["Fill the four-rule table on page 3 as we work them out.",
+       "over the x-axis → (x, −y)",
+       "over the y-axis → (−x, y)",
+       "over y = x → (y, x)   — swap them. Do not negate.",
+       "over y = −x → (−y, −x)"],
+   tn:["y = x is where the year's most common reflection error lives: they negate instead of swapping.",
+       "Do one on the board the wrong way on purpose and ask what went wrong."]},
+  {n:"SEE IT HAPPEN",m:6,s:"Watch the flat moment",
+   do:["Switch the line to y = x and press Play.",
+       "Watch the figure go flat as it crosses. That is the moment the orientation reverses.",
+       "A reflection is the only rigid transformation that does that."],
+   demo:D("Switch the line, then press Play. Watch the flat moment.",[[2,1],[6,3],[4,6]],null,null,
+     {kind:"refl",controls:true,axis:"yx",labels:["A","B","C"]}),
+   tn:["Orientation reversal is what they will use on the project to tell a reflection from a rotation."]},
+  {n:"A LINE THAT IS NOT AN AXIS",m:7,s:"No rule — count squares",
+   need:"Week 1 packet, page 3",
+   do:["Reflecting over x = 1. There is no rule to memorize for this.",
+       "A is 1 square right of the line, so A′ is 1 square left of it.",
+       "The y never changes. Count, do not compute."],
+   demo:D("Reflecting over x = 1. Count the squares — there is no rule for this one.",
+     [[2,1],[6,3],[4,6]],[[0,1],[-4,3],[-2,6]],"A′(0, 1)   B′(−4, 3)   C′(−2, 6)",
+     {labels:["A","B","C"],vline:1}),
+   tn:["Both this year's tests have an x = a or y = b reflection. Do not skip this block.",
+       "Students who try to apply an axis rule land in the wrong place — show that failure once."]},
+  {n:"MIRROR SHOT",m:14,s:"The laser lab · packet page 4",
+   need:"Chromebook · Week 1 packet, page 4 · ruler",
+   do:["Open the <b>Mirror Shot</b> laser lab from the hub.",
+       "The laser at P must hit the target at T, but a barrier blocks the straight shot.",
+       "In your packet, reflect T over the line of reflection to find <u>T′</u>. Count the squares.",
+       "Aim straight at T′. The bounce takes care of itself.",
+       "Fire. If you miss, check T′ before you change the angle."],
+   tn:["The whole lab is one idea: aim at the image, not the target.",
+       "Step 4 (ten shots) is optional and only if a pod finishes early — it is about measurement error, not reflections.",
+       "The optional real-laser build needs the mirrors; skip it entirely if you did not order them."]},
+  {n:"EXIT TICKET",m:6,s:"Half sheet · hand to me at the door",
+   need:"Half sheet · pencil",
+   do:["1. Reflect A(3, −5) over the y-axis. Give A′.",
+       "2. Reflect B(2, 6) over the line y = x. Give B′.",
+       "Name and period. Hand it to me at the door."],
+   tn:["Answers: A′(−3, −5) and B′(6, 2).",
+       "Anyone writing B′(−2, −6) negated instead of swapping — the exact error from the rules block. Pile those for Monday."]}
+ ]},
+
+/* ============================ FRI OCT 2 ============================= */
+{d:"Fri Oct 2",k:"math",t:"Dilations",
+ targets:["3.3  ·  3.4","I can dilate a figure by a scale factor and tell rigid from not rigid."],
+ links:[L.exp],
+ blocks:[
+  {n:"WARM UP",m:10,tool:"gim",s:"Gimkit · Set B vocabulary · 10 min",
+   need:"Chromebook · join code on Screen 2",
+   do:["Join the Gimkit with the code on Screen 2. <b>Set B</b>.",
+       "Translations, rotations and reflections — everything taught so far this unit."],
+   tn:["Vocabulary only. Reflections were taught yesterday, so every word in this set is fair game."]},
+  {n:"WHAT IS DIFFERENT",m:6,s:"The first transformation that changes size",
+   need:"Week 1 packet, page 5",
+   do:["Every move so far kept the figure exactly the same size.",
+       "Watch this one. What changed that never changed before?",
+       "Today’s transformation is the one that breaks that rule."],
+   tn:["Let them name it: it got bigger. Then ask what did NOT change — the shape, the angles.",
+       "That distinction is the whole of standard 3.3."]},
+  {n:"THE RULE",m:12,s:"Packet page 5 · pencil",
+   need:"Week 1 packet, page 5 · pencil",
+   do:["Fill the dilation box on page 5 as we build it.",
+       "A dilation needs a <u>center</u> and a <u>scale factor k</u>.",
+       "About the origin the rule is <b>(x, y) → (kx, ky)</b>. Multiply BOTH coordinates.",
+       "k > 1 makes it bigger. 0 &lt; k &lt; 1 makes it smaller."],
+   demo:D("Pick a scale factor, then press Play.",[[1,2],[3,1],[2,3]],null,null,
+     {kind:"dil",controls:true,k:2,labels:["A","B","C"]}),
+   tn:["Run k = 1/2 and k = 2 back to back.",
+       "Draw the ray from the origin through a vertex and its image — it passes through both. That is the check they will use on the project."]},
+  {n:"RIGID OR NOT",m:10,s:"Congruent vs similar",
+   need:"Week 1 packet, page 6 · pencil",
+   do:["Fill the table at the top of page 6.",
+       "Translations, rotations and reflections keep every length the same. They are <u>rigid</u>, and the image is <u>congruent</u>.",
+       "A dilation changes length. Not rigid. The image is <u>similar</u> but not congruent.",
+       "Write the sentence that answers: is a dilation rigid? Why not?"],
+   tn:["Congruent and similar are the two words the written test and the project both use. Get them said out loud today.",
+       "Worth thirty seconds: k = 1 is the one dilation that IS rigid — nothing moves."]},
+  {n:"PRACTICE",m:11,s:"Packet pages 5 and 6",
+   need:"Week 1 packet, pages 5 and 6",
+   do:["Work △JKL with k = 1/2 and △DEF with k = 1/4 on page 5.",
+       "Then the four practice problems at the bottom of page 6.",
+       "Check yourself in the Explorer as you go."],
+   tn:["Problem 4 (perimeter under k = 3) is the one to walk. Perimeter scales by k; area scales by k squared.",
+       "If time runs short, cut the △DEF problem, not the perimeter one."]},
+  {n:"GO DEEPER",m:6,s:"Green group · the card in your packet",
+   need:"Go Deeper card",
+   do:["Finished and checked? Take the Go Deeper card out of your packet.",
+       "Pick any one problem. Write your answer on the back of the card.",
+       "These are not graded. They are the interesting ones."],
+   tn:["Card lives in the Week 1 packet all unit. Anyone can take one; nobody has to."]},
+  {n:"EXIT TICKET",m:6,s:"Half sheet · hand to me at the door",
+   need:"Half sheet · pencil",
+   do:["1. Dilate A(8, −4) about the origin with k = 1/4. Give A′.",
+       "2. Is a dilation a rigid transformation? One sentence, and say why.",
+       "Name and period. Hand it to me at the door."],
+   tn:["Answers: A′(2, −1). No — a dilation changes every length, so the image is not congruent.",
+       "Anyone scaling only one coordinate goes in the Monday pile for 3.3."]}
+ ]},
+
+/* ============================ MON OCT 5 ============================= */
+{d:"Mon Oct 5",k:"int",t:"Intervention",
+ targets:["3.1  ·  3.3","Close what the first week left open."],
+ links:[L.exp],
+ blocks:[
+  {n:"WARM UP",m:10,tool:"gim",s:"Gimkit · Set A, then groups · 10 min",
+   need:"Chromebook · join code on Screen 2",
+   do:["Join the Gimkit with the code on Screen 2. <b>Set A</b> — translations and rotations.",
+       "Then find your name on the RED / YELLOW / GREEN list on Screen 2."],
+   tn:["Sort from the Sep 29 – Oct 2 exit tickets. Lists posted BEFORE the bell — sorting live costs eight minutes, four times over."]},
+  {n:"TARGETED RETEACH",m:17,s:"RED with me · YELLOW and GREEN on DeltaMath",
+   need:"Week 1 packet · Chromebook",
+   do:["<b>RED:</b> bring your packet to the front table.",
+       "<b>YELLOW and GREEN:</b> start the DeltaMath set with your name on it."],
+   tn:["Teach the ONE standard the exit tickets say is thinnest — not a review of the week.",
+       "Most likely: reflections over y = x, or the negate-instead-of-swap rotation error."]},
+  {n:"REASSESSMENT",m:17,s:"Anyone below 3 reattempts that standard only",
+   need:"Pencil",
+   do:["If you are reassessing, you redo <u>one standard</u>, not the whole week.",
+       "Same format, different numbers. This is the score that counts."],
+   tn:["One page, one standard. Keeping it small is what makes it scoreable before Tuesday.",
+       "The score replaces the old one. That is the point of standards-based grading."]},
+  {n:"GREEN EXTENSION",m:11,s:"Go Deeper · or start looking ahead",
+   need:"Go Deeper card · Chromebook",
+   do:["<b>GREEN:</b> Go Deeper card, or open the Explorer and try two transformations in a row.",
+       "Tomorrow that has a name. See if you can work out what happens when you do."],
+   tn:["Letting GREEN meet compositions a day early costs nothing and pays off Tuesday."]},
+  {n:"LEDGER",m:6,s:"You fill this in while they pack up",
+   do:["Pack up and stack your packet on the side table."],
+   tn:["Two minutes on the ledger now is what makes next Monday worth having.",
+       "Record the standard and the evidence, not a score out of ten."]}
+ ]},
+
+/* ============================ TUE OCT 6 ============================= */
+{d:"Tue Oct 6",k:"lab",t:"Compositions",
+ targets:["3.2","I can carry out a sequence of transformations in order and name both images."],
+ links:[L.exp],
+ blocks:[
+  {n:"WARM UP",m:10,tool:"dm",s:"DeltaMath in class · reflections · 10 min",
+   need:"Chromebook",
+   do:["Open DeltaMath: <b>U2 · Reflections</b>. Ten items.",
+       "All four lines of reflection, plus two over a line like x = 3 or y = −2."],
+   tn:["The x = a items are the ones they miss. Watch for an axis rule applied to a non-axis line."]},
+  {n:"TWO IN A ROW",m:10,s:"Packet page 1 · pencil",
+   need:"Week 2 packet, page 1 · pencil",
+   do:["Fill the definition box on page 1 as we build it.",
+       "A <u>sequence of transformations</u> — also called a <u>composition</u> — is one move, then another.",
+       "The second move acts on the <u>image</u>, never on the original.",
+       "First image is A′, read “A prime.” Second is A″, read “A double prime.”",
+       "Work the example at the bottom of page 1."],
+   tn:["Double primes appear today for the first time all unit. Write A″ on the board and say it out loud.",
+       "The error to name now: doing step 2 to the original. You will see it within five minutes."]},
+  {n:"COMPOSITION LAB",m:23,s:"Explorer · Composition tab · packet pages 2–3",
+   need:"Chromebook · Week 2 packet, pages 2–3",
+   do:["Open the <b>Transformations Explorer</b> and click the <b>Composition</b> tab.",
+       "It starts with △ABC at A(2, 1), B(6, 2), C(4, 5) — the triangle in your packet.",
+       "<b>Problem 1:</b> set Step 1 and Step 2 to match, press Play, and copy A′ and A″ from the table.",
+       "<b>Problems 2 and 3:</b> work them in your packet FIRST, then check them in the Explorer.",
+       "Tick the yes/no box each time so you know which ones you got right on paper."],
+   tn:["Problem 1 is watch-only on purpose — they see the chain before they do one.",
+       "Circulate during 2 and 3. Anyone whose ″ is a single move of the original made the step-2 error."]},
+  {n:"ORDER MATTERS",m:12,s:"Packet page 3 · problem 4",
+   need:"Week 2 packet, page 3",
+   do:["Problem 4: the same two moves, in both orders.",
+       "Work column (a). Then work column (b). Do not assume — actually work it.",
+       "Did the triangle land in the same place?",
+       "Write the sentence that answers what that tells you."],
+   tn:["This is the block that earns 3.2 on the test and the project. Do not let it get cut.",
+       "If a pod claims both orders match, they did the second move on the original both times."]},
+  {n:"EXIT TICKET",m:6,s:"Half sheet · hand to me at the door",
+   need:"Half sheet · pencil",
+   do:["Q(3, 2) is reflected over the x-axis, then translated along ⟨ 1, 0 ⟩.",
+       "Give Q′ and then Q″. Both of them.",
+       "Name and period. Hand it to me at the door."],
+   tn:["Answers: Q′(3, −2) and Q″(4, −2).",
+       "A ticket with only one answer, or with Q″ as a single move of Q, is the step-2 error. That is tomorrow's CFA item 4."]}
+ ]},
+
+/* ============================ WED OCT 7 ============================= */
+{d:"Wed Oct 7",k:"assess",t:"Common Formative Assessment",
+ targets:["3.1 – 3.4","Show what you can do on each standard, on your own."],
+ links:[],
+ blocks:[
+  {n:"WARM UP",m:10,tool:"dm",s:"DeltaMath in class · compositions · 10 min",
+   need:"Chromebook",
+   do:["Open DeltaMath: <b>U2 · Compositions</b>. Eight items.",
+       "Two moves each. Show the first image before the second.",
+       "Then close the lid and clear your desk. Pencil only."],
+   tn:["Last practice before the CFA. Do not extend it — the assessment needs the rest of the period."]},
+  {n:"CFA",m:45,s:"Forms A and B · alternate down the rows",
+   need:"Pencil only · clear desk",
+   do:["Your neighbor has a different form. Check the letter at the top before you start.",
+       "Four standards. Each one is scored 0 to 4 on its own. <u>There is no total.</u>",
+       "Show your work. A correct answer with no work cannot be scored.",
+       "Finished early? Go back to the standard you felt worst about."],
+   tn:["Alternate A/B down the rows, not across — rows are how they actually see each other's papers.",
+       "This is a department common assessment. Same window in every section.",
+       "It does not need all 45 minutes. The extra time is deliberate — nobody should be rushed."]},
+  {n:"COLLECT AND SETTLE",m:6,s:"Papers in, then look ahead",
+   do:["Papers forward. Name and period on every one.",
+       "Tomorrow we go through the standards you are thinnest on — you will get these back first thing."],
+   tn:["Score tonight if you can. Tomorrow's whole plan depends on the four standard piles.",
+       "Sort papers by standard, not by student — that is the sort Thursday needs."]}
+ ]},
+
+/* ============================ THU OCT 8 ============================= */
+{d:"Thu Oct 8",k:"math",t:"Review",
+ targets:["3.1 – 3.4","Find my weakest standard and fix it before tomorrow."],
+ links:[L.exp],
+ blocks:[
+  {n:"WARM UP",m:10,tool:"dm",s:"DeltaMath in class · mixed review · 10 min",
+   need:"Chromebook",
+   do:["Open DeltaMath: <b>U2 Mixed Review</b>. Twelve items, every topic.",
+       "Note which kind you get wrong. That is what you review today."],
+   tn:["The point is diagnosis, not practice. Tell them to write down the TYPE they miss."]},
+  {n:"CFA BACK",m:12,s:"Four scores, not one · packet page 4",
+   need:"CFA paper · Week 2 packet, page 4",
+   do:["Your CFA is back. Four scores, one per standard. There is no total — do not add them up.",
+       "Open your packet to page 4 and fill in the Got it / Not yet table from your scores.",
+       "Write your weakest standard in the box. That is what you work on for the rest of today."],
+   tn:["Say plainly that a 2 on one standard does not sink the other three. That is the point of the model.",
+       "Anyone at 3 or 4 across the board goes straight to the project preview material."]},
+  {n:"WORK YOUR STANDARD",m:27,s:"Four corners · go to yours",
+   need:"Notebook · Week 1 and 2 packets · Chromebook",
+   do:["Go to the corner for your weakest standard. The signs are up.",
+       "<b>3.1</b> notebook sections 1–3 · <b>3.2</b> section 5 · <b>3.3</b> section 4 · <b>3.4</b> the rule boxes in all of them.",
+       "Work the practice problems in that section. Answers are in Section 7.",
+       "When you can do three in a row without checking, you are done. Move to your second weakest."],
+   tn:["Stay with the 3.1 corner — it will be the biggest and it carries the most items tomorrow.",
+       "Do not lecture. They have the notebook, the answers and each other. Circulate and answer."]},
+  {n:"ONE OF EACH",m:6,s:"Packet page 4 · four problems",
+   need:"Week 2 packet, page 4",
+   do:["Work the four problems at the bottom of page 4 — one per standard.",
+       "If you can do all four, you are ready for tomorrow.",
+       "If one of them stops you, that is tonight’s notebook section."],
+   tn:["Answers: P′(−4, −3) · Q″(−2, 5) · R′(−2, 3) · (−y, −x)."]},
+  {n:"EXIT TICKET",m:6,s:"Half sheet · hand to me at the door",
+   need:"Half sheet · pencil",
+   do:["Write the standard you are weakest on, and the one thing you fixed today.",
+       "Then write what you will look at tonight.",
+       "Name and period. Hand it to me at the door."],
+   tn:["Read these on the way out. Anyone naming the same standard they named at the CFA needs you in the first five minutes tomorrow."]}
+ ]},
+
+/* ============================ FRI OCT 9 ============================= */
+{d:"Fri Oct 9",k:"assess",t:"Unit 2 Test",
+ targets:["3.1 – 3.4","Show what you can do on each standard."],
+ links:[],
+ blocks:[
+  {n:"SETTLE",m:3,s:"Desks clear · pencil only",
+   need:"Pencil only",
+   do:["Bags down. Desks clear. Pencil only.",
+       "Your neighbor has a different form. Check the number at the top."],
+   tn:["Forms 1 and 2 alternate down the rows."]},
+  {n:"THE TEST",m:50,s:"Forms 1 and 2 · 20 items · four standards",
+   need:"Pencil only",
+   do:["Four standards, five items each. Each standard is scored 0 to 4 on its own.",
+       "<u>There is no total.</u> A weak standard does not sink the rest.",
+       "Show your work. A correct answer with no work cannot be scored.",
+       "Finished early? Go back to the standard you felt worst about."],
+   tn:["Sections are labeled by standard — a student who knows they are weak on 3.3 can budget for it.",
+       "Blind-score ten papers across sections and both forms before entering anything."]},
+  {n:"PROJECT LAUNCH",m:8,s:"What Tuesday looks like",
+   need:"Nothing — just listen",
+   do:["Papers forward.",
+       "Tuesday you start the project: <b>Lay Out the Hotel</b>. Three days, and it is the last thing in this unit.",
+       "You are the architect. Every part of the floor gets placed by a transformation — the same four you were just tested on.",
+       "You will get a plan letter and an 11×17 grid sheet on Tuesday. Your letter is yours; your neighbor has a different one."],
+   tn:["Ten minutes of preview now saves twenty on Tuesday. Show the grid sheet on the document camera.",
+       "Say the due date out loud: Thursday, October 15, at the end of the period."]}
+ ]},
+
+/* ============================ MON OCT 12 ============================ */
+{d:"Mon Oct 12",k:"int",t:"Intervention",
+ targets:["3.1 – 3.4","Reassess anything below a 3 before the project."],
+ links:[L.exp],
+ blocks:[
+  {n:"WARM UP",m:10,tool:"gim",s:"Gimkit · Set C, then groups · 10 min",
+   need:"Chromebook · join code on Screen 2",
+   do:["Join the Gimkit with the code on Screen 2. <b>Set C</b> — everything through compositions.",
+       "Then find your name on the list on Screen 2."],
+   tn:["You now have CFA and test data on all four standards. Sort from both."]},
+  {n:"TARGETED RETEACH",m:17,s:"RED with me · YELLOW and GREEN on DeltaMath",
+   need:"Notebook · Chromebook",
+   do:["<b>RED:</b> bring your notebook to the front table.",
+       "<b>YELLOW and GREEN:</b> start the DeltaMath set with your name on it."],
+   tn:["Cross-reference the two: strong on the graphing items but weak on writing the rule means they can DO a transformation and cannot SPECIFY one. That is 3.4, and the project will expose it in every rung.",
+       "Fixing 3.4 today is worth more than anything else — it is half of every project rung."]},
+  {n:"REASSESSMENT",m:17,s:"One standard, not the whole test",
+   need:"Pencil",
+   do:["If you are reassessing, you redo <u>one standard</u>.",
+       "Same format, different numbers. This score replaces the old one."],
+   tn:["Anyone below 3 on 3.1 or 3.2 should reassess before Tuesday — the project leans on both."]},
+  {n:"GREEN EXTENSION",m:11,s:"Look at the project early",
+   need:"Chromebook",
+   do:["<b>GREEN:</b> think about the extension rung on the project — designing your own floor.",
+       "What constraints would make a floor hard to design? Write three."],
+   tn:["Students who pre-think the constraints produce much stronger extension work on Thursday."]},
+  {n:"LEDGER",m:6,s:"You fill this in while they pack up",
+   do:["Pack up. Bring your notebook Tuesday — you will need it for the project."],
+   tn:["Last ledger entry of the unit. Anyone still below 3 after today gets flagged for the unit sheet."]}
+ ]},
+
+/* ============================ TUE OCT 13 ============================ */
+{d:"Tue Oct 13",k:"math",t:"Project · day 1",
+ targets:["3.1  ·  3.4","Place the guest rooms with translations, reflections and a rotation."],
+ links:[L.exp],
+ blocks:[
+  {n:"LAUNCH",m:12,s:"Plan letters and grid sheets out",
+   need:"Booklet · 11×17 grid sheet · ruler · pencil",
+   do:["Take the booklet and the grid sheet with <u>the same plan letter</u>. Check they match.",
+       "Write your name on BOTH. They get turned in together on Thursday.",
+       "Read the cover. Room 101 and the two corridors are already drawn for you.",
+       "Everything else on this floor you place yourself, with a transformation."],
+   tn:["Hand out by row so neighbors get different letters. Six letters, about 23 of each.",
+       "Say it once: the booklet holds the coordinates and the writing, the grid sheet holds the drawing. Both are scored."]},
+  {n:"RUNG 1 AND 2",m:23,s:"The east corridor, then across it",
+   need:"Booklet · grid sheet",
+   do:["<b>Rung 1:</b> translate Room 101 twice to place Rooms 102 and 103. Write the rule.",
+       "<b>Rung 2:</b> reflect Room 101 over the x-axis to place Room 100.",
+       "Draw each room on the grid sheet AND write its coordinates in the booklet.",
+       "Answer the writing box under each rung. It is half the score."],
+   tn:["The writing boxes are where 3.4 lives. Students who skip them cap at a 2 on that standard.",
+       "Circulate for the reflection: a room on the wrong side of the corridor means they negated x."]},
+  {n:"RUNG 3 AND 4",m:20,s:"Turn the corner, then the stairwell",
+   need:"Booklet · grid sheet",
+   do:["<b>Rung 3:</b> reflect Room 101 over the line in your booklet to start the north wing.",
+       "<b>Rung 4:</b> rotate the east stairwell about the origin to place the second one.",
+       "Both rungs have a check box underneath. Do the check before you move on."],
+   tn:["Rung 3 is the y = x / y = −x error, and it is visible from across the room — a wing in the wrong quadrant.",
+       "Rung 4 catches anyone who trades 90° and 270°. Point at the sign pattern, not the picture."]},
+  {n:"WRAP",m:6,s:"Where you should be",
+   do:["By the end of today you should have Rungs 1 through 4 drawn and written.",
+       "Tomorrow: the suite, the vending alcove and the lobby.",
+       "Leave the grid sheet flat in your folder. Do not fold it."],
+   tn:["Quick scan as they pack: anyone with fewer than three rooms drawn needs a nudge tomorrow."]}
+ ]},
+
+/* ============================ WED OCT 14 ============================ */
+{d:"Wed Oct 14",k:"math",t:"Project · day 2",
+ targets:["3.2  ·  3.3  ·  3.4","Scale two rooms and place the lobby with a sequence of two moves."],
+ links:[L.exp],
+ blocks:[
+  {n:"CHECK IN",m:8,s:"Rungs 1–4 should be done",
+   need:"Booklet · grid sheet",
+   do:["Out with the booklet and the grid sheet.",
+       "Rungs 1 through 4 should be drawn and written. If one is missing, finish it first.",
+       "Two things to check before you go on: is every room the same size? Do the two wings meet at the lobby?"],
+   tn:["Five minutes of triage now. Anyone stuck on rung 3 gets you at their desk before the new content."]},
+  {n:"RUNG 5",m:28,s:"The suite and the vending alcove · dilations",
+   need:"Booklet · grid sheet",
+   do:["<b>(a) The suite:</b> dilate Room 100 with k = 2.",
+       "<b>(b) The vending alcove:</b> the draft came back twice as big. Dilate it with k = 1/2 to fix it.",
+       "Sketch both on the small grid in the booklet first, then put them on the big sheet.",
+       "Draw the line from the origin through one vertex and its image. It should pass through both.",
+       "Then answer the inspector’s question underneath."],
+   tn:["The surprise is that the suite MOVES as well as growing. Expect that question and have the answer ready: the center is the origin, not the room.",
+       "The inspector's question is the 3.3 evidence — similar, not congruent."]},
+  {n:"RUNG 6",m:18,s:"The lobby · two moves in a row",
+   need:"Booklet · grid sheet",
+   do:["Rotate the lobby block 180° about the origin. That is the <u>′</u> image.",
+       "Then translate that image along the vector in your booklet. That is <u>″</u>.",
+       "Mark BOTH on the grid sheet, labeled ′ and ″.",
+       "Then the order question: do the same two moves the other way round. Same place or not?"],
+   tn:["This rung is the only 3.2 evidence in the whole project. Do not let it get squeezed.",
+       "If ″ is a single move of the original, they did step 2 to the wrong figure — the same error as the Oct 6 exit ticket."]},
+  {n:"WRAP",m:7,s:"One rung left",
+   do:["Tomorrow: the rule sheet, then design your own floor.",
+       "Everything except the rule sheet should be drawn by now.",
+       "Grid sheet flat in the folder."],
+   tn:["Anyone who has not started rung 5 will not finish the extension. Note names and start them there tomorrow."]}
+ ]},
+
+/* ============================ THU OCT 15 ============================ */
+{d:"Thu Oct 15",k:"assess",t:"Project · day 3 and due",
+ targets:["3.1 – 3.4","Write every placement as a rule, then design a floor of my own."],
+ links:[L.exp],
+ blocks:[
+  {n:"RUNG 7",m:15,s:"The rule sheet · this is the 3.4 evidence",
+   need:"Booklet",
+   do:["Fill in the rule sheet: every placement on this floor, written as a rule.",
+       "Six rows. Name the transformation AND write the rule.",
+       "Then circle the four that are rigid, and write what those four have in common.",
+       "If a rule is missing, go back to that rung and work it out. Do not guess."],
+   tn:["This page alone can move a student from 2 to 4 on 3.4. Say that out loud.",
+       "The four rigid ones: both translations, both reflections, the rotation. The two dilations are not."]},
+  {n:"RUNG 8",m:26,s:"Design your own floor · the extension",
+   need:"Booklet · back of the grid sheet",
+   do:["Now design a floor of your own on the back of your grid sheet.",
+       "Read the constraint list. All of them have to be true.",
+       "You must use all four transformations at least once, and write the rule for each.",
+       "Sketch on the booklet grid first if it helps."],
+   tn:["This is where a student who already meets a standard earns the 4. It is not extra credit and it is not optional.",
+       "Common miss: a 'suite' that is congruent rather than similar. The constraint says not congruent."]},
+  {n:"FINAL CHECK",m:12,s:"Before you hand it in",
+   need:"Booklet · grid sheet",
+   do:["Name and plan letter on BOTH the booklet and the grid sheet.",
+       "Every rung has coordinates in the booklet AND a drawing on the sheet.",
+       "Every writing box has an answer. A blank box scores nothing.",
+       "The rule sheet is filled in.",
+       "Trade with a neighbor who has a different letter and check each other’s list."],
+   tn:["The peer check catches missing writing boxes better than you can in twelve minutes.",
+       "Remind them the writing is half the score — a perfect drawing with blank boxes is a 2."]},
+  {n:"TURN IN",m:8,s:"Booklet and grid sheet together",
+   do:["Booklet on top, grid sheet underneath, stapled if you have one.",
+       "Hand both to me. That is Unit 2.",
+       "Tomorrow we start Unit 3 — triangles."],
+   tn:["Sort into the six plan letters as they come in. Scoring one letter at a time is far faster than mixed.",
+       "Unit 3 begins tomorrow, Friday October 16."]}
+ ]}
+];
+
+/* ---------- demo renderer ---------- */
+var LO=-8,HI=8,V=340,revealed=false,showTN=true;
+function dx(x){return (x-LO)/(HI-LO)*V}
+function dy(y){return V-(y-LO)/(HI-LO)*V}
+function regular(n,r,rot){var p=[];for(var i=0;i<n;i++){
+    var a=(rot+i*360/n)*Math.PI/180; p.push([r*Math.cos(a),r*Math.sin(a)]);}return p}
+var P={h:6,k:-3,deg:90,dir:1,axis:"x",c:0,kk:2};
+function rotp(p,d){var a=d*Math.PI/180,c=Math.cos(a),si=Math.sin(a);
+  return [p[0]*c-p[1]*si, p[0]*si+p[1]*c]}
+/* a reflection is a flip: collapse onto the line, then open out the far side.
+   t = 0 is the original, t = 1 is the image, t = 0.5 sits flat on the line.   */
+function reflp(p,t){
+  var ax=P.axis, c=P.c, th, q;
+  if(ax==="x")      { return [p[0], c + (p[1]-c)*(1-2*t)]; }
+  if(ax==="y")      { return [c + (p[0]-c)*(1-2*t), p[1]]; }
+  th = (ax==="yx") ? 45 : -45;
+  q = rotp(p,-th);                       // line becomes the x-axis
+  q = [q[0], q[1]*(1-2*t)];
+  return rotp(q,th);
+}
+function reflLabel(){
+  return {x:"the x-axis", y:"the y-axis", yx:"the line y = x", ynx:"the line y = \u2212x"}[P.axis]
+    || ("the line "+(P.axis==="v"?"x = ":"y = ")+P.c);
+}
+function easeC(t){return t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2}
+function endPts(dm){
+  var b=dm.pre;
+  if(dm.kind==="trans") return b.map(function(p){return [p[0]+P.h,p[1]+P.k]});
+  if(dm.kind==="rot")   return b.map(function(p){return rotp(p,P.deg*P.dir)});
+  if(dm.kind==="refl")  return b.map(function(p){return reflp(p,1).map(function(v){
+                            return Math.round(v*1e9)/1e9})});
+  if(dm.kind==="dil")   return b.map(function(p){return [p[0]*P.kk, p[1]*P.kk]});
+  return dm.img;
+}
+function ruleOf(dm){
+  if(dm.kind==="trans"){
+    var a=P.h>=0?"x + "+P.h:"x \u2212 "+Math.abs(P.h);
+    var b=P.k>=0?"y + "+P.k:"y \u2212 "+Math.abs(P.k);
+    return ["The rule","(x, y) \u2192 ("+a+", "+b+")      \u27E8"+P.h+", "+P.k+"\u27E9"];
+  }
+  if(dm.kind==="dil"){
+    var kt = (P.kk===0.25)?"\u00BC":(P.kk===0.5)?"\u00BD":String(P.kk);
+    return ["The rule","k = "+kt+"      (x, y) \u2192 ("+kt+"x, "+kt+"y)"+
+      (P.kk>1?"      enlargement":"      reduction")];
+  }
+  if(dm.kind==="refl"){
+    var r={x:"(x, \u2212y)",y:"(\u2212x, y)",yx:"(y, x)",ynx:"(\u2212y, \u2212x)"}[P.axis];
+    return ["The rule", r
+      ? "over "+reflLabel()+"      (x, y) \u2192 "+r
+      : "over "+reflLabel()+"      no simple rule \u2014 count the squares across"];
+  }
+  if(dm.kind==="rot"){
+    var a=((P.deg*P.dir)%360+360)%360;
+    var r={0:"(x, y)",90:"(\u2212y, x)",180:"(\u2212x, \u2212y)",270:"(y, \u2212x)"}[a];
+    var said=P.deg+"\u00B0 "+(P.dir>0?"counterclockwise":"clockwise");
+    return ["The rule", said+(P.dir<0&&a!==180&&a!==0?"  =  "+a+"\u00B0 CCW":"")+"      (x, y) \u2192 "+r];
+  }
+  return ["",""];
+}
+var dmLive=null, rafC=null, stage=0;
+
+/* ============ ANIMATED MODELS: spin, fold, compose, orient, pictures ============ */
+var ANIM_RAF=null, animLive=null, animSel=0;
+var SHAPES={
+  square:[[-3,-3],[3,-3],[3,3],[-3,3]],
+  L:[[-3,-3],[2,-3],[2,-1],[-1,-1],[-1,3],[-3,3]],
+  para:[[-4,-2],[2,-2],[4,2],[-2,2]],
+  hex:null, tri:null, pent:null
+};
+function regPts(n,r){var p=[];for(var i=0;i<n;i++){var a=(90+i*360/n)*Math.PI/180;p.push([r*Math.cos(a),r*Math.sin(a)])}return p}
+SHAPES.hex=regPts(6,4.2); SHAPES.tri=regPts(3,4.4); SHAPES.pent=regPts(5,4.2);
+var SYM={ square:{rot:[90,180,270,360],lines:[0,45,90,135]},
+          L:{rot:[360],lines:[]},
+          para:{rot:[180,360],lines:[]},
+          hex:{rot:[60,120,180,240,300,360],lines:[90,60,30,0,150,120]},
+          tri:{rot:[120,240,360],lines:[90,30,150]},
+          pent:{rot:[72,144,216,288,360],lines:[90,54,18,162,126]} };
+function rotP(p,deg){var a=deg*Math.PI/180,c=Math.cos(a),s2=Math.sin(a);return [p[0]*c-p[1]*s2,p[0]*s2+p[1]*c]}
+function flipAcross(p,deg,t){ var q=rotP(p,-deg); q=[q[0],q[1]*(1-2*t)]; return rotP(q,deg); }
+function gridBase(svg,lo,hi){
+  LO=lo;HI=hi;
+  for(var v=LO;v<=HI;v++){
+    svg.appendChild(el("line",{x1:dx(v),y1:dy(LO),x2:dx(v),y2:dy(HI),stroke:"var(--line)","stroke-width":.7}));
+    svg.appendChild(el("line",{x1:dx(LO),y1:dy(v),x2:dx(HI),y2:dy(v),stroke:"var(--line)","stroke-width":.7}));}
+}
+function polyA(svg,pts,col,opt){
+  opt=opt||{};
+  var d=pts.map(function(p,i){return (i?"L":"M")+dx(p[0])+" "+dy(p[1])}).join(" ")+" Z";
+  var a={d:d,fill:opt.fill||"none",stroke:col,"stroke-width":opt.w||2.4,"stroke-linejoin":"round"};
+  if(opt.dash)a["stroke-dasharray"]=opt.dash;
+  if(opt.op!==undefined)a["opacity"]=opt.op;
+  var pa=el("path",a); svg.appendChild(pa); return pa;
+}
+function capA(txt,col){var b=$("dAns");b.innerHTML="";var d=document.createElement("div");
+  d.innerHTML=txt;if(col)d.style.color=col;b.appendChild(d);}
+function ruleA(txt){$("dRule").innerHTML=txt?"<span>Watch for</span>"+txt:""}
+
+function drawAnim(an,play){
+  animLive=an; cancelAnimationFrame(ANIM_RAF);
+  var svg=$("dSvg"); while(svg.firstChild)svg.removeChild(svg.firstChild);
+  var T=an.type;
+  if(T==="spin")    return spinAnim(svg,an,play);
+  if(T==="fold")    return foldAnim(svg,an,play);
+  if(T==="compose") return composeAnim(svg,an,play);
+  if(T==="orient")  return orientAnim(svg,an,play);
+  if(T==="pic")     return picAnim(svg,an);
+}
+function spinAnim(svg,an,play){
+  gridBase(svg,-7,7);
+  var name=(an.shapes||["square"])[animSel]||"square", P=SHAPES[name], sym=SYM[name].rot;
+  polyA(svg,P,"var(--muted)",{dash:"6 5",w:2});
+  svg.appendChild(el("circle",{cx:dx(0),cy:dy(0),r:4,fill:"var(--warn)"}));
+  var mv=el("g",{}); svg.appendChild(mv);
+  var label={square:"square",L:"L-shape",para:"parallelogram",hex:"regular hexagon",tri:"triangle",pent:"pentagon"}[name];
+  ruleA("the dashed outline stays put. Count every time the "+label+" lands exactly inside it.");
+  if(!play){ polyA(mv,P,"var(--img)",{w:2.8}); capA("Press Play to spin the "+label+" one full turn."); return; }
+  var t0=null, DUR=7000, hits=[];
+  (function go(ts){ if(!t0)t0=ts; var u=Math.min(1,(ts-t0)/DUR), ang=360*u;
+    while(mv.firstChild)mv.removeChild(mv.firstChild);
+    var match=sym.filter(function(a){return Math.abs(a-ang)<2.2});
+    if(match.length && hits.indexOf(match[0])<0) hits.push(match[0]);
+    var on=match.length>0;
+    polyA(mv,P.map(function(p){return rotP(p,ang)}),on?"var(--go)":"var(--img)",
+          {w:on?4:2.8,fill:on?"color-mix(in srgb,var(--go) 22%,transparent)":"none"});
+    capA("Turned "+Math.round(ang)+"\u00B0 &nbsp;&middot;&nbsp; landed on itself <b>"+hits.length+"</b> time"+(hits.length===1?"":"s")+
+         (on?" &nbsp;<b style='color:var(--go)'>\u2713 MATCH</b>":""));
+    if(u<1) ANIM_RAF=requestAnimationFrame(go);
+    else capA("<b>"+label+":</b> landed on itself <b>"+hits.length+"</b> time"+(hits.length===1?"":"s")+
+              " in one full turn \u2014 order "+hits.length+
+              (hits.length>1?". Smallest turn that works: "+sym[0]+"\u00B0.":". It only matches at the full 360\u00B0, so it has NO rotational symmetry."),
+              hits.length>1?"var(--go)":"var(--warn)");
+  })(performance.now());
+}
+function foldAnim(svg,an,play){
+  gridBase(svg,-7,7);
+  var name=(an.shapes||["square"])[animSel]||"square", P=SHAPES[name];
+  var lines=(SYM[name].lines.length?SYM[name].lines:(an.tryLines||[0,90,45]));
+  var isSym=SYM[name].lines.length>0;
+  var label={square:"square",L:"L-shape",para:"parallelogram",hex:"hexagon",tri:"triangle",pent:"pentagon"}[name];
+  ruleA("a fold works when one half lands exactly on the other half.");
+  if(!play){ polyA(svg,P,"var(--img)",{w:2.8}); capA("Press Play to cut out the "+label+", then fold it."); return; }
+  var outline=polyA(svg,P,"var(--img)",{w:2.8});
+  var len=outline.getTotalLength?outline.getTotalLength():1400;
+  outline.setAttribute("stroke-dasharray",len); outline.setAttribute("stroke-dashoffset",len);
+  var mv=el("g",{}); svg.appendChild(mv);
+  var t0=null, CUT=1600, EACH=2300, works=0, li=-1;
+  (function go(ts){ if(!t0)t0=ts; var e=ts-t0;
+    if(e<CUT){ outline.setAttribute("stroke-dashoffset",len*(1-e/CUT));
+      capA("\u2702 Cutting out the "+label+"\u2026"); ANIM_RAF=requestAnimationFrame(go); return; }
+    outline.setAttribute("stroke-dashoffset",0);
+    var k=Math.floor((e-CUT)/EACH);
+    if(k>=lines.length){
+      while(mv.firstChild)mv.removeChild(mv.firstChild);
+      capA(isSym ? "<b>"+label+":</b> "+works+" fold"+(works===1?"":"s")+" worked \u2014 "+works+" lines of symmetry."
+                 : "<b>"+label+":</b> none of the folds made the halves match \u2014 0 lines of symmetry.",
+           isSym?"var(--go)":"var(--warn)");
+      return; }
+    var deg=lines[k], t=Math.min(1,((e-CUT)%EACH)/(EACH*0.7));
+    if(k!==li){ li=k; if(isSym) works=k; }
+    while(mv.firstChild)mv.removeChild(mv.firstChild);
+    var R=7.2, a=deg*Math.PI/180;
+    mv.appendChild(el("line",{x1:dx(-R*Math.cos(a)),y1:dy(-R*Math.sin(a)),x2:dx(R*Math.cos(a)),y2:dy(R*Math.sin(a)),
+      stroke:"var(--warn)","stroke-width":2,"stroke-dasharray":"7 5"}));
+    var F=P.map(function(p){return flipAcross(p,deg,t)});
+    polyA(mv,F,"var(--go)",{w:2.6,fill:"color-mix(in srgb,var(--go) 20%,transparent)",op:.95});
+    var done=t>=1;
+    if(done && isSym && works<k+1) works=k+1;
+    capA("Fold "+(k+1)+" of "+lines.length+(done?(isSym?" &nbsp;<b style='color:var(--go)'>\u2713 the halves match</b>"
+                                                        :" &nbsp;<b style='color:var(--warn)'>\u2717 the halves do NOT match</b>"):"\u2026"));
+    ANIM_RAF=requestAnimationFrame(go);
+  })(performance.now());
+}
+function composeAnim(svg,an,play){
+  gridBase(svg,-8,8);
+  svg.appendChild(el("line",{x1:dx(-8),y1:dy(0),x2:dx(8),y2:dy(0),stroke:"var(--muted)","stroke-width":1.5}));
+  svg.appendChild(el("line",{x1:dx(0),y1:dy(-8),x2:dx(0),y2:dy(8),stroke:"var(--muted)","stroke-width":1.5}));
+  var A=an.pre, L=an.labels||["A","B","C"];
+  var one=A.map(an.f1), two=one.map(an.f2);
+  var lab=function(pts,col,suf){pts.forEach(function(p,i){
+    var t=el("text",{x:dx(p[0])+6,y:dy(p[1])-6,"font-size":12,"font-weight":700,fill:col});
+    t.textContent=L[i]+suf; svg.appendChild(t);});};
+  polyA(svg,A,"var(--pre)",{w:2.6}); lab(A,"var(--pre)","");
+  ruleA("Step 1: "+an.s1+" &nbsp;\u2192&nbsp; Step 2: "+an.s2);
+  var mv=el("g",{}); svg.appendChild(mv);
+  if(!play){ polyA(svg,one,"#e0a35c",{dash:"6 4"}); lab(one,"#e0a35c","\u2032");
+             polyA(svg,two,"var(--img)",{w:2.8}); lab(two,"var(--img)","\u2033");
+             capA("Press Play to watch Step 1, then Step 2."); return; }
+  var t0=null,DUR=3400;
+  (function go(ts){ if(!t0)t0=ts; var u=Math.min(1,(ts-t0)/DUR);
+    while(mv.firstChild)mv.removeChild(mv.firstChild);
+    var cur;
+    if(u<0.5){ var e=u*2; cur=A.map(function(p,i){return [p[0]+(one[i][0]-p[0])*e,p[1]+(one[i][1]-p[1])*e]});
+      capA("<b>Step 1:</b> "+an.s1+" \u2026 this makes A\u2032"); }
+    else { polyA(mv,one,"#e0a35c",{dash:"6 4"}); var e2=(u-0.5)*2;
+      cur=one.map(function(p,i){return [p[0]+(two[i][0]-p[0])*e2,p[1]+(two[i][1]-p[1])*e2]});
+      capA("<b>Step 2:</b> "+an.s2+" \u2014 applied to A\u2032, not the original"); }
+    polyA(mv,cur,"var(--img)",{w:2.8});
+    if(u<1) ANIM_RAF=requestAnimationFrame(go);
+    else { while(mv.firstChild)mv.removeChild(mv.firstChild);
+      polyA(mv,one,"#e0a35c",{dash:"6 4"}); lab(one,"#e0a35c","\u2032");
+      polyA(mv,two,"var(--img)",{w:2.8}); lab(two,"var(--img)","\u2033");
+      capA("A\u2032 is after Step 1. A\u2033 is after Step 2.","var(--go)"); }
+  })(performance.now());
+}
+function orientAnim(svg,an,play){
+  gridBase(svg,-8,8);
+  svg.appendChild(el("line",{x1:dx(0),y1:dy(-8),x2:dx(0),y2:dy(8),stroke:"var(--warn)","stroke-width":2,"stroke-dasharray":"6 5"}));
+  var cases=an.cases, C=cases[animSel]||cases[0];
+  var A=C.pre, B=C.img, L=["A","B","C"];
+  var sgn=function(P){var s=0;for(var i=0;i<3;i++){var a=P[i],b=P[(i+1)%3];s+=a[0]*b[1]-b[0]*a[1]}return s};
+  var dir=function(P){return sgn(P)>0?"counterclockwise":"clockwise"};
+  var draw3=function(P,col,suf){polyA(svg,P,col,{w:2.4});P.forEach(function(p,i){
+    svg.appendChild(el("circle",{cx:dx(p[0]),cy:dy(p[1]),r:4,fill:col}));
+    var t=el("text",{x:dx(p[0])+7,y:dy(p[1])-7,"font-size":14,"font-weight":800,fill:col});t.textContent=L[i]+suf;svg.appendChild(t);})};
+  draw3(A,"var(--pre)",""); draw3(B,"var(--img)","\u2032");
+  ruleA(C.label);
+  var mv=el("g",{}); svg.appendChild(mv);
+  if(!play){ capA("Press Play. Follow the dot: A \u2192 B \u2192 C \u2192 back to A."); return; }
+  var path=function(P,u){var seg=[P[0],P[1],P[2],P[0]];var f=u*3,i=Math.min(2,Math.floor(f)),r=f-i;
+    return [seg[i][0]+(seg[i+1][0]-seg[i][0])*r, seg[i][1]+(seg[i+1][1]-seg[i][1])*r];};
+  var t0=null,DUR=6000;
+  (function go(ts){ if(!t0)t0=ts; var u=Math.min(1,(ts-t0)/DUR);
+    while(mv.firstChild)mv.removeChild(mv.firstChild);
+    var first=u<0.5, P=first?A:B, uu=first?u*2:(u-0.5)*2, pt=path(P,uu);
+    mv.appendChild(el("circle",{cx:dx(pt[0]),cy:dy(pt[1]),r:8,fill:"var(--warn)"}));
+    capA(first ? "Pre-image: A \u2192 B \u2192 C goes <b>"+dir(A)+"</b>"
+               : "Pre-image was <b>"+dir(A)+"</b>. Image: A\u2032 \u2192 B\u2032 \u2192 C\u2032 goes <b>"+dir(B)+"</b>");
+    if(u<1) ANIM_RAF=requestAnimationFrame(go);
+    else { var rev=dir(A)!==dir(B);
+      capA(rev ? "The direction <b>REVERSED</b> \u2014 so a <b>reflection</b> happened."
+               : "The direction <b>STAYED THE SAME</b> \u2014 so it was a slide or a turn, NOT a reflection.",
+           rev?"var(--warn)":"var(--go)"); }
+  })(performance.now());
+}
+function picAnim(svg,an){
+  gridBase(svg,-7,7);
+  ruleA(an.rule||"");
+  if(an.pic==="pattern"){
+    var list=[["tri",-4.2,3.4,3],["square",3.6,3.4,4],["pent",-4.2,-3.4,5],["hex",3.6,-3.4,6]];
+    list.forEach(function(it){
+      var P=SHAPES[it[0]].map(function(p){return [p[0]*0.55+it[1],p[1]*0.55+it[2]]});
+      var ls=SYM[it[0]].lines;
+      ls.forEach(function(deg){var a=deg*Math.PI/180,R=2.9;
+        svg.appendChild(el("line",{x1:dx(it[1]-R*Math.cos(a)),y1:dy(it[2]-R*Math.sin(a)),x2:dx(it[1]+R*Math.cos(a)),y2:dy(it[2]+R*Math.sin(a)),
+          stroke:"var(--warn)","stroke-width":1.2,"stroke-dasharray":"4 3"}));});
+      polyA(svg,P,"var(--img)",{w:2.2});
+      var t=el("text",{x:dx(it[1]),y:dy(it[2]-3.1),"text-anchor":"middle","font-size":11,"font-weight":800,fill:"var(--ink)"});
+      t.textContent="n = "+it[3]+" \u00B7 "+it[3]+" lines \u00B7 "+(360/it[3])+"\u00B0";svg.appendChild(t);
+    });
+    capA("n sides \u2192 n lines of symmetry, order n, smallest turn 360\u00B0 \u00F7 n","var(--go)");
+  } else if(an.pic==="hexagon"){
+    var H=SHAPES.hex;
+    polyA(svg,H,"var(--img)",{w:3,fill:"color-mix(in srgb,var(--img) 12%,transparent)"});
+    svg.appendChild(el("circle",{cx:dx(0),cy:dy(0),r:5,fill:"var(--warn)"}));
+    [60,120,180,240,300].forEach(function(a,i){
+      var r=5.6, ang=(90+a)*Math.PI/180;
+      var t=el("text",{x:dx(r*Math.cos(ang)),y:dy(r*Math.sin(ang))+4,"text-anchor":"middle","font-size":13,"font-weight":800,fill:"var(--go)"});
+      t.textContent=a+"\u00B0";svg.appendChild(t);});
+    capA("A regular hexagon lands on itself at 60\u00B0, 120\u00B0, 180\u00B0, 240\u00B0 and 300\u00B0.");
+  } else if(an.pic==="audit"){
+    gridBase(svg,-8,8);
+    svg.appendChild(el("line",{x1:dx(-8),y1:dy(0),x2:dx(8),y2:dy(0),stroke:"var(--muted)","stroke-width":1.5}));
+    svg.appendChild(el("line",{x1:dx(0),y1:dy(-8),x2:dx(0),y2:dy(8),stroke:"var(--muted)","stroke-width":1.5}));
+    var A=[[1,2],[4,2],[2,5]], B=[[-2,-1],[-2,-4],[-5,-2]];
+    polyA(svg,A,"var(--pre)",{w:2.6}); polyA(svg,B,"var(--img)",{w:2.6,dash:"6 4"});
+    var ta=el("text",{x:dx(2.3),y:dy(3),"font-size":16,"font-weight":800,fill:"var(--pre)"});ta.textContent="A";svg.appendChild(ta);
+    var tb=el("text",{x:dx(-3),y:dy(-2.3),"font-size":16,"font-weight":800,fill:"var(--img)"});tb.textContent="B";svg.appendChild(tb);
+    capA("Your packet: find a sequence that maps figure A onto figure B. Then trade and check another pod\u2019s.");
+  }
+}
+
+function drawDemo(dm,anim){
+  dmLive=dm;
+  var s=$("dSvg"); while(s.firstChild)s.removeChild(s.firstChild);
+  if(dm.sym){ drawSym(s,dm); return; }
+  var base=dm.pre, end=endPts(dm);
+  var span=7; base.concat(end).forEach(function(p){
+    span=Math.max(span,Math.abs(p[0]),Math.abs(p[1]))});
+  span+=1.2;                                  // keep labels off the edge
+  LO=-Math.ceil(span/2)*2; HI=-LO;
+  for(var v=LO;v<=HI;v++){
+    s.appendChild(el("line",{x1:dx(v),y1:dy(LO),x2:dx(v),y2:dy(HI),stroke:"var(--line)","stroke-width":.8}));
+    s.appendChild(el("line",{x1:dx(LO),y1:dy(v),x2:dx(HI),y2:dy(v),stroke:"var(--line)","stroke-width":.8}));}
+  s.appendChild(el("line",{x1:dx(LO),y1:dy(0),x2:dx(HI),y2:dy(0),stroke:"var(--muted)","stroke-width":1.5}));
+  s.appendChild(el("line",{x1:dx(0),y1:dy(LO),x2:dx(0),y2:dy(HI),stroke:"var(--muted)","stroke-width":1.5}));
+  var stp=(HI-LO)>22?4:2;
+  for(var t=LO+stp;t<=HI-stp;t+=stp){ if(t===0)continue;
+    var a=el("text",{x:dx(t),y:dy(0)+11,"text-anchor":"middle","font-size":8,fill:"var(--muted)"});
+    a.textContent=String(t).replace("-","\u2212"); s.appendChild(a);}
+  if(dm.kind==="refl"){
+    var L1,L2;
+    if(P.axis==="x"){L1=[LO,P.c];L2=[HI,P.c];}
+    else if(P.axis==="y"){L1=[P.c,LO];L2=[P.c,HI];}
+    else if(P.axis==="yx"){L1=[LO,LO];L2=[HI,HI];}
+    else {L1=[LO,-LO];L2=[HI,-HI];}
+    s.appendChild(el("line",{x1:dx(L1[0]),y1:dy(L1[1]),x2:dx(L2[0]),y2:dy(L2[1]),
+      stroke:"var(--warn)","stroke-width":2.6,"stroke-dasharray":"7 5"}));
+    var lt=el("text",{x:dx(L2[0])-6,y:dy(L2[1])-8,"text-anchor":"end","font-size":11,
+      "font-weight":700,fill:"var(--warn)"});
+    lt.textContent=reflLabel(); s.appendChild(lt);
+  }
+  if(dm.line==="yx") s.appendChild(el("line",{x1:dx(LO),y1:dy(LO),x2:dx(HI),y2:dy(HI),
+    stroke:"var(--warn)","stroke-width":2,"stroke-dasharray":"6 4"}));
+  if(dm.vline!==undefined) s.appendChild(el("line",{x1:dx(dm.vline),y1:dy(LO),x2:dx(dm.vline),y2:dy(HI),
+    stroke:"var(--warn)","stroke-width":2,"stroke-dasharray":"6 4"}));
+  if(dm.kind==="rot"){
+    base.forEach(function(p){var r=Math.hypot(p[0],p[1]); if(r<.2)return;
+      s.appendChild(el("circle",{cx:dx(0),cy:dy(0),r:dx(r)-dx(0),fill:"none",stroke:"var(--muted)",
+        "stroke-width":.9,"stroke-dasharray":"3 5",opacity:.45}));});
+    s.appendChild(el("circle",{cx:dx(0),cy:dy(0),r:5,fill:"none",stroke:"var(--warn)","stroke-width":2}));
+  }
+  if(dm.kind==="dil"){
+    var far=end.concat(base);
+    base.forEach(function(p,i){
+      var q=end[i], t=Math.max(Math.abs(q[0]),Math.abs(q[1]),Math.abs(p[0]),Math.abs(p[1]))||1;
+      var sc=(HI-0.5)/t;
+      s.appendChild(el("line",{x1:dx(0),y1:dy(0),x2:dx(p[0]*sc),y2:dy(p[1]*sc),
+        stroke:"var(--warn)","stroke-width":1.2,"stroke-dasharray":"3 5",opacity:.7}));});
+    s.appendChild(el("circle",{cx:dx(0),cy:dy(0),r:5,fill:"none",stroke:"var(--warn)","stroke-width":2}));
+  }
+  if(dm.kind==="trans") base.forEach(function(p,i){
+    s.appendChild(el("line",{x1:dx(p[0]),y1:dy(p[1]),x2:dx(end[i][0]),y2:dy(end[i][1]),
+      stroke:"var(--warn)","stroke-width":1.6,"stroke-dasharray":"5 5",opacity:.7}));});
+  var L=dm.labels||["A","B","C"];
+  shape(s,base,"var(--pre)",null,L);
+  var moving=el("g",{}); s.appendChild(moving);
+  function frame(p){while(moving.firstChild)moving.removeChild(moving.firstChild);
+    shape(moving,p,"var(--img)",null,null);}
+  var rb=ruleOf(dm);
+  $("dRule").innerHTML = rb[0] ? "<span>"+rb[0]+"</span>"+rb[1] : "";
+  function settle(){
+    shape(s,end,"var(--img)","6 4",L.map(function(x){return x+"\u2032"}));
+    var box=$("dAns"); box.innerHTML="";
+    end.forEach(function(p,i){var d=document.createElement("div");
+      d.textContent=L[i]+"\u2032 ("+String(p[0]).replace("-","\u2212")+", "+String(p[1]).replace("-","\u2212")+")";
+      box.appendChild(d);});
+  }
+  if(dm.stages){
+    shape(s,end,"var(--img)","6 4",L.map(function(x){return x+"\u2032"}));
+    var box=$("dAns"); box.innerHTML="";
+    dm.stages.slice(0,stage).forEach(function(st,si){
+      (st.arrows||[]).forEach(function(vi){
+        s.appendChild(el("line",{x1:dx(base[vi][0]),y1:dy(base[vi][1]),
+          x2:dx(end[vi][0]),y2:dy(end[vi][1]),stroke:"var(--go)","stroke-width":2.6,
+          "stroke-linecap":"round"}));
+        s.appendChild(el("circle",{cx:dx(base[vi][0]),cy:dy(base[vi][1]),r:5.5,fill:"var(--go)"}));
+        s.appendChild(el("circle",{cx:dx(end[vi][0]),cy:dy(end[vi][1]),r:5.5,fill:"var(--go)"}));
+      });
+      var d=document.createElement("div");
+      d.innerHTML=st.t; d.style.marginBottom="3px";
+      if(si===stage-1) d.style.color="var(--go)"; else d.style.color="var(--muted)";
+      box.appendChild(d);
+    });
+    $("dRule").innerHTML = stage>=dm.stages.length && dm.rule
+      ? "<span>The rule</span>"+dm.rule : "";
+    return;
+  }
+  cancelAnimationFrame(rafC);
+  if(anim && dm.kind){
+    $("dAns").innerHTML="";
+    var t0=null,DUR=1500;
+    (function go(ts){ if(!t0)t0=ts;
+      var u=Math.min(1,(ts-t0)/DUR), e=easeC(u);
+      frame(dm.kind==="trans"
+        ? base.map(function(p){return [p[0]+P.h*e,p[1]+P.k*e]})
+        : dm.kind==="refl"
+        ? base.map(function(p){return reflp(p,e)})
+        : dm.kind==="dil"
+        ? base.map(function(p){var f=1+(P.kk-1)*e; return [p[0]*f,p[1]*f]})
+        : base.map(function(p){return rotp(p,P.deg*P.dir*e)}));
+      if(u<1) rafC=requestAnimationFrame(go); else { while(moving.firstChild)moving.removeChild(moving.firstChild); settle(); }
+    })(performance.now());
+  } else if(revealed) settle();
+}
+function buildCtl(dm){
+  var c=$("dCtl"); c.innerHTML="";
+  if(!dm.controls) return;
+  if(dm.kind==="trans"){
+    c.innerHTML='<div class="cr"><label>h</label><input type="range" id="ch" min="-8" max="8" step="1" value="'+P.h+'"><b id="chv"></b></div>'+
+                '<div class="cr"><label>k</label><input type="range" id="ck" min="-8" max="8" step="1" value="'+P.k+'"><b id="ckv"></b></div>';
+    ["h","k"].forEach(function(id){
+      var e=$("c"+id); $("c"+id+"v").textContent=(P[id]>=0?"+":"\u2212")+Math.abs(P[id]);
+      e.addEventListener("input",function(){P[id]=+this.value;
+        $("c"+id+"v").textContent=(P[id]>=0?"+":"\u2212")+Math.abs(P[id]);
+        revealed=false; drawDemo(dm,false);});});
+  } else if(dm.kind==="dil"){
+    var ks=[[0.25,"k = \u00BC"],[0.5,"k = \u00BD"],[2,"k = 2"],[3,"k = 3"]];
+    c.innerHTML='<div class="seg2" id="ckk">'+ks.map(function(o){
+      return '<button data-k="'+o[0]+'" aria-pressed="'+(P.kk===o[0])+'">'+o[1]+'</button>'}).join("")+'</div>';
+    Array.prototype.forEach.call($("ckk").children,function(b){
+      b.addEventListener("click",function(){
+        Array.prototype.forEach.call($("ckk").children,function(x){x.setAttribute("aria-pressed","false")});
+        this.setAttribute("aria-pressed","true"); P.kk=+this.getAttribute("data-k");
+        revealed=false; drawDemo(dm,false);});});
+  } else if(dm.kind==="refl"){
+    var opts=dm.lines||[["x","x-axis"],["y","y-axis"],["yx","y = x"],["ynx","y = \u2212x"]];
+    c.innerHTML='<div class="seg2" id="cax">'+opts.map(function(o){
+      return '<button data-a="'+o[0]+'" aria-pressed="'+(P.axis===o[0])+'">'+o[1]+'</button>'}).join("")+'</div>';
+    Array.prototype.forEach.call($("cax").children,function(b){
+      b.addEventListener("click",function(){
+        Array.prototype.forEach.call($("cax").children,function(x){x.setAttribute("aria-pressed","false")});
+        this.setAttribute("aria-pressed","true");
+        P.axis=this.getAttribute("data-a"); P.c=0;
+        revealed=false; drawDemo(dm,false);});});
+  } else if(dm.kind==="rot"){
+    c.innerHTML='<div class="seg2" id="cdeg">'+[90,180,270].map(function(a){
+        return '<button data-a="'+a+'" aria-pressed="'+(P.deg===a)+'">'+a+'\u00B0</button>'}).join("")+'</div>'+
+      '<div class="seg2" id="cdir">'+[[1,"counterclockwise"],[-1,"clockwise"]].map(function(o){
+        return '<button data-d="'+o[0]+'" aria-pressed="'+(P.dir===o[0])+'">'+o[1]+'</button>'}).join("")+'</div>';
+    [["cdeg","a",function(v){P.deg=+v}],["cdir","d",function(v){P.dir=+v}]].forEach(function(o){
+      var box=$(o[0]);
+      Array.prototype.forEach.call(box.children,function(b){
+        b.addEventListener("click",function(){
+          Array.prototype.forEach.call(box.children,function(x){x.setAttribute("aria-pressed","false")});
+          this.setAttribute("aria-pressed","true"); o[2](this.getAttribute("data-"+o[1]));
+          revealed=false; drawDemo(dm,false);});});});
+  }
+}
+function drawSym(s,dm){
+  var n=dm.sym, pts=regular(n,6,90); LO=-8;HI=8;
+  for(var v=-8;v<=8;v++){
+    s.appendChild(el("line",{x1:dx(v),y1:dy(-8),x2:dx(v),y2:dy(8),stroke:"var(--line)","stroke-width":.8}));
+    s.appendChild(el("line",{x1:dx(-8),y1:dy(v),x2:dx(8),y2:dy(v),stroke:"var(--line)","stroke-width":.8}));}
+  if(revealed) for(var i=0;i<n;i++){
+    var a=(90+i*180/n)*Math.PI/180,R=7.4;
+    s.appendChild(el("line",{x1:dx(-R*Math.cos(a)),y1:dy(-R*Math.sin(a)),
+      x2:dx(R*Math.cos(a)),y2:dy(R*Math.sin(a)),stroke:"var(--warn)","stroke-width":1.6,"stroke-dasharray":"5 4"}));}
+  var d=pts.map(function(p,i){return (i?"L":"M")+dx(p[0])+" "+dy(p[1])}).join(" ")+" Z";
+  s.appendChild(el("path",{d:d,fill:"none",stroke:"var(--pre)","stroke-width":2.4,"stroke-linejoin":"round"}));
+  pts.forEach(function(p){s.appendChild(el("circle",{cx:dx(p[0]),cy:dy(p[1]),r:3.2,fill:"var(--pre)"}))});
+  s.appendChild(el("circle",{cx:dx(0),cy:dy(0),r:4,fill:"none",stroke:"var(--go)","stroke-width":2}));
+  var box=$("dAns"); box.innerHTML="";
+  if(revealed) dm.ans.split("\n").forEach(function(l){
+    var p=document.createElement("div"); p.textContent=l; box.appendChild(p);});
+  $("dRule").innerHTML="";
+}
+function shape(s,pts,col,dash,lab){
+  var d=pts.map(function(p,i){return (i?"L":"M")+dx(p[0])+" "+dy(p[1])}).join(" ")+" Z";
+  var pa=el("path",{d:d,fill:"none",stroke:col,"stroke-width":2.2,"stroke-linejoin":"round"});
+  if(dash)pa.setAttribute("stroke-dasharray",dash);
+  s.appendChild(pa);
+  pts.forEach(function(p,i){
+    s.appendChild(el("circle",{cx:dx(p[0]),cy:dy(p[1]),r:3.2,fill:col}));
+    if(lab){var t=el("text",{x:dx(p[0])+6,y:dy(p[1])-5,"font-size":11,"font-weight":700,fill:col});
+      t.textContent=lab[i]; s.appendChild(t);}});
+}
+/* ---------- state ---------- */
+var day=0,blk=0,left=0,running=false,tick=null;
+DAYS.forEach(function(d){
+  d.blocks.unshift({n:"TODAY",m:2,s:d.d+"  "+d.t,plan:true,
+    do:[],tn:["Leave this up while they settle. Read the targets out loud \u2014 ten seconds.",
+              "Kids who were absent can see the whole day from here."]});
+});
+function cur(){return DAYS[day].blocks[blk]}
+$("dBtn").addEventListener("click",function(){
+  var B=cur();
+  if(B.demo&&B.demo.stages){
+    stage = stage>=B.demo.stages.length ? 0 : stage+1;
+    this.textContent = stage>=B.demo.stages.length ? "Start over" : "Next step";
+    drawDemo(B.demo,false); return;
+  }
+  revealed=!revealed;
+  this.textContent=revealed?"Hide":"Reveal";
+  if(B.demo)drawDemo(B.demo,false);});
+$("dPlay").addEventListener("click",function(){
+  if(cur().anim){ drawAnim(cur().anim,true); return; }
+  revealed=true;$("dBtn").textContent="Hide";
+  if(cur().demo)drawDemo(cur().demo,true);});
+function build(){
+  var s=$("daySel"); s.innerHTML="";
+  DAYS.forEach(function(d,i){var o=document.createElement("option");
+    o.value=i;o.textContent=d.d+"  \u2014  "+d.t;s.appendChild(o)});
+  s.value=day;
+}
+function render(){
+  var Dy=DAYS[day],B=cur();
+  $("kindTag").textContent={lab:"lab day",math:"math day",int:"intervention",assess:"assessment"}[Dy.k];
+  $("kindTag").className="tag "+Dy.k;
+  $("pName").innerHTML = B.n + (B.tool
+    ? '<span class="tool '+B.tool+'">'+(B.tool==="gim"?"Gimkit":"DeltaMath")+'</span>' : "");
+  $("pSub").textContent=B.s||"";
+  if(B.need){$("pNeed").style.display="inline-block";
+    $("pNeed").innerHTML="<b>On your desk</b>"+B.need}
+  else $("pNeed").style.display="none";
+  if(B.fill){
+    shown={};
+    $("pSteps").innerHTML=B.fill.map(function(f,i){
+      return '<li class="bare" style="padding:8px 0;border-bottom:1px solid var(--line)">'+
+        '<div style="display:flex;align-items:baseline;gap:10px;margin-bottom:3px">'+
+        '<div style="font-size:.78em;letter-spacing:.07em;text-transform:uppercase;color:var(--accent);'+
+        'font-weight:800;flex:1">'+f.t+'</div>'+
+        '<button class="revBtn" data-rv="'+i+'">Reveal</button></div>'+
+        '<div data-fi="'+i+'">'+f.d+'</div>'+
+        (f.p?'<div class="plainline"><b>IN PLAIN WORDS: </b>'+f.p+'</div>':'')+
+        '</li>'}).join("");
+    Array.prototype.forEach.call($("pSteps").querySelectorAll(".revBtn"),function(b){
+      b.addEventListener("click",function(){
+        var i=this.getAttribute("data-rv");
+        shown[i]=!shown[i]; this.textContent=shown[i]?"Hide":"Reveal";
+        this.className="revBtn"+(shown[i]?" on":""); paintFill();});});
+    paintFill();
+  } else if(B.plan){
+    var rest=Dy.blocks.slice(1);
+    $("pSteps").innerHTML=
+      '<li class="bare"><div style="font-size:.72em;letter-spacing:.09em;'+
+      'text-transform:uppercase;color:var(--go);font-weight:800;margin-bottom:6px">Today you will be able to</div>'+
+      '<div style="font-size:.86em;color:var(--muted);font-weight:700;margin-bottom:8px">'+Dy.targets[0]+'</div>'+
+      Dy.targets.slice(1).map(function(t){
+        return '<div style="margin:5px 0 5px 18px;text-indent:-18px">\u2713 &nbsp;'+t+'</div>'}).join("")+
+      '</li>'+
+      '<li class="bare" style="padding-top:16px"><div style="font-size:.72em;letter-spacing:.09em;'+
+      'text-transform:uppercase;color:var(--accent);font-weight:800;margin-bottom:6px">The plan</div>'+
+      '<table style="width:100%;border-collapse:collapse;font-size:.82em">'+
+      rest.map(function(b){
+        var hot=/EXIT|CFA/.test(b.n);
+        var opt=b.opt;
+        var badge = b.tool
+          ? "<span style=\'font-size:.7em;font-weight:800;letter-spacing:.06em;padding:1px 7px;"+
+            "border-radius:5px;margin-left:8px;background:"+(b.tool==="gim"?"#7d4bd6":"#1f8a5f")+
+            ";color:#fff\'>"+(b.tool==="gim"?"GIMKIT":"DELTAMATH")+"</span>" : "";
+        return "<tr><td style=\'padding:3px 0;width:3.4em;color:var(--muted);"+
+          "font-variant-numeric:tabular-nums\'>"+b.m+" min</td><td style=\'padding:3px 0;"+
+          (hot?"color:var(--warn);font-weight:700":opt?"color:var(--muted);font-style:italic":"")+
+          "\'>"+b.n+(opt?" <span style=\'font-size:.72em;opacity:.8\'>(only if time)</span>":"")+badge+"</td></tr>"}).join("")+
+      '</table></li>';
+  } else
+  $("pSteps").innerHTML=(B.do||[]).map(function(x){return "<li>"+x+"</li>"}).join("")+
+    (B.ext?'<li class="bare" style="padding-top:12px;color:var(--go);font-weight:700">'+
+      '<span style="font-size:.72em;letter-spacing:.09em;text-transform:uppercase;opacity:.85">Go Deeper</span><br>'+
+      B.ext+'</li>':"");
+  if(B.anim){ animSel=0; $("demo").style.display="block"; $("dSvg").style.display="";
+    $("dCap").textContent=B.anim.cap||""; $("dBtn").style.display="none";
+    $("dPlay").style.display = B.anim.type==="pic" ? "none" : "";
+    var ctl=$("dCtl"); ctl.innerHTML="";
+    var opts = B.anim.shapes ? B.anim.shapes.map(function(n){return {k:n,t:{square:"Square",L:"L-shape",para:"Parallelogram",hex:"Hexagon",tri:"Triangle",pent:"Pentagon"}[n]}})
+             : B.anim.cases ? B.anim.cases.map(function(c,i){return {k:i,t:c.name}}) : null;
+    if(opts && opts.length>1){
+      ctl.innerHTML='<div class="seg2" id="asel">'+opts.map(function(o,i){
+        return '<button data-i="'+i+'" aria-pressed="'+(i===0)+'">'+o.t+'</button>'}).join("")+'</div>';
+      Array.prototype.forEach.call($("asel").children,function(b){b.addEventListener("click",function(){
+        Array.prototype.forEach.call($("asel").children,function(x){x.setAttribute("aria-pressed","false")});
+        this.setAttribute("aria-pressed","true"); animSel=+this.getAttribute("data-i"); drawAnim(B.anim,false);});});
+    }
+    drawAnim(B.anim,false);
+  } else
+  if(B.demo){revealed=false;$("demo").style.display="block";
+    stage=0; $("dBtn").style.display="";
+    $("dBtn").textContent = B.demo.stages ? "Next step" : "Reveal";
+    $("dPlay").style.display = B.demo.kind ? "" : "none";
+    if(B.demo.kind==="trans"){P.h=B.demo.h;P.k=B.demo.k}
+    if(B.demo.kind==="rot"){P.deg=Math.abs(B.demo.deg);P.dir=B.demo.deg<0?-1:1}
+    if(B.demo.kind==="refl"){P.axis=B.demo.axis||"x";P.c=B.demo.c||0}
+    if(B.demo.kind==="dil"){P.kk=B.demo.k||2}
+    $("dSvg").style.display=""; $("dCap").textContent=B.demo.cap;
+    buildCtl(B.demo); drawDemo(B.demo,false);}
+  else if(B.fill){ $("demo").style.display="block"; $("dSvg").style.display="none";
+    $("dCtl").innerHTML=""; $("dRule").innerHTML=""; $("dAns").innerHTML="";
+    $("dCap").textContent="Reveal fills in the blanks on the screen. Students write them on packet page 2.";
+    $("dPlay").style.display="none"; $("dBtn").style.display="none"; }
+  else $("demo").style.display="none";
+  var tn=$("tn");
+  if(showTN && B.tn && B.tn.length){
+    tn.className="tn";
+    tn.innerHTML="<b>For you \u2014 not on the students' screen</b>"+
+      B.tn.map(function(l){return "<div>"+l+"</div>"}).join("");
+  } else tn.className="tn hide";
+  $("plan").innerHTML=Dy.blocks.map(function(b,i){
+    return '<li class="'+(i===blk?"on":"")+'" data-i="'+i+'" style="'+(b.opt?"opacity:.6":"")+'"><span>'+b.n+
+      (b.tool?'<i class="'+b.tool+'">'+(b.tool==="gim"?"Gimkit":"DeltaMath")+'</i>':'')+
+      "</span><b>"+b.m+"</b></li>"}).join("");
+  Array.prototype.forEach.call($("plan").children,function(li){
+    li.addEventListener("click",function(){blk=+this.getAttribute("data-i");arm();render()})});
+  $("links").innerHTML=Dy.links.length?Dy.links.map(function(l){
+    return '<a class="lnk" href="'+l.u+'" target="_blank" rel="noopener">'+l.h+"<span>"+l.s+"</span></a>"}).join("")
+    :'<p style="color:var(--muted);font-size:.82rem;margin:2px 0">Nothing online today.</p>';
+  $("dayTag").textContent=Dy.d+" \u00B7 block "+(blk+1)+" of "+Dy.blocks.length;
+  paint();
+}
+var shown={};
+function paintFill(){
+  var B=cur(); if(!B.fill)return;
+  B.fill.forEach(function(f,i){
+    var host=document.querySelector('[data-fi="'+i+'"]'); if(!host)return;
+    var k=0, on=shown[i];
+    host.innerHTML=f.d.replace(/____/g,function(){
+      var a=f.a[k++]||"";
+      return on ? '<span class="fill on">'+a+'</span>' : '<span class="fill">&nbsp;</span>';
+    });
+  });
+}
+function arm(){left=cur().m*60;running=false;$("run").textContent="Start";clearInterval(tick);paint()}
+function paint(){
+  var m=Math.floor(Math.abs(left)/60),s=Math.abs(left)%60;
+  var e=$("clk"); e.textContent=(left<0?"+":"")+m+":"+(s<10?"0":"")+s;
+  e.className="t"+(left<=60?" low":"");
+  $("clkLbl").textContent=running?"running":"paused";
+  var tot=cur().m*60;
+  $("bar").style.width=Math.max(0,Math.min(100,(1-left/tot)*100))+"%";
+}
+function start(){running=!running;$("run").textContent=running?"Pause":"Start";
+  clearInterval(tick); if(running)tick=setInterval(function(){left--;paint()},1000); paint()}
+function step(n){blk=Math.max(0,Math.min(DAYS[day].blocks.length-1,blk+n));arm();render()}
+$("run").addEventListener("click",start);
+$("reset").addEventListener("click",arm);
+$("next").addEventListener("click",function(){step(1)});
+$("prev").addEventListener("click",function(){step(-1)});
+$("daySel").addEventListener("change",function(){day=+this.value;blk=0;arm();render();
+  try{localStorage.setItem("u2day",day)}catch(e){}});
+$("tnBtn").addEventListener("click",function(){
+  showTN=!showTN; this.setAttribute("aria-pressed",String(showTN));
+  this.textContent=showTN?"My notes on":"My notes off"; render();
+  try{localStorage.setItem("u2tn",showTN?"1":"0")}catch(e){}});
+$("themeBtn").addEventListener("click",function(){
+  var on=document.documentElement.getAttribute("data-theme")==="light";
+  document.documentElement.setAttribute("data-theme",on?"dark":"light");
+  this.textContent=on?"Light":"Dark";
+  if(cur().demo)drawDemo(cur().demo);
+  try{localStorage.setItem("u2theme",on?"dark":"light")}catch(e){}});
+var scale=1;
+function setScale(v){scale=Math.max(.75,Math.min(1.8,v));
+  document.documentElement.style.setProperty("--scale",scale);
+  var sv=document.getElementById("sizeVal"); if(sv) sv.textContent=Math.round(scale*100)+"%";
+  try{localStorage.setItem("u2scale",scale)}catch(e){}}
+$("sizeUp").addEventListener("click",function(){setScale(scale+.1)});
+$("sizeDn").addEventListener("click",function(){setScale(scale-.1)});
+$("fsBtn").addEventListener("click",function(){
+  if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen()});
+document.addEventListener("keydown",function(e){
+  if(e.target.tagName==="SELECT")return;
+  if(e.code==="Space"){e.preventDefault();start()}
+  if(e.key==="ArrowRight")step(1);
+  if(e.key==="ArrowLeft")step(-1);
+  if((e.key==="r"||e.key==="R")&&cur().demo)$("dBtn").click();
+  if(e.key==="n"||e.key==="N")$("tnBtn").click();
+  if(e.key==="f"||e.key==="F")$("fsBtn").click()});
+try{
+  if(localStorage.getItem("u2theme")==="light"){
+    document.documentElement.setAttribute("data-theme","light");$("themeBtn").textContent="Dark"}
+  var sc=parseFloat(localStorage.getItem("u2scale")); if(sc)setScale(sc);
+  if(localStorage.getItem("u2tn")==="0"){showTN=false;
+    $("tnBtn").setAttribute("aria-pressed","false");$("tnBtn").textContent="My notes off"}
+  var dd=parseInt(localStorage.getItem("u2day"),10);
+  if(!isNaN(dd)&&dd>=0&&dd<DAYS.length)day=dd;
+}catch(e){}
+build();arm();render();
+})();
+</script>
+</body>
+</html>
